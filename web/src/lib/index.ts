@@ -4,7 +4,7 @@
  *   import { cliente, config, aliasDe } from "../lib";
  *
  * `VITE_MODO=fuji` → cliente real (cliente-fuji.ts). Si no, el mock de P3 (web/src/mock/cliente-mock.ts).
- * Mientras el mock no exista, se usa el cliente Fuji igual (con aviso en consola) para que la web compile.
+ * Si el mock no existe o todavía no está listo, se usa el cliente Fuji igual (con aviso en consola) para que la web arranque.
  */
 import { crearClienteFuji } from "./cliente-fuji";
 import { config } from "./config";
@@ -17,7 +17,7 @@ export {
   deployments,
   direccionLlave,
   direccionPesos,
-  clinicaDemo,
+  direccionAgente,
   urlTx,
   urlCuenta,
   aliasDe,
@@ -33,14 +33,16 @@ export {
   mmss,
   pesos,
   MENSAJE_GENERICO,
-  MENSAJE_SIN_GAS,
+  MENSAJE_SOLO_DUENA,
   MENSAJE_SIN_SESION,
 } from "./errores";
 export type { ErrorLegible, ContextoError } from "./errores";
 export { crearClienteFuji } from "./cliente-fuji";
 export type { ExtrasFuji } from "./cliente-fuji";
 export { clientePublico } from "./rpc";
-export { llaveAbi, pesosAbi, kumplyStoreAbi } from "./abi-llave";
+export { llaveAbi, pesosAbi, kumplyStoreAbi, ABI_GENERADO } from "./abi-llave";
+
+export const MODO: "mock" | "fuji" = config.modo;
 
 const mocks = import.meta.glob("../mock/cliente-mock.ts", { eager: true }) as Record<
   string,
@@ -50,9 +52,16 @@ const crearClienteMock = Object.values(mocks)[0]?.crearClienteMock;
 
 function crear(): LlaveCliente {
   if (config.modo === "fuji") return crearClienteFuji();
-  if (crearClienteMock) return crearClienteMock();
-  console.warn("[lib] VITE_MODO=mock pero no existe web/src/mock/cliente-mock.ts (P3): se usa el cliente Fuji.");
-  return crearClienteFuji();
+  if (!crearClienteMock) {
+    console.warn("[lib] VITE_MODO=mock pero no existe web/src/mock/cliente-mock.ts (P3): se usa el cliente Fuji.");
+    return crearClienteFuji();
+  }
+  try {
+    return crearClienteMock();
+  } catch (e) {
+    console.warn("[lib] el mock de P3 todavía no está listo; se usa el cliente Fuji:", e);
+    return crearClienteFuji();
+  }
 }
 
 export const cliente: LlaveCliente = crear();
