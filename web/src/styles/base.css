@@ -316,3 +316,6 @@ input.mono { font-family: var(--mono); font-size: 13px; }
   .fila-destino > :nth-child(3) { grid-column: 1 / -1; }
   .fila-destino.fila-cab { display: none; }
 }
+
+.pila-chica { gap: 4px; }
+.pila-chica small { font-size: 11px; }
