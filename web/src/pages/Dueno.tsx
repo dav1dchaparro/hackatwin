@@ -80,7 +80,7 @@ export function Dueno() {
         <PeriodoConfig datos={datos} esDuena={esDuena} email={sesion.email} alRecargar={() => void recargar()} />
       </Modulo>
 
-      <Modulo titulo="Herederos y destinos" descripcion="Cada persona con su email y su porcentaje. Si querés, parte va a un fondo común o a una donación. Los emails quedan en tu dispositivo; a la cadena van solo cuentas y porcentajes.">
+      <Modulo titulo="Herederos y destinos" descripcion="Cada persona con su email y su porcentaje; también un fondo común o una donación. Los emails no van a la cadena.">
         <DestinosEditor datos={datos} esDuena={esDuena} alRecargar={() => void recargar()} />
       </Modulo>
 

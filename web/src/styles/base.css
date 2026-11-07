@@ -114,7 +114,7 @@ code { font-size: 12px; }
 
 /* ───────── tiles (resumen) ───────── */
 .tiles { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; }
-.tile { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 16px 18px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); }
+.tile { display: flex; flex-direction: column; gap: 6px; min-width: 0; padding: 16px 20px; background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio); }
 .tile-etiqueta { font-size: 12px; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; color: var(--fg-3); }
 .tile-valor { font: 600 26px/1.15 var(--mono); letter-spacing: -0.02em; font-variant-numeric: tabular-nums; overflow-wrap: anywhere; }
 .tile-valor.chico { font-size: 20px; }
@@ -217,9 +217,9 @@ input.mono { font-family: var(--mono); font-size: 13px; }
 
 /* ───────── filas (listas tipo tabla) ───────── */
 .filas { background: var(--superficie); border: 1px solid var(--borde); border-radius: var(--radio-g); overflow: hidden; }
-.fila { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 12px 16px; border-top: 1px solid var(--borde); min-width: 0; }
+.fila { display: grid; grid-template-columns: 1.5fr 1fr 1fr auto; gap: 12px; align-items: center; padding: 12px 20px; border-top: 1px solid var(--borde); min-width: 0; }
 .fila:first-child { border-top: 0; }
-.fila-cab { padding: 8px 16px; background: var(--superficie-2); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-3); }
+.fila-cab { padding: 8px 20px; background: var(--superficie-2); font-size: 11px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-3); }
 .fila .nombre { font-weight: 600; display: flex; flex-direction: column; min-width: 0; }
 .fila .cuenta { font-family: var(--mono); font-size: 12px; font-weight: 400; color: var(--fg-3); }
 .fila .num { font-family: var(--mono); font-variant-numeric: tabular-nums; }
