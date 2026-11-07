@@ -58,11 +58,11 @@ export function Dueno() {
       {!esDuena && <Aviso tono="mal" titulo="Esta cuenta no es la del dueño de esta Llave.">Solo el dueño puede entrar. Salí y conectate con tu email. Cuenta: {acortar(sesion.cuenta)}</Aviso>}
       {fase === "EnGracia" && (
         <Aviso tono="mal" role="alert" titulo="El agente avisó que no respondés.">
-          Tocá «Estoy bien» para cancelarlo. Te quedan <CuentaRegresiva objetivo={estado.graciaTerminaEn} ahoraCadena={estado.ahoraCadena} leidoEn={datos.leidoEn} margen={0} />.
+          Cualquier movimiento tuyo lo cancela: guardá un cambio o entrá y confirmá. Te quedan <CuentaRegresiva objetivo={estado.graciaTerminaEn} ahoraCadena={estado.ahoraCadena} leidoEn={datos.leidoEn} margen={0} />.
         </Aviso>
       )}
-      {fase === "Ejecutable" && <Aviso tono="mal" role="alert" titulo="Terminó la espera.">El agente está por liberar tu herencia. Si estás bien, tocá «Estoy bien» ahora mismo.</Aviso>}
-      {fase === "Vencida" && <Aviso tono="alerta" titulo="Pasó el plazo sin señales.">Tocá «Estoy bien» antes de que el agente avise a tus herederos.</Aviso>}
+      {fase === "Ejecutable" && <Aviso tono="mal" role="alert" titulo="Terminó la espera.">El agente está por liberar tu herencia. Si estás bien, hacé cualquier movimiento ahora mismo.</Aviso>}
+      {fase === "Vencida" && <Aviso tono="alerta" titulo="Pasó el plazo sin señales.">Hacé cualquier movimiento (guardar un cambio cuenta) antes de que el agente avise a tus herederos.</Aviso>}
       {liberada && <Aviso tono="info" titulo="Tu Llave ya se liberó.">La plata se envió a tus herederos. Esta Llave no acepta más cambios.</Aviso>}
 
       <Modulo titulo="Señal de vida" descripcion="Cada movimiento tuyo cuenta como señal. Elegí cada cuánto querés darla.">
