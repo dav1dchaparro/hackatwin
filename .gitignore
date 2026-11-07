@@ -1,0 +1,22 @@
+# Dependencies
+node_modules/
+
+# Environment / secrets (never commit these)
+.env*
+!.env.example
+keystore/
+keystores/
+*.keystore
+
+# Foundry
+out/
+cache/
+broadcast/*/31337/
+
+# Build / tooling output
+dist/
+.next/
+coverage/
+
+# OS
+.DS_Store
