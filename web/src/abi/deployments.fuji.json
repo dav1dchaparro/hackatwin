@@ -1,0 +1,30 @@
+{
+  "chainId": 43113,
+  "actualizado": "2026-11-07T15:00:00-03:00",
+  "kumplyStore": "0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD",
+  "attestationStoreEnUso": "0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD",
+  "mockPesos": "0x0000000000000000000000000000000000000000",
+  "tesoreria": "0x0000000000000000000000000000000000000000",
+  "comisionBps": 100,
+  "llave": {
+    "A": "0x0000000000000000000000000000000000000000",
+    "B": "0x0000000000000000000000000000000000000000"
+  },
+  "demo": { "periodoMinimo": 1, "plazoInactividad": 60, "plazoGracia": 30 },
+  "agente": {
+    "cuenta": "0x0000000000000000000000000000000000000000",
+    "tier": 5,
+    "tipo": "EOA del agente, atestada tier 5 por KUMPLY"
+  },
+  "cuentas": {
+    "marta": { "rol": "dueno", "cuenta": "0x0000000000000000000000000000000000000000", "tipo": "SA 0xGasless" },
+    "lucia": { "rol": "heredera", "bps": 6000, "cuenta": "0x0000000000000000000000000000000000000000", "tipo": "SA 0xGasless" },
+    "tomas": { "rol": "heredero", "bps": 4000, "cuenta": "0x0000000000000000000000000000000000000000", "tipo": "SA 0xGasless" },
+    "botSinKya": { "rol": "bot sin verificar (bloqueado: NotAgent)", "cuenta": "0x0000000000000000000000000000000000000000", "tipo": "EOA" }
+  },
+  "fixturesKumply": {
+    "agenteTier5": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
+    "empresaTier4": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
+    "sinAtestacion": "0x000000000000000000000000000000000000dEaD"
+  }
+}
