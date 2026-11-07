@@ -24,11 +24,13 @@ import { useSesion } from "../components/useSesion";
 
 const DIA = 86_400;
 const PERIODOS = [
+  { seg: 60, etiqueta: "1 minuto", nota: "para la demo" },
   { seg: 30 * DIA, etiqueta: "30 días" },
   { seg: 90 * DIA, etiqueta: "90 días" },
   { seg: 180 * DIA, etiqueta: "180 días" },
 ];
 const GRACIAS = [
+  { seg: 30, etiqueta: "30 segundos", nota: "para la demo" },
   { seg: 7 * DIA, etiqueta: "7 días" },
   { seg: 15 * DIA, etiqueta: "15 días" },
   { seg: 30 * DIA, etiqueta: "30 días" },
@@ -148,14 +150,14 @@ function PeriodoConfig({ datos, esDuena, email, alRecargar }: { datos: DatosLlav
       <div className="tarjeta-cab"><div><h3>Cada cuánto das señal de vida</h3><p className="descripcion">Si pasa este tiempo sin ninguna señal tuya, el agente avisa y abre la espera.</p></div></div>
       <div className="segmentado" role="group" aria-label="Período sin señales">
         {periodosVisibles.map((p) => (
-          <button key={p.seg} type="button" className={periodo === p.seg ? "activo" : ""} onClick={() => setPeriodo(p.seg)}>{p.etiqueta}</button>
+          <button key={p.seg} type="button" className={periodo === p.seg ? "activo" : ""} onClick={() => setPeriodo(p.seg)} title={"nota" in p ? p.nota : undefined}>{p.etiqueta}</button>
         ))}
       </div>
       <label className="campo">
         <span>Espera para cancelar, después del aviso</span>
         <div className="segmentado" role="group" aria-label="Espera para cancelar">
           {graciasVisibles.map((g) => (
-            <button key={g.seg} type="button" className={gracia === g.seg ? "activo" : ""} onClick={() => setGracia(g.seg)}>{g.etiqueta}</button>
+            <button key={g.seg} type="button" className={gracia === g.seg ? "activo" : ""} onClick={() => setGracia(g.seg)} title={"nota" in g ? g.nota : undefined}>{g.etiqueta}</button>
           ))}
         </div>
       </label>
