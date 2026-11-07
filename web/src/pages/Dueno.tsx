@@ -212,19 +212,19 @@ function DestinosEditor({ datos, esDuena, alRecargar }: { datos: DatosLlave; esD
   const sinCambios = filas.length === herederos.length && filas.every((f, i) => mismaCuenta(f.cuenta, herederos[i]?.cuenta) && bps[i] === herederos[i]?.bps);
 
   const actualizar = (id: number, cambios: Partial<FilaDestino>) => setFilas((fs) => fs.map((f) => (f.id === id ? { ...f, ...cambios } : f)));
-  const agregar = (tipo: TipoDestino) => setFilas((fs) => [...fs, { id: siguienteId.current++, tipo, email: "", nombre: tipo === "persona" ? "" : NOMBRE_TIPO[tipo], cuenta: "", pct: "0", resolviendo: false }]);
+  const agregar = (tipo: TipoDestino) => setFilas((fs) => [...fs, { id: siguienteId.current++, tipo, email: "", nombre: "", cuenta: "", pct: "0", resolviendo: false }]);
   const quitar = (id: number) => setFilas((fs) => fs.filter((f) => f.id !== id));
   const elegirPreset = (p: Preset) => {
     setPreset(p);
     if (p === "iguales") setFilas((fs) => fs.map((f, i) => ({ ...f, pct: (bpsIguales(fs.length)[i] / 100).toString() })));
     if (p === "uno") setFilas((fs) => fs.map((f, i) => ({ ...f, pct: i === 0 ? "100" : "0" })));
   };
-  async function resolverEmail(f: FilaDestino) {
-    const email = f.email.trim();
-    if (!email.includes("@")) return;
-    if (!cliente.cuentaDeEmail) { actualizar(f.id, { resolviendo: false }); return; }
+  /** Persona: la cuenta sale de su email. Fondo o donación: la plataforma crea una cuenta a partir del nombre. */
+  async function resolverCuenta(f: FilaDestino) {
+    const clave = f.tipo === "persona" ? f.email.trim() : (f.nombre.trim() ? `${f.tipo}+${f.nombre.trim().toLowerCase().replace(/\s+/g, "-")}@llave.local` : "");
+    if (!clave.includes("@") || !cliente.cuentaDeEmail) return;
     actualizar(f.id, { resolviendo: true });
-    try { const cuenta = await cliente.cuentaDeEmail(email); actualizar(f.id, { cuenta, resolviendo: false }); }
+    try { const cuenta = await cliente.cuentaDeEmail(clave); actualizar(f.id, { cuenta, resolviendo: false }); }
     catch { actualizar(f.id, { resolviendo: false }); }
   }
   async function guardar(): Promise<ResultadoTx> {
@@ -258,24 +258,19 @@ function DestinosEditor({ datos, esDuena, alRecargar }: { datos: DatosLlave; esD
         {filas.length === 0 && <div className="fila"><span className="muted">Todavía no hay destinos. Agregá una persona, un fondo común o una donación.</span></div>}
         {filas.map((f, i) => (
           <div key={f.id} className="fila fila-destino">
-            <select aria-label="Tipo de destino" value={f.tipo} onChange={(e) => actualizar(f.id, { tipo: e.target.value as TipoDestino })}>
+            <select aria-label="Tipo de destino" value={f.tipo} onChange={(e) => actualizar(f.id, { tipo: e.target.value as TipoDestino, cuenta: "" })}>
               <option value="persona">Persona</option>
               <option value="fondo">Fondo común</option>
               <option value="donacion">Donación</option>
             </select>
             {f.tipo === "persona" ? (
               <input type="email" inputMode="email" placeholder="email del heredero" aria-label="Email del heredero" value={f.email}
-                onChange={(e) => actualizar(f.id, { email: e.target.value })} onBlur={() => void resolverEmail(f)} />
+                onChange={(e) => actualizar(f.id, { email: e.target.value, cuenta: "" })} onBlur={() => void resolverCuenta(f)} />
             ) : (
               <input placeholder={f.tipo === "fondo" ? "Nombre del fondo (ej. Familia Pérez)" : "A quién donás (ej. Fundación Sí)"} aria-label="Nombre del destino" value={f.nombre}
-                onChange={(e) => actualizar(f.id, { nombre: e.target.value })} />
+                onChange={(e) => actualizar(f.id, { nombre: e.target.value, cuenta: "" })} onBlur={() => void resolverCuenta(f)} />
             )}
-            {f.tipo === "persona" ? (
-              <span className="cuenta" title={f.cuenta}>{f.resolviendo ? "buscando cuenta…" : f.cuenta ? acortar(f.cuenta) : "se completa con el email"}</span>
-            ) : (
-              <input className="mono" placeholder="0x… cuenta del fondo" aria-label="Cuenta del destino" value={f.cuenta} spellCheck={false}
-                onChange={(e) => actualizar(f.id, { cuenta: e.target.value })} />
-            )}
+            <span className="cuenta" title={f.cuenta}>{f.resolviendo ? "creando cuenta…" : f.cuenta ? acortar(f.cuenta) : f.tipo === "persona" ? "se completa con el email" : "se crea con el nombre"}</span>
             <span className="num pct">
               <input inputMode="decimal" aria-label="Porcentaje" value={preset === "porcentajes" ? f.pct : ((bps[i] ?? 0) / 100).toString()} disabled={preset !== "porcentajes"}
                 onChange={(e) => actualizar(f.id, { pct: e.target.value })} /> %
@@ -297,7 +292,7 @@ function DestinosEditor({ datos, esDuena, alRecargar }: { datos: DatosLlave; esD
         <div className="tarjeta-cab"><div><h3>Guardar el reparto en la cadena</h3><p className="descripcion">Comisión Llave: {porcentaje(estado.comisionBps)} al liberar.</p></div></div>
         <BotonTx texto="Guardar en la cadena" accion={guardar} onResultado={alRecargar}
           deshabilitado={!esDuena || liberada || !sumaOk || !cuentasOk || repetidas || sinCambios}
-          nota={!cuentasOk && filas.length > 0 ? "Completá el email de cada persona o la cuenta de cada fondo." : "Guardar también cuenta como señal de vida."} />
+          nota={!cuentasOk && filas.length > 0 ? "Falta el email de alguna persona o el nombre de algún fondo o donación (la cuenta se completa sola al salir del campo)." : "Guardar también cuenta como señal de vida."} />
       </div>
     </div>
   );
