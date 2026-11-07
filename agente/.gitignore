@@ -1,0 +1,7 @@
+# También cubierto por el .gitignore de la raíz; acá por si el agente se copia solo.
+node_modules/
+estado/
+dist/
+.env
+.env.*
+!.env.example

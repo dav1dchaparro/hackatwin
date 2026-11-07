@@ -1,0 +1,24 @@
+{
+  "name": "llave-agente",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Agente KUMPLY (tier 5) de la Llave: vigila el plazo de inactividad, avisa por Telegram y mail, y ejecuta iniciarReclamo/liberar en Avalanche Fuji.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12"
+  },
+  "scripts": {
+    "start": "tsx src/index.ts",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "dependencies": {
+    "viem": "2.57.16"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.5",
+    "tsx": "4.23.15",
+    "typescript": "5.9.3",
+    "vitest": "5.1.0"
+  }
+}
