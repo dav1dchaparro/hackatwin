@@ -22,7 +22,12 @@ export interface Deployments {
     topeEmergenciaBps?: number;
     demoraVeto?: number;
   };
-  cuentas?: Record<string, { rol: string; cuenta: string; tipo?: string; tier?: number }>;
+  tesoreria?: string;
+  comisionBps?: number;
+  /** EOA del agente ejecutor (KUMPLY tier 5) */
+  agente?: { cuenta: string; tier?: number; tipo?: string };
+  cuentas?: Record<string, { rol: string; cuenta: string; tipo?: string; tier?: number; bps?: number }>;
+  fixturesKumply?: Record<string, string>;
 }
 
 // P1 genera web/src/abi/deployments.fuji.json. Mientras no exista, el glob devuelve {} y la web compila igual.
@@ -93,9 +98,11 @@ export function direccionLlave(): Address | undefined {
 export function direccionPesos(): Address | undefined {
   return noCero(param("pesos")) ?? noCero(env.VITE_PESOS_ADDRESS) ?? noCero(deployments.mockPesos);
 }
-/** EOA del agente ejecutor (KUMPLY tier 5): `VITE_AGENTE_ADDRESS` > `deployments.fuji.json → cuentas.agente`. */
+/** EOA del agente ejecutor (KUMPLY tier 5): `VITE_AGENTE_ADDRESS` > `deployments.fuji.json → agente.cuenta`. */
 export function direccionAgente(): Address | undefined {
-  return noCero(env.VITE_AGENTE_ADDRESS) ?? noCero(deployments.cuentas?.agente?.cuenta);
+  return (
+    noCero(env.VITE_AGENTE_ADDRESS) ?? noCero(deployments.agente?.cuenta) ?? noCero(deployments.cuentas?.agente?.cuenta)
+  );
 }
 
 export function urlTx(hash: Hash | string): string {
@@ -115,6 +122,7 @@ export function acortar(a: string): string {
 export function aliasDe(cuenta: Address | string | null | undefined): string {
   if (!cuenta) return "";
   const c = cuenta.toLowerCase();
+  if (deployments.agente?.cuenta?.toLowerCase() === c) return "Agente";
   for (const [alias, info] of Object.entries(deployments.cuentas ?? {})) {
     if (info?.cuenta?.toLowerCase() === c) return alias.charAt(0).toUpperCase() + alias.slice(1);
   }

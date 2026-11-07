@@ -84,8 +84,9 @@ export const llaveAbiProvisional = parseAbi([
   "error NotPerson(address who, uint32 tier, uint32 minLevel)",
   "error NotBusiness(address who, uint32 tier)",
   "error NotAgent(address who, uint32 tier)",
-  // ── ReentrancyGuard (OZ v5) ──
+  // ── OZ v5: ReentrancyGuard y SafeERC20 ──
   "error ReentrancyGuardReentrantCall()",
+  "error SafeERC20FailedOperation(address token)",
 ]);
 
 /** MockPesos (ERC20 de OZ v5, 18 decimales) + faucet sin límite (testnet). */

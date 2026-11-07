@@ -78,6 +78,7 @@ export const MENSAJES: Record<string, Traductor> = {
   YaLiberada: () => "La herencia ya se envió.",
   SinSaldo: () => "La Llave no tiene saldo para repartir.",
   ReentrancyGuardReentrantCall: () => "La Llave está ocupada con otra operación. Probá de nuevo.",
+  SafeERC20FailedOperation: () => "No se pudieron mover los pesos. Probá de nuevo.",
   // MockPesos
   ERC20InsufficientBalance: ([, saldo], ctx) => `No alcanzan los pesos de prueba. Tenés ${pesos(saldo, ctx)}.`,
   ERC20InsufficientAllowance: () => "Falta autorizar a la Llave a mover tus pesos de prueba.",

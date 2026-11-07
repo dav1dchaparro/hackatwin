@@ -253,7 +253,8 @@ export function PanelIntegracion() {
         <h2 style={{ fontSize: 16 }}>KUMPLY (semáforo con @kumply/sdk)</h2>
         <input value={cuentaVerificar} onChange={(e) => setCuentaVerificar(e.target.value)} placeholder="0x…" size={46} />{" "}
         <button onClick={() => verificarCuenta(cuentaVerificar)}>verificar</button>{" "}
-        {direccionAgente() && <button onClick={() => verificarCuenta(direccionAgente()!)}>agente (tier 5)</button>}{" "}
+        {direccionAgente() && <button onClick={() => verificarCuenta(direccionAgente()!)}>agente de la demo</button>}{" "}
+        <button onClick={() => verificarCuenta(FIXTURES_KUMPLY.agente5)}>fixture agente (tier 5)</button>{" "}
         <button onClick={() => verificarCuenta(FIXTURES_KUMPLY.persona3)}>fixture persona (tier 3)</button>{" "}
         <button onClick={() => verificarCuenta(FIXTURES_KUMPLY.empresa)}>fixture empresa (tier 4)</button>{" "}
         <button onClick={() => verificarCuenta(FIXTURES_KUMPLY.sinVerificar)}>fixture sin verificar</button>{" "}
