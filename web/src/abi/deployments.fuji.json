@@ -1,30 +1,64 @@
 {
   "chainId": 43113,
-  "actualizado": "2026-11-07T15:00:00-03:00",
+  "actualizado": "2026-11-07T00:00:00-03:00",
   "kumplyStore": "0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD",
   "attestationStoreEnUso": "0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD",
-  "mockPesos": "0x0000000000000000000000000000000000000000",
-  "tesoreria": "0x0000000000000000000000000000000000000000",
+  "storeDemo": "0xc1694bF1Ee5A000Fd39BA0196bf953215cb6D513",
+  "storePorLlave": {
+    "A": "0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD",
+    "B": "0xc1694bF1Ee5A000Fd39BA0196bf953215cb6D513"
+  },
+  "mockPesos": "0x866FD7C4B1c5d356c11840550483Ef3e415FA66E",
+  "tesoreria": "0x92893C663E74d6b1c6e551C17E7a35acaa9E8325",
   "comisionBps": 100,
   "llave": {
-    "A": "0x0000000000000000000000000000000000000000",
-    "B": "0x0000000000000000000000000000000000000000"
+    "A": "0xd466FD4712A70E6b2c4d1Ec299210E905d2eF8BA",
+    "B": "0xc74d36226ACABb11482455175919fbFF3936de37"
   },
-  "demo": { "periodoMinimo": 1, "plazoInactividad": 60, "plazoGracia": 30 },
+  "demo": {
+    "periodoMinimo": 1,
+    "plazoInactividad": 60,
+    "plazoGracia": 30
+  },
   "agente": {
-    "cuenta": "0x0000000000000000000000000000000000000000",
+    "cuenta": "0x8739E80672B3b778e48D8e8544BDAb7Ed6A1CfCb",
     "tier": 5,
-    "tipo": "EOA del agente, atestada tier 5 por KUMPLY"
+    "tipo": "EOA del agente. Tier 5 en el store demo (Llave B); tier 5 en el store oficial de KUMPLY (Llave A) pendiente"
   },
   "cuentas": {
-    "marta": { "rol": "dueno", "cuenta": "0x0000000000000000000000000000000000000000", "tipo": "SA 0xGasless" },
-    "lucia": { "rol": "heredera", "bps": 6000, "cuenta": "0x0000000000000000000000000000000000000000", "tipo": "SA 0xGasless" },
-    "tomas": { "rol": "heredero", "bps": 4000, "cuenta": "0x0000000000000000000000000000000000000000", "tipo": "SA 0xGasless" },
-    "botSinKya": { "rol": "bot sin verificar (bloqueado: NotAgent)", "cuenta": "0x0000000000000000000000000000000000000000", "tipo": "EOA" }
+    "marta": {
+      "rol": "dueno",
+      "cuenta": "0x92893C663E74d6b1c6e551C17E7a35acaa9E8325",
+      "tipo": "deployer (provisorio; pasar a la SA de Marta con transferirDueno)"
+    },
+    "lucia": {
+      "rol": "heredera",
+      "bps": 6000,
+      "cuenta": "0x70997970C51812dc3A010C7d01b50e0d17dc79C8",
+      "tipo": "placeholder (cuenta pública de anvil; cambiar con configurar)"
+    },
+    "tomas": {
+      "rol": "heredero",
+      "bps": 4000,
+      "cuenta": "0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC",
+      "tipo": "placeholder (cuenta pública de anvil; cambiar con configurar)"
+    },
+    "botSinKya": {
+      "rol": "bot sin verificar (bloqueado: NotAgent)",
+      "cuenta": "0x0000000000000000000000000000000000000000",
+      "tipo": "EOA"
+    }
   },
   "fixturesKumply": {
     "agenteTier5": "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2",
     "empresaTier4": "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9",
     "sinAtestacion": "0x000000000000000000000000000000000000dEaD"
+  },
+  "deployer": "0x92893C663E74d6b1c6e551C17E7a35acaa9E8325",
+  "despliegue": {
+    "mockPesos": "0x9228a39fbfd175f84675c0631c42f141a34deceb4d5e03414c560fa117074c3b",
+    "llaveA": "0xc19b2c8495ecafac8f5af6b88b8be8508d2bc5a44a848fe0921923089d9c0205",
+    "storeDemo": "0x7bdd1c863f404bf390976e16e13e9edd6d46b51e50fb595a550c7c78f6f5a58c",
+    "llaveB": "0x1017c19cb5c7e2b90a2a46f106a9a68800938af8c9f42fa300e8f475f60934a4"
   }
 }

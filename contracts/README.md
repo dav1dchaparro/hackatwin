@@ -451,17 +451,48 @@ totalLiberado, plazoInactividad, plazoGracia, comisionBps, ahora.
 ## 14. Direcciones
 
 Fuente de verdad: [`deployments/fuji.json`](../deployments/fuji.json) (la web lee la copia en `web/src/abi/`).
-Hoy no hay deploy (no hay claves en este entorno): quedan en cero hasta correr el §8.
+
+### Despliegue en Fuji
+
+Desplegado el 7/11/2026 con `DeployLlave.s.sol` (dos corridas: A con el store oficial, B con `USAR_STORE_DEMO=true`
+y `PESOS_ADDRESS` = el MockPesos de A). Deployer `0x92893C663E74d6b1c6e551C17E7a35acaa9E8325`. Los cuatro contratos
+quedaron **verificados** en Routescan/Snowtrace (`--verify --verifier etherscan`, primer intento).
+
+| Contrato | Dirección | Explorer | Tx de deploy | Verificado |
+|---|---|---|---|---|
+| MockPesos (mPESO) | `0x866FD7C4B1c5d356c11840550483Ef3e415FA66E` | [código](https://testnet.snowtrace.io/address/0x866FD7C4B1c5d356c11840550483Ef3e415FA66E#code) | [`0x9228a39f…`](https://testnet.snowtrace.io/tx/0x9228a39fbfd175f84675c0631c42f141a34deceb4d5e03414c560fa117074c3b) | sí |
+| Llave A (store oficial KUMPLY) | `0xd466FD4712A70E6b2c4d1Ec299210E905d2eF8BA` | [código](https://testnet.snowtrace.io/address/0xd466FD4712A70E6b2c4d1Ec299210E905d2eF8BA#code) | [`0xc19b2c84…`](https://testnet.snowtrace.io/tx/0xc19b2c8495ecafac8f5af6b88b8be8508d2bc5a44a848fe0921923089d9c0205) | sí |
+| DemoAttestationStore (plan B) | `0xc1694bF1Ee5A000Fd39BA0196bf953215cb6D513` | [código](https://testnet.snowtrace.io/address/0xc1694bF1Ee5A000Fd39BA0196bf953215cb6D513#code) | [`0x7bdd1c86…`](https://testnet.snowtrace.io/tx/0x7bdd1c863f404bf390976e16e13e9edd6d46b51e50fb595a550c7c78f6f5a58c) | sí |
+| Llave B (store demo) | `0xc74d36226ACABb11482455175919fbFF3936de37` | [código](https://testnet.snowtrace.io/address/0xc74d36226ACABb11482455175919fbFF3936de37#code) | [`0x1017c19c…`](https://testnet.snowtrace.io/tx/0x1017c19cb5c7e2b90a2a46f106a9a68800938af8c9f42fa300e8f475f60934a4) | sí |
+
+Hashes completos de deploy:
+
+- MockPesos: `0x9228a39fbfd175f84675c0631c42f141a34deceb4d5e03414c560fa117074c3b`
+- Llave A: `0xc19b2c8495ecafac8f5af6b88b8be8508d2bc5a44a848fe0921923089d9c0205`
+- DemoAttestationStore: `0x7bdd1c863f404bf390976e16e13e9edd6d46b51e50fb595a550c7c78f6f5a58c`
+- Llave B: `0x1017c19cb5c7e2b90a2a46f106a9a68800938af8c9f42fa300e8f475f60934a4`
+
+Configuración de las dos Llaves: dueño = deployer (provisorio, falta `transferirDueno` a la SA de Marta), herederos
+placeholder `0x7099…79C8` (6000 bps) y `0x3C44…93BC` (4000 bps) — cuentas públicas de anvil, cambiarlas con
+`configurar` cuando estén las SA reales —, 60 s de inactividad, 30 s de gracia, comisión 100 bps, tesorería = deployer,
+siembra 1.000.000 mPESO cada una. El store demo emitió tier 5 al agente y al fixture `0x9f8F…79A2`, y tier 4 al
+fixture `0x7Fc6…DaE9` (vigencia 30 días).
+
+Comprobado con `cast call … "isAgent(address)(bool)"` después del deploy:
+
+| Cuenta | Llave A (store oficial) | Llave B (store demo) |
+|---|---|---|
+| Agente `0x8739…CfCb` | `false` (tier 5 de KUMPLY pendiente) | `true` |
+| Fixture agente tier 5 `0x9f8F…79A2` | `true` | `true` |
+| Fixture empresa tier 4 `0x7Fc6…DaE9` | `false` | `false` |
+| Sin atestación `0x…dEaD` | `false` | `false` |
 
 | Qué | Dirección | Explorer |
 |---|---|---|
-| KUMPLY AttestationStore (oficial) | `0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD` | [ver](https://testnet.snowtrace.io/address/0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD) |
-| Store en uso (oficial o demo) | `<STORE_EN_USO>` | — |
-| MockPesos (mPESO) | `<MOCKPESOS>` | `https://testnet.snowtrace.io/address/<MOCKPESOS>#code` |
-| Llave A | `<LLAVE_A>` | `https://testnet.snowtrace.io/address/<LLAVE_A>#code` |
-| Llave B | `<LLAVE_B>` | `https://testnet.snowtrace.io/address/<LLAVE_B>#code` |
-| Tesorería (1 %) | `<TESORERIA>` | — |
-| Agente (tier 5) | `<AGENTE>` | — |
+| KUMPLY AttestationStore (oficial, Llave A) | `0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD` | [ver](https://testnet.snowtrace.io/address/0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD) |
+| Store demo (Llave B) | `0xc1694bF1Ee5A000Fd39BA0196bf953215cb6D513` | [código](https://testnet.snowtrace.io/address/0xc1694bF1Ee5A000Fd39BA0196bf953215cb6D513#code) |
+| Tesorería (1 %) | `0x92893C663E74d6b1c6e551C17E7a35acaa9E8325` | [ver](https://testnet.snowtrace.io/address/0x92893C663E74d6b1c6e551C17E7a35acaa9E8325) |
+| Agente | `0x8739E80672B3b778e48D8e8544BDAb7Ed6A1CfCb` | [ver](https://testnet.snowtrace.io/address/0x8739E80672B3b778e48D8e8544BDAb7Ed6A1CfCb) |
 | Fixture agente tier 5 | `0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2` | — |
 | Fixture empresa tier 4 | `0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9` | — |
 | Sin atestación | `0x000000000000000000000000000000000000dEaD` | — |
@@ -505,7 +536,9 @@ empresa o un agente pasarían como persona, y una cuenta de tier más alto que 5
   `anvil --chain-id 43113`.
 - `export-abi.mjs` y `web/src/abi/` generado (`llaveAbi`, `pesosAbi`, `kumplyStoreAbi`, `deployments.fuji.json`).
 - `deployments/fuji.json` con el esquema final y direcciones en cero.
-- Pendiente con claves: deploy y verificación de A y B, evidencias con `cast`, y completar las direcciones.
+- Deploy y verificación en Fuji de MockPesos, Llave A (store oficial), DemoAttestationStore y Llave B (§14).
+- Pendiente: tier 5 de KUMPLY para el agente (Llave A), `transferirDueno`/`configurar` con las SA reales y la
+  evidencia del bot rebotando.
 
 ## 18. Para P2 y P3: cambios de interfaz (PR #2)
 
