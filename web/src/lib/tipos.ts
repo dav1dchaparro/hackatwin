@@ -88,7 +88,8 @@ export interface ResultadoTx {
   url?: string;
   /** ms desde que se mandó hasta que quedó incluida (incluye el bundler de 0xGasless). */
   ms?: number;
-  error?: { nombre: string; mensaje: string };
+  /** `detalle` = dato crudo del error (selector, mensaje del bundler), para la consola y el "nombre crudo en chico". */
+  error?: { nombre: string; mensaje: string; detalle?: string };
   // ── Agregados opcionales: los dos tiempos honestos (mejora 6) ──
   /** ms desde incluida hasta final. En Avalanche la inclusión ES la finalidad: siempre 0. */
   msFinal?: number;

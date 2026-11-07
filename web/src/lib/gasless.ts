@@ -12,6 +12,7 @@
 import { OxGasClient } from "@0xgasless/core";
 import type { Address, Hash, Hex } from "viem";
 import { aliasDe, config, urlTx } from "./config";
+import { clientePublico } from "./rpc";
 import type { Sesion } from "./tipos";
 
 export interface Llamada {
@@ -195,15 +196,39 @@ export async function enviar(llamadas: Llamada[]): Promise<Envio> {
   if (llamadas.length === 0) throw new Error("Nada que enviar.");
   await cuentaActiva();
   const c = clienteGasless();
-  const t0 = performance.now();
-  const resp = llamadas.length === 1 ? await c.sendTransaction(llamadas[0]) : await c.sendBatchTransactions(llamadas);
+  // `ms` mide desde que el usuario FIRMÓ (no desde el clic): el tiempo humano en el widget no cuenta.
+  let t0 = performance.now();
+  const offFirma = c.auth.on("signatureComplete", () => {
+    t0 = performance.now();
+  });
+  let resp: Awaited<ReturnType<OxGasClient["sendTransaction"]>>;
+  try {
+    resp = llamadas.length === 1 ? await c.sendTransaction(llamadas[0]) : await c.sendBatchTransactions(llamadas);
+  } finally {
+    offFirma();
+  }
   if (resp.error) {
     throw new Error(`0xGasless rechazó la operación: ${resp.error.message} (código ${resp.error.code})`);
+  }
+  // `wait()` del SDK consulta el receipt cada 5 s: infla la medición. Pedimos el hash apenas el bundler lo tiene
+  // (`waitForTxHash`, cada 0,5 s) y esperamos la inclusión con viem cada 300 ms. Si el bundler no lo soporta, `wait()`.
+  let hash: Hash | undefined;
+  try {
+    const estado = await resp.waitForTxHash();
+    hash = (estado?.transactionHash ?? estado?.userOperationReceipt?.receipt?.transactionHash) as Hash | undefined;
+  } catch (e) {
+    console.warn("[gasless] waitForTxHash no disponible, uso wait():", e);
+  }
+  if (hash) {
+    const recibo = await clientePublico().waitForTransactionReceipt({ hash, pollingInterval: 300 });
+    const ms = Math.round(performance.now() - t0);
+    if (recibo.status === "reverted") throw new Error(`La operación se incluyó pero revirtió (${urlTx(hash)})`);
+    return { hash, url: urlTx(hash), ms, userOpHash: (resp.userOpHash ?? undefined) as Hash | undefined };
   }
   const rec = await resp.wait();
   const ms = Math.round(performance.now() - t0);
   const recibo = (rec?.receipt ?? {}) as { transactionHash?: Hash; hash?: Hash };
-  const hash = recibo.transactionHash ?? recibo.hash;
+  hash = recibo.transactionHash ?? recibo.hash;
   if (String(rec?.success) === "false") {
     throw new Error(
       `La operación se incluyó pero revirtió${rec.reason ? `: ${rec.reason}` : ""}${hash ? ` (${urlTx(hash)})` : ""}`,
