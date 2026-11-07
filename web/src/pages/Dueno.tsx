@@ -2,6 +2,7 @@
 // destinos → mi plata. Todo lo que se guarda "en la cadena" pasa por `configurar`; emails y nombres quedan en el dispositivo.
 import { useEffect, useRef, useState } from "react";
 import type { FormEvent } from "react";
+import { Navigate } from "react-router-dom";
 import type { Address } from "viem";
 import { cliente } from "../lib";
 import type { ConfigLlave, ResultadoTx } from "../lib";
@@ -50,6 +51,7 @@ export function Dueno() {
   const esDuena = mismaCuenta(sesion.cuenta, estado.dueno);
   const fase = estado.fase;
   const liberada = estado.liberadaEn > 0;
+  if (!esDuena && herederos.some((h) => mismaCuenta(h.cuenta, sesion.cuenta))) return <Navigate to="/heredero" replace />;
 
   return (
     <>

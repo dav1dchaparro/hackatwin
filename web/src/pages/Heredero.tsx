@@ -1,6 +1,6 @@
 // Pantalla del heredero: SOLO LECTURA (la parte se envía sola cuando el agente libera la Llave).
 import { useEffect, useState } from "react";
-import { Link, useSearchParams } from "react-router-dom";
+import { Link, Navigate, useSearchParams } from "react-router-dom";
 import type { Address } from "viem";
 import { cliente } from "../lib";
 import { aliasDe as aliasLib } from "../lib/config";
@@ -41,6 +41,7 @@ export function Heredero() {
   if (!datos) return <p className="muted">Cargando la Llave…</p>;
 
   const { estado } = datos;
+  if (!cuentaParam && sesion && mismaCuenta(sesion.cuenta, estado.dueno)) return <Navigate to="/dueno" replace />;
   const yo = datos.herederos.find((h) => mismaCuenta(h.cuenta, cuenta));
   const duena = cliente.aliasDe?.(estado.dueno) ?? aliasLib(estado.dueno);
   if (!yo) {
