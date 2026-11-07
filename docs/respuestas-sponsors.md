@@ -24,11 +24,12 @@ Sáb 7/11/2026, ~14:30. En el evento no hay stand de KUMPLY ni de 0xGasless, as�
 | ¿Pre-alta de wallet por email? | No está documentado → roadmap | quickstart |
 | ¿El bundler acepta userOps que revierten? | No está documentado → la web **siempre simula antes** (ya está en el plan) | paymasters |
 
-## Qué hacemos con esto
+## Qué hacemos con esto (actualizado 15:10, alcance "solo herencia" de P1)
 
-1. **Pedido a KUMPLY por escrito, ya:** mail a `hello@kumply.xyz` (y si no responden, issue en el repo) con las 4 SA cuando P2 las publique. Preguntar también a la organización (Twin / Team1) si hay alguien de KUMPLY en el evento.
-2. **Probar el self-service ahora** con una billetera EOA del equipo (MetaMask o Core) en kumply.xyz/verify, nivel `standard-kyc`. Si en pocos minutos da tier 2, tenemos una dirección que **pasa** con el store oficial. Plan posible para el equipo: Lucía cobra desde esa EOA (esa acción paga gas, el resto sigue sin gas) y se conserva el bonus KUMPLY con el store real.
-3. **Tomás (la dirección bloqueada)** no depende de nadie: funciona con el store oficial.
-4. **Dashboard de 0xGasless:** usar la política de **lista de contratos permitidos** (solo `LlaveEmergencia` y `MockPesos`) y contarlo en el README.
-5. **Combo +20:** no se reclama. Mejora 5 (agente tier 5): no sale sin el equipo de KUMPLY.
-6. **15:00:** si no hay atestaciones sobre las SA, plan B (store demo de P1, declarado). Ojo: con el store demo el gate ya no lee KUMPLY, así que conviene que al menos una prueba (Tomás bloqueado, y si sale el punto 2, Lucía) quede con el store oficial.
+Desde el cambio de alcance, KUMPLY verifica **al agente** (tier 5) y no a los herederos. El self-service de kumply.xyz/verify ya no sirve: da niveles de persona, y `agent-kya` no está configurado.
+
+1. **Pedido a KUMPLY por escrito, ya:** mail a `hello@kumply.xyz` (y si no responden, issue en el repo) pidiendo tier 5 para el agente `0x8739E80672B3b778e48D8e8544BDAb7Ed6A1CfCb` en Fuji, y la URL del lane KUMPLY+0xGasless. Preguntar también a la organización (Twin / Team1) si hay alguien de KUMPLY en el evento.
+2. **Plan B ya desplegado:** la Llave B usa el `DemoAttestationStore` (agente con tier 5) y anda hoy. Se declara en el README.
+3. **Evidencia con el store oficial aunque no llegue el tier 5:** en la Llave A, el agente sin atestación es una dirección **bloqueada** real (`NotAgent(agente, 0)`) contra el store de KUMPLY. Y el fixture `0x9f8F…79A2` (tier 5 en el store oficial) **pasa** en una simulación (`cast call --from`), sin tx real porque nadie tiene su clave.
+4. **Dashboard de 0xGasless:** usar la política de **lista de contratos permitidos** (`Llave` A, `Llave` B y `MockPesos`) y contarlo en el README.
+5. **Combo +20:** solo si KUMPLY nos da el tier 5 **y** la URL del lane. Si no, no se reclama.

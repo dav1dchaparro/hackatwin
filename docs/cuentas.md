@@ -1,31 +1,36 @@
 # Cuentas de prueba (Fuji C-Chain, 43113)
 
 Solo direcciones **públicas**. Nunca claves privadas, seeds ni API keys.
-Las cuentas de la web son **smart accounts** de 0xGasless (la dirección que muestra la web después del login con email). KUMPLY tiene que atestar **esa** dirección, no la EOA que firma.
+Fuente de verdad: `deployments/fuji.json` (P1). Las cuentas de la web son **smart accounts** de 0xGasless (la dirección que muestra la web después del login con email).
 
-| Alias | Rol en la demo | Tipo | Dirección | Atestación KUMPLY esperada | Estado (`verify`) |
+| Alias | Rol | Dirección | Tipo | KUMPLY esperado | Estado |
 |---|---|---|---|---|---|
-| Marta | Dueña de la Llave | SA 0xGasless | `TODO` (P2) | persona tier 2 | `TODO` |
-| Lucía | Heredera 60% + guardiana | SA 0xGasless | `TODO` (P2) | persona tier 2 | `TODO` |
-| Pablo | Guardián | SA 0xGasless | `TODO` (P2) | persona tier 2 | `TODO` |
-| Rosa | Guardiana (reserva) | SA 0xGasless | `TODO` (P2) | persona tier 2 | `TODO` |
-| Tomás | Heredero 40%, **sin** atestación (la dirección bloqueada) | EOA con AVAX | `TODO` (P1) | ninguna, a propósito | `TODO` |
-| Clínica | Destino de la emergencia | fixture de KUMPLY | `0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9` | empresa tier 4 (vence 16/07/2027) | `TODO` |
-| Deployer | Despliega y verifica los contratos | EOA (P1) | `TODO` (P1) | — | — |
-| Tesorería | Recibe la comisión del 1% (si entra A1) | EOA del equipo | `TODO` | — | — |
+| Agente | Ejecuta `iniciarReclamo` y `liberar` | `0x8739E80672B3b778e48D8e8544BDAb7Ed6A1CfCb` | EOA (0,05 AVAX) | **tier 5 (KYA)** | Store demo: tier 5 ✅ · Store oficial: **sin atestación** (pedido a KUMPLY) |
+| Marta | Dueña | `0x92893C663E74d6b1c6e551C17E7a35acaa9E8325` (provisorio: es el deployer) | pasa a su SA con `transferirDueno` | — | `TODO` SA de P2 |
+| Lucía | Heredera 60% | `0x70997970C51812dc3A010C7d01b50e0d17dc79C8` (placeholder de anvil) | se cambia con `configurar` | — (los herederos no necesitan KYC) | `TODO` SA real |
+| Tomás | Heredero 40% | `0x3C44CdDdB6a900fa2b585dd299e03d12FA4293BC` (placeholder de anvil) | se cambia con `configurar` | — | `TODO` SA real |
+| Bot sin KYA | La dirección **bloqueada** (`NotAgent`) | `TODO` (P1) | EOA | ninguna, a propósito | — |
+| Tesorería | Recibe el 1% | `0x92893C663E74d6b1c6e551C17E7a35acaa9E8325` | EOA (deployer) | — | — |
+| Deployer | Despliega y verifica | `0x92893C663E74d6b1c6e551C17E7a35acaa9E8325` | EOA (~0,45 AVAX) | — | — |
 
-## Control de atestaciones
+Fixtures de KUMPLY en el store oficial (nadie tiene sus claves; sirven para lecturas y simulaciones): agente tier 5 `0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2` · empresa tier 4 `0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9` · sin atestación `0x000000000000000000000000000000000000dEaD`.
+
+## Control de la atestación del agente
 
 ```bash
 FUJI_RPC_URL=https://api.avax-test.network/ext/bc/C/rpc
-STORE=0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD
-cast call $STORE "verify(address)(bool,uint32,uint64,uint64)" <direccion> --rpc-url $FUJI_RPC_URL
+cast call 0xa3Bc5564A18e107807aF41fF2a5215Db050b22dD "verify(address)(bool,uint32,uint64,uint64)" \
+  0x8739E80672B3b778e48D8e8544BDAb7Ed6A1CfCb --rpc-url $FUJI_RPC_URL
 ```
 
-Devuelve `(ok, tier, timestamp, vencimiento)`. Controles a las 14:40 y 15:00; a las 15:00 se decide: atestaciones oficiales o plan B (store demo de P1, declarado en el README).
-
-## Registro del pedido a KUMPLY
-
-| Hora | Qué se pidió | Respuesta |
+| Hora | Store oficial | Store demo |
 |---|---|---|
-| `TODO` | tier 2 para las SA de Marta, Lucía, Pablo y Rosa; Tomás sin atestación | `TODO` |
+| 15:05 | `false, 0` (sin atestación) | `true, 5` |
+
+## Pedido a KUMPLY
+
+No hay stand de KUMPLY en el evento. Según su documentación, el tier 5 lo emite solo su equipo y no hay autoservicio (`agent-kya` no está configurado en Sumsub). Ver [`respuestas-sponsors.md`](respuestas-sponsors.md).
+
+| Hora | Canal | Qué se pidió | Respuesta |
+|---|---|---|---|
+| `TODO` | hello@kumply.xyz | tier 5 para el agente `0x8739…CfCb` en Fuji | `TODO` |
