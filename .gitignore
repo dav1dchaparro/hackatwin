@@ -1,0 +1,22 @@
+# Secretos: nunca al repo (solo .env.example)
+.env
+.env.*
+!.env.example
+**/.env
+**/.env.*
+!**/.env.example
+
+# Contratos (Foundry)
+contracts/out*/
+contracts/cache*/
+contracts/broadcast/**/dry-run/
+contracts/broadcast/*/31337/
+
+# Node (web y agente)
+node_modules/
+web/dist/
+agente/dist/
+agente/estado/
+
+# Sistema
+.DS_Store
