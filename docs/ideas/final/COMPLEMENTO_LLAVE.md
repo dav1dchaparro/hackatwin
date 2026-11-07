@@ -211,7 +211,7 @@ Carpeta nueva `keeper/` (Node 20, `viem`, sin framework). No toca `web/src/lib/`
 
 **Setup (5 min):** crear el bot con @BotFather → `TELEGRAM_BOT_TOKEN`. "Marta" abre el bot y manda `/start`; `https://api.telegram.org/bot<token>/getUpdates` devuelve su `chat_id` → `TELEGRAM_CHAT_ID_DUENO`. Variables: `FUJI_RPC_URL`, `LLAVE_ADDRESS`, `WEB_URL`. Nada de esto va al repo (`.env` ignorado).
 
-**Lógica (`keeper/avisos.ts`, ~60 líneas):**
+**Lógica (`keeper/avisos.ts`, ~80 líneas):**
 ```ts
 // cada 5 s
 const e = await llave.read.estado();                   // ahora, venceEn, ultimaSenal, reclamoIniciadoEn, graciaTerminaEn
@@ -227,7 +227,16 @@ for (const log of await llave.getEvents.ReclamoIniciado({ fromBlock })) {
   await telegram(`🚨 ${nombre(log.args.heredero)} inició un reclamo. Tenés hasta ${hora(log.args.graciaTerminaEn)} para cancelarlo tocando "Estoy bien". ${WEB_URL}/dueno`);
 }
 ```
-`telegram()` es un `fetch` a `https://api.telegram.org/bot<token>/sendMessage` con `{chat_id, text}`. Se corre con `npx tsx keeper/avisos.ts`.
+// (c) KUMPLY en el aviso: el heredero que no pasa el gate se entera antes de intentar cobrar
+for (const h of await llave.read.herederos()) {
+  const ok = await kumply.read.isPersonAtLeast([h.cuenta, 2]);          // mismo gate que usa cobrar()
+  if (!ok && !avisadoKyc(h.cuenta)) {
+    await telegram(`🪪 ${nombre(h.cuenta)}, tu parte (${porcentaje(h.bps)}) te espera en la Llave de Marta, pero para cobrarla tenés que verificar tu identidad. ${WEB_URL}/heredero`);
+    marcarAvisadoKyc(h.cuenta);
+  }
+}
+```
+`telegram()` es un `fetch` a `https://api.telegram.org/bot<token>/sendMessage` con `{chat_id, text}`. Se corre con `npx tsx keeper/avisos.ts`. El aviso (c) lee la **misma** función del contrato (`isPersonAtLeast`, heredada de `KumplyGated`) que decide si `cobrar()` pasa: suma al argumento "la verificación es el corazón del producto" (KUMPLY core) sin tocar el contrato.
 
 **En el README:** captura del mensaje + 3 líneas: "No hay cron on-chain; el contrato usa `block.timestamp` (recomendación de Ava Labs para la C-Chain) y un keeper off-chain avisa antes del vencimiento. En producción: Chainlink CRE o un relayer propio, y los tres canales (Telegram, WhatsApp, email)."
 
