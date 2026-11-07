@@ -121,7 +121,13 @@ export function interpretarError(e: unknown, ctx: ContextoError = {}): ErrorLegi
       const nombre = rev.reason ?? "Revert";
       return { nombre, mensaje: mensajeDe(nombre, [], ctx), crudo: rev.raw ?? rev.shortMessage };
     }
-    return { nombre: e.name, mensaje: MENSAJE_GENERICO, crudo: e.shortMessage };
+    // Errores del bundler / paymaster de 0xGasless (AccountAbstractionError extiende BaseError): el detalle real está
+    // en details/metaMessages, no en shortMessage.
+    const crudo = [e.shortMessage, e.details, ...(e.metaMessages ?? [])].filter(Boolean).join("\n").trim();
+    if (/paymaster|sponsor/i.test(crudo)) {
+      return { nombre: e.name, mensaje: "0xGasless no patrocinó esta operación.", crudo };
+    }
+    return { nombre: e.name, mensaje: MENSAJE_GENERICO, crudo };
   }
 
   const mensaje = e instanceof Error ? e.message : String(e);
