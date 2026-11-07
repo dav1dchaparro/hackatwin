@@ -1,0 +1,15 @@
+[profile.default]
+src = "src"
+out = "out"
+libs = ["lib"]
+solc_version = "0.8.28"   # la misma que usa KUMPLY
+evm_version = "cancun"    # la que usa KUMPLY en C-Chain/Fuji; no dejar el default de solc
+optimizer = true
+optimizer_runs = 200
+fs_permissions = [{ access = "read", path = "./" }]
+
+[fuzz]
+runs = 512
+
+[rpc_endpoints]
+fuji = "${FUJI_RPC_URL}"
