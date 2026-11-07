@@ -1,0 +1,95 @@
+# Adapted from sebastianlujan/hackatwin-x402-team1-avalanche (MIT)
+# https://github.com/sebastianlujan/hackatwin-x402-team1-avalanche/pull/5
+name: ci
+
+on:
+  pull_request:
+    types: [opened, edited, synchronize, reopened]
+    branches: [develop, main]
+  push:
+    branches: [develop, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
+# Pinned commitlint versions (run via npx, no package.json needed).
+env:
+  COMMITLINT_CLI: "@commitlint/cli@21.2.4"
+  COMMITLINT_CONFIG: "@commitlint/config-conventional@21.2.4"
+
+jobs:
+  pr-title:
+    name: pr-title
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Lint PR title (Conventional Commits)
+        env:
+          PR_TITLE: ${{ github.event.pull_request.title }}
+        run: printf '%s\n' "$PR_TITLE" | npx --yes -p "$COMMITLINT_CLI" -p "$COMMITLINT_CONFIG" commitlint --verbose
+
+  commits:
+    name: commits
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: 22
+      - name: Lint commit messages
+        env:
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: npx --yes -p "$COMMITLINT_CLI" -p "$COMMITLINT_CONFIG" commitlint --from "$BASE_SHA" --to "$HEAD_SHA" --verbose
+
+  branch-name:
+    name: branch-name
+    if: github.event_name == 'pull_request'
+    runs-on: ubuntu-latest
+    timeout-minutes: 2
+    steps:
+      - name: Enforce branch names
+        env:
+          HEAD_REF: ${{ github.head_ref }}
+          BASE_REF: ${{ github.base_ref }}
+        run: |
+          name='[a-z0-9][a-z0-9._-]*'
+          case "$BASE_REF" in
+            develop) allowed="^((feature|fix|docs|chore|hotfix|release)/${name}|dependabot/.+)$" ;;
+            main) allowed="^(develop|(hotfix|release)/${name})$" ;;
+            *) echo "::error::Unexpected base branch '$BASE_REF'"; exit 1 ;;
+          esac
+          if [[ ! "$HEAD_REF" =~ $allowed ]]; then
+            echo "::error::'$HEAD_REF' cannot target '$BASE_REF'. Use feature/|fix/|docs/|chore/|hotfix/|release/<kebab-case>. See CONTRIBUTING.md."
+            exit 1
+          fi
+          echo "OK: $HEAD_REF -> $BASE_REF"
+
+  lint:
+    name: lint
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Lint workflows (actionlint)
+        run: docker run --rm -v "$PWD:/repo" -w /repo rhysd/actionlint:1.7.12 -color
+      - name: Validate JSON (no-op if none)
+        run: git ls-files -z '*.json' | xargs -0 -r -n1 jq empty
