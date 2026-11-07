@@ -30,8 +30,11 @@ import type { Accion, InfoToken } from "./tipos.js";
 /** Error esperado de arranque: se muestra el mensaje en castellano, sin stack trace. */
 class ErrorArranque extends Error {}
 
-/** Fuji limita eth_getLogs; leemos de a tramos. */
-const TRAMO_LOGS = 2_000n;
+/**
+ * Fuji limita eth_getLogs; leemos de a tramos. El RPC público (api.avax-test.network) acepta como máximo 100 bloques
+ * por pedido (inclusive): con más responde "block range too large" y el agente nunca lee los eventos.
+ */
+const TRAMO_LOGS = 100n;
 
 function cargarEnvLocal(): void {
   const ruta = fileURLToPath(new URL("../.env", import.meta.url));
