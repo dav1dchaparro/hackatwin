@@ -16,6 +16,7 @@
     "B": "0xc74d36226ACABb11482455175919fbFF3936de37"
   },
   "llaveEvidencias": "0x4caa8250Fb4BA06472Dd100d134f32E8364eB8ef",
+  "llavePruebaAgente": "0xfb7Ac560A4cf2A92358883896ef82543c93f6F5f",
   "demo": {
     "periodoMinimo": 1,
     "plazoInactividad": 60,
@@ -61,6 +62,7 @@
     "llaveA": "0xc19b2c8495ecafac8f5af6b88b8be8508d2bc5a44a848fe0921923089d9c0205",
     "storeDemo": "0x7bdd1c863f404bf390976e16e13e9edd6d46b51e50fb595a550c7c78f6f5a58c",
     "llaveB": "0x1017c19cb5c7e2b90a2a46f106a9a68800938af8c9f42fa300e8f475f60934a4",
-    "llaveEvidencias": "0xc1f74c76c49c12d3e60d98d6631ba44e4a53d0617087b4540c0f08cdb0e2958a"
+    "llaveEvidencias": "0xc1f74c76c49c12d3e60d98d6631ba44e4a53d0617087b4540c0f08cdb0e2958a",
+    "llavePruebaAgente": "0x65e6ca86051f122cb2cb1428b978b38feb4a0cd89472a5eccec08e464aae1fe2"
   }
 }
