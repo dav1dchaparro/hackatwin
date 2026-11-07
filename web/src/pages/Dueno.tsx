@@ -13,9 +13,8 @@ import { Encabezado } from "../components/Encabezado";
 import { IcoMas, IcoX } from "../components/Iconos";
 import { NOMBRE_FASE } from "../components/LineaDeFases";
 import { Modulo } from "../components/Modulo";
-import { Monto } from "../components/Monto";
 import { Tile } from "../components/Tile";
-import { acortar, bpsIguales, haceX, horaDe, mismaCuenta, mmss, parsearMonto, porcentaje } from "../components/formato";
+import { acortar, bpsIguales, haceX, horaDe, mismaCuenta, mmss, porcentaje } from "../components/formato";
 import { cargarMeta, cargarRecordatorio, guardarMeta, guardarRecordatorio, NOMBRE_TIPO } from "../components/metaDestinos";
 import type { MetaDestino, TipoDestino } from "../components/metaDestinos";
 import { useLlave } from "../components/useLlave";
@@ -88,52 +87,11 @@ export function Dueno() {
         <PeriodoConfig datos={datos} esDuena={esDuena} email={sesion.email} alRecargar={() => void recargar()} />
       </Modulo>
 
-      <Modulo titulo="Mi plata" descripcion="Lo que guardás en tu Llave. Cargar o mandar plata también cuenta como señal de vida.">
-        <MiPlata datos={datos} esDuena={esDuena} alRecargar={() => void recargar()} />
-      </Modulo>
-
       <Modulo titulo="Herederos y destinos" descripcion="Cada persona con su email y su porcentaje; también un fondo común o una donación. Los emails no van a la cadena.">
         <DestinosEditor datos={datos} esDuena={esDuena} alRecargar={() => void recargar()} />
       </Modulo>
 
     </>
-  );
-}
-
-/* ───────────── Mi plata (saldo, cargar pesos de prueba, mandar plata) ───────────── */
-function MiPlata({ datos, esDuena, alRecargar }: { datos: DatosLlave; esDuena: boolean; alRecargar: () => void }) {
-  const { estado } = datos;
-  const liberada = estado.liberadaEn > 0;
-  const [montoCarga, setMontoCarga] = useState("200000");
-  const [destino, setDestino] = useState("");
-  const [monto, setMonto] = useState("100000");
-  const cargaWei = parsearMonto(montoCarga, estado.decimales);
-  const montoWei = parsearMonto(monto, estado.decimales);
-  const destinoOk = ES_CUENTA.test(destino.trim());
-
-  return (
-    <div className="pila">
-      <div className="tiles">
-        <Tile etiqueta="En tu Llave" valor={<Monto valor={estado.saldo} decimales={estado.decimales} />} destacado
-          nota={`${estado.simbolo} · comisión ${porcentaje(estado.comisionBps)} solo al liberar`} />
-      </div>
-      <div className="grilla-2">
-        <div className="tarjeta">
-          <div className="tarjeta-cab"><div><h3>Cargar pesos de prueba</h3><p className="descripcion">Plata de juguete de la red de prueba: se acredita y entra a tu Llave en una sola operación.</p></div></div>
-          <label className="campo"><span>Monto</span><input inputMode="decimal" aria-label="Monto a cargar" value={montoCarga} onChange={(e) => setMontoCarga(e.target.value)} /></label>
-          <BotonTx texto="Cargar en mi Llave" variante="secundario" accion={() => cliente.cargarPesosDePrueba(cargaWei ?? 0n)} onResultado={alRecargar}
-            deshabilitado={!esDuena || liberada || !cargaWei || cargaWei <= 0n} nota="Cuenta como señal de vida." />
-        </div>
-        <div className="tarjeta">
-          <div className="tarjeta-cab"><div><h3>Mandar plata</h3><p className="descripcion">Sacás lo que quieras cuando quieras, gratis. Es tu plata.</p></div></div>
-          <label className="campo"><span>A la cuenta</span><input className="mono" placeholder="0x…" aria-label="Cuenta destino" value={destino} spellCheck={false} onChange={(e) => setDestino(e.target.value)} /></label>
-          <label className="campo"><span>Monto</span><input inputMode="decimal" aria-label="Monto a mandar" value={monto} onChange={(e) => setMonto(e.target.value)} /></label>
-          <BotonTx texto="Mandar" variante="secundario" accion={() => cliente.retirar(destino.trim() as Address, montoWei ?? 0n)} onResultado={alRecargar}
-            deshabilitado={!esDuena || liberada || !destinoOk || !montoWei || montoWei <= 0n}
-            nota={destino.trim() && !destinoOk ? "La cuenta tiene que ser 0x + 40 caracteres." : "También cuenta como señal de vida."} />
-        </div>
-      </div>
-    </div>
   );
 }
 
