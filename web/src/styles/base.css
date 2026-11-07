@@ -106,7 +106,7 @@ code { font-size: 12px; }
 .modulo { display: flex; flex-direction: column; gap: 14px; }
 .modulo-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
 .modulo-cab h2 { font-size: 16px; }
-.modulo-cab p { margin-top: 2px; color: var(--fg-2); font-size: 13px; max-width: 72ch; }
+.modulo-cab p { margin-top: 2px; color: var(--fg-2); font-size: 14px; }
 .modulo-extra { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 .grilla-2 { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
 .grilla-3 { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
