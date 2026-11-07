@@ -1,0 +1,19 @@
+# Dependencias y build
+node_modules
+dist
+dist-ssr
+*.local
+
+# Secretos: la API key de 0xGasless va en .env.local, nunca en el repo
+.env
+.env.*
+!.env.example
+
+# Logs y editores
+*.log
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+.vercel
+.env*
