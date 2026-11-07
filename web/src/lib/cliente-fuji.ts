@@ -12,7 +12,7 @@ import { encodeFunctionData, getContract, type Address, type ContractFunctionArg
 import { llaveAbi, pesosAbi } from "./abi-llave";
 import { aliasDe, config, deployments, direccionAgente, direccionLlave, direccionPesos, esDireccion, urlTx } from "./config";
 import { interpretarError, mensajeDe, MENSAJE_SIN_SESION, MENSAJE_SOLO_DUENA, type ContextoError } from "./errores";
-import { entrar, enviar, salir, sesion } from "./gasless";
+import { cuentasConocidas, entrar, enviar, salir, sesion } from "./gasless";
 import { verificar } from "./kumply";
 import { clientePublico } from "./rpc";
 import {
@@ -153,6 +153,8 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
   async function cuentaDeEmail(email: string): Promise<Address> {
     const s = sesion();
     if (s && s.email.toLowerCase() === email.toLowerCase()) return s.cuenta;
+    const conocida = cuentasConocidas()[email.trim().toLowerCase()];
+    if (conocida) return conocida;
     const local = email.split("@")[0].toLowerCase();
     const alias = local.includes("+") ? local.split("+")[1] : local;
     const info = deployments.cuentas?.[alias];

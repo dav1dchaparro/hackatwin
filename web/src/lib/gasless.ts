@@ -130,7 +130,28 @@ async function conectar(silencioso: boolean): Promise<Conexion> {
   return conectando;
 }
 
+const CLAVE_CUENTAS = "llave.cuentasPorEmail";
+
+/** Email → smart account de cada persona que entró en este dispositivo (para cargar herederos por email en /dueno). */
+export function cuentasConocidas(): Record<string, Address> {
+  try {
+    return JSON.parse(localStorage.getItem(CLAVE_CUENTAS) ?? "{}") as Record<string, Address>;
+  } catch {
+    return {};
+  }
+}
+function recordarCuenta(email: string, cuenta: Address): void {
+  try {
+    const m = cuentasConocidas();
+    m[email.trim().toLowerCase()] = cuenta;
+    localStorage.setItem(CLAVE_CUENTAS, JSON.stringify(m));
+  } catch {
+    /* sin localStorage */
+  }
+}
+
 function armarSesion(x: Conexion): Sesion {
+  recordarCuenta(x.email, x.cuenta);
   const alias = aliasDe(x.cuenta);
   return {
     email: x.email,
