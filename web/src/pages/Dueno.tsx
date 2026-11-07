@@ -52,7 +52,7 @@ export function Dueno() {
     <>
       <Encabezado
         titulo="Mi Llave"
-        descripcion="Mientras das señales de vida, tu plata es tuya. Si dejás de darlas, un agente verificado avisa, espera y la reparte como vos dijiste. Cuánto hay en tu bóveda lo sabés solo vos."
+        descripcion="Tu plata es tuya mientras das señales de vida. Si dejás de darlas, se reparte como vos dijiste."
       />
 
       {!esDuena && <Aviso tono="mal" titulo="Esta cuenta no es la del dueño de esta Llave.">Solo el dueño puede entrar. Salí y conectate con tu email. Cuenta: {acortar(sesion.cuenta)}</Aviso>}
