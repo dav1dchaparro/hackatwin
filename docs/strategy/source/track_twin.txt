@@ -1,0 +1,237 @@
+=== PAGE 2 ===
+soporteenDiscord.
+TodoloquenecesitásparaintegrarlasTwinStablecoins.DuranteeleventovasatenermentoresdeTwinenelvenuey
+Recursostécnicos
+explorer.
+Mostráenlademoalmenosunatransacciónonchainejecutadaportuproducto,conelhashverificableenel
+UsáalmenosunaTwinStablecoin(ARGt,BRAt,COLt,PERt,MEXt,CHLtoBOLt)enunadelaschainselegibles.
+Requisitosparacompetir
+unamonedaypaganenotra.
+concotizacióntransparenteyruteoporlospoolsdeCurve,ocoberturacambiariaparaempresasquecobranen
+3.FXentremonedaslocales(conversión):conversióndirectaentremonedasdelaregión(porejemploBRLaMXN)
+apoyarteenlosvaultsdeMorpho.
+basadoenelhistorialdecobrosonchaindelcomercioyrepagoautomáticocomoporcentajedecadaventa.Podés
+2.Capitaldetrabajoparacomercios(crédito):créditodesembolsadoycobradoenmonedalocal,conscoring
+formaautónoma,dentrodelímitesquedefineelusuario.
+1.Pagosagénticos(pagosytransferencias):agentesdeIAquepagan,cobranodividengastosenmonedalocalde
+Sondisparadores,nounlímite:podésconstruircualquierotracosa.
+Tresideasparaarrancar
+onchaindeproductosqueyaexisten.Eltokentienequeserpartecentraldetuproducto,nounagregadodecorativo.
+protocolosDeFi,conagentesdeIAoconlasotrasmonedasdelaregión.Buscamosideasnuevas,noversiones
+Explorácasosdeusoquesolosonposiblesconmonedalocalonchain:combinalaconcontratosinteligentes,con
+Eldesafío
+puntodepartida:lapreguntaesquéaparececuandolamonedalocalsevuelveprogramableycomponible.
+agentepuedeleer,moverycombinarsinpedirpermiso.Moverdineroentrepaísesesuncasofuerte,peroessoloel
+mexicano,elpesochilenoyelbolivianoonchain,comotokensERC-20quecualquiercontrato,wallet,protocoloo
+quenosehablanentresí.LasTwinStablecoinsllevanelpesoargentino,elreal,elpesocolombiano,elsol,elpeso
+Hastaahora,operarenmonedalocalsignificabaquedardentrodesistemascerrados:bancos,procesadoresyapps
+Laoportunidad
+programableycomponible,usandolasTwinStablecoins,conalmenosunatransacciónonchainrealenlademo.
+Construíen9horasunproductoqueexplorequésepuedehacerconmonedalocalenunainfraestructura
+Laconsigna
+PresentanTwin,DigitalHouse,Avalanche,beloyTether
+Premiodeltrack500USDTykitdemerchparaelequipoganador
+Agenda9:00kickoff,18:00cierredeentregas,19:00a21:00demodayypremiación
+EquiposHasta4personas
+CuándoydóndeSábado7denoviembrede2026,DigitalHouse,BuenosAires,de8a21hs,presencial
+DatoDetalle
+Loesencial
+dineroprogramableycomponible.
+EsteeseltrackdeTwinenHackaTwin.Queremosverquéconstruíscuandoelpeso,elrealoelsolvivenonchaincomo
+HackaTwin·TrackStablecoins
+🪙
+
+=== PAGE 22 ===
+rendimiento,retornooresultadofinancierodeusarTwinStablecoinsenprotocolosDeFilodeterminanesos
+LospoolsyvaultssondeprotocolosdetercerosqueoperandeformaindependientedeTwin.Cualquier
+BOLtBOLtPrime0x8dE92AFea0266A67c451b5AD1318bc0A9d834a7E
+CHLtCHLtPrime0xb5cd19e8e884e8e0e6dD8eDF54C172BD865A7BAd
+MEXtMEXtPrime0x3046bc254bD2269eC5C3478692be619441Bb11A5
+PERtPERtPrime0x5eD1aeFACb3B6CCC3F924B1d8915754Ed780266F
+COLtCOLtPrime0x596FD4C6cAb1aeBCe2a847773Ca87F24349D0c56
+BRAtBRAtPrime0x207396cbe2f6f50670eaa69584c9f723924c7fe9
+ARGtARGtPrime0x9Dd3F844747AB78d616BF76DB92756E17A064aDD
+TokenVaultDirección
+préstamo.
+VaultsdeMorphoenArbitrum,unoportoken.Tepermitenintegrarcréditoenmonedalocaldelladodequientomael
+Vaults
+BOLtBOLt/USDT00x9c7809c813bcc67e288c56d5ce5e0225996bfcd2
+CHLtCHLt/USDT00xa087f05ecd245476d7844f6eab28d98724696ac2
+MEXtMEXt/USDT00x6edbf3ada7b6d9524c3248955538d573aae449cf
+PERtPERt/USDT00x41af8cc0811dd07f167752b821cf5b11dba7ca85
+COLtCOLt/USDT00x7d2dffa9e903b8377c96196da424c7965b06bcc3
+BRAtBRAt/USDT00xeef48df5f1c509cd9730774b4e8a4464626ef8d5
+ARGtARGt/USDT00x356d349da9add7efb56a35fab939a2c6d852f853
+TokenParPool
+paracotizar.
+PoolsdeCurveenArbitrum,unoportoken,pareadosconUSDT0.SirvenparaconvertirentremonedalocalyUSDTy
+Pools
+direcciónychain.
+0x5986...2214esARGtenArbitrumyEthereum,MEXtenBaseyBRAtenPolygon).Usásiemprelacombinaciónde
+Losdeploysnosondeterminísticos:lamismadirecciónpuedeseruntokendistintoenotrachain(porejemplo,
+BOLt0x1edF5E61B6a4Fe19FEf3A695328F61aAa07728eA0x1d2E8C1Fe82ab2AD8dc43eD98A2F507Dfb5b49950x2
+CHLt0xe8dbC4680235cCAeFf48e4C0B0EaceeBb89E5e170x95ef2370166b250e7CE3b8F236c7e7E9feD12c2e0xf
+MEXt0xb96aA6babCcD738d6644ADd4912fE5eFbEBF5a250x59863989d080B22476DB95656d0C3CC18be922140xb
+PERt0x899438713f62B04d6CD8e8709986F7256fB6E3d90xD09ABA2969B822d66DC4Bc3bB58eE520Bcf9f0C30x5
+COLt0xa16d5DB80A45157E0e451750B81FF0CC0b61d5580xD70ad085684b2A9f4B5d54D7BDB2ecA37a2732160x1
+BRAt0xC4ed6Aba5373D78E160F4df39e011F078Be54df80xFEE29845569570F8e0119291dff77B7b93283aaB0x5
+ARGt0x59863989d080B22476DB95656d0C3CC18be922140xf016413834E6D1A14F3D628B11D6Ef725a6bdbDD0x5
+TokenArbitrumBasePol
+Contratosdelostokens
+tokensdiscord.gg/whU99xqnZ
+SoporteyaccesoaPedítokensparatestearyresolvédudasconlosmentoresdeTwinenelvenueoporelDiscorddeTwin:
+Logoshttps://assets.twin.finance/media/tokens/32x32/<TICKER>.svg(ej:<TICKER>=ARGt)
+PreciodereferenciaAPIpúblicadebelo:https://api.belo.app/public/price(bid,askymidporpar)
+Decimals18entodoslostokens
+EstándarERC-20UpgradeabledeOpenZeppelin(beaconproxy);lastransferenciassonpermissionless
+ChainsArbitrum,Base,Polygon,EthereumyAvalanche
+TokensARGt,BRAt,COLt,PERt,MEXt,CHLt,BOLt
+RecursoDetalle
+
+=== PAGE 43 ===
+stateMutability:'view',
+],
+},
+],
+{ name:'lzTokenFee', type:'uint256'},
+{ name:'nativeFee', type:'uint256'},
+components:[
+type:'tuple',
+name:'msgFee',
+{
+outputs:[
+name:'quoteSend',
+],
+{ name:'_payInLzToken', type:'bool'},
+},
+],
+{ name:'oftCmd', type:'bytes'},
+{ name:'composeMsg', type:'bytes'},
+{ name:'extraOptions', type:'bytes'},
+{ name:'minAmountLD', type:'uint256'},
+{ name:'amountLD', type:'uint256'},
+{ name:'to', type:'bytes32'},
+{ name:'dstEid', type:'uint32'},
+components:[
+type:'tuple',
+name:'_sendParam',
+{
+inputs:[
+{
+// quoteSend: estimate LayerZero fees before sending
+exportconstBRIDGE_ADAPTER_ABI=[
+// User flow: approve ARGt -> send() on adapter (burns on source, mints on dest)
+// TwinBridgeAdapter extends OFTCore (LayerZero V2)
+ABIdeladaptador:
+composeMsgyoftCmdvancomo0xsalvoquenecesitesopcionesadicionales.
+receptoracomobytes32(rellenadaconcerosalaizquierda)yamountLDyminAmountLDvancon18decimals.extraOptions,
+EnelSendParam,dstEideselendpointIDdeLayerZerodelachaindedestino(noelchainID),toesladirección
+3.LlamáasendconelmismoSendParam,elfeeyturefundaddress,enviandonativeFeecomovaluedelatransacción.
+2.LlamáaquoteSendconelSendParamparaobtenerelfeedemensajeríacross-chain(nativeFee).
+1.Enlachaindeorigen,aprobáARGtaladaptadordeesachain(approvedelERC-20).
+Cómofunciona:
+Ethereum1301010x5Eaa8760c3290eb78A2BE5E33b6696bE42e47DD9
+Polygon137301090xD70ad085684b2A9f4B5d54D7BDB2ecA37a273216
+Base8453301840xe80Af1d12426dB4394b147e04f179a38e7C5Dfe7
+Arbitrum42161301100x4821FBf47B261F0D52Ba0F941CF67b8648f82691
+ChainChainIDLayerZeroEIDAdaptadordeARGt
+mentoresantesdeintegrarlos.
+PolygonyEthereum.Elrestodelostokensyrutasseestándeployando:situproyectolosnecesita,consultáconlos
+quemaeltokenenlachaindeorigenyloemiteenladedestino.HoyestáactivoparaARGtentreArbitrum,Base,
+ElbridgedeTwinestáconstruidosobreLayerZeroV2(estándarOFT):cadachaintieneuncontratoadaptadorque
+Bridges
+protocolos,noTwin.Twinnoavala,garantizaniasumeresponsabilidadporningunaaplicaciónDeFideterceros.
+
+=== PAGE 48 ===
+type:'function',
+stateMutability:'payable',
+],
+},
+],
+{ name:'amountReceivedLD', type:'uint256'},
+{ name:'amountSentLD', type:'uint256'},
+components:[
+type:'tuple',
+name:'oftReceipt',
+{
+},
+],
+},
+],
+{ name:'lzTokenFee', type:'uint256'},
+{ name:'nativeFee', type:'uint256'},
+components:[
+type:'tuple',
+name:'fee',
+{
+{ name:'nonce', type:'uint64'},
+{ name:'guid', type:'bytes32'},
+components:[
+type:'tuple',
+name:'msgReceipt',
+{
+outputs:[
+name:'send',
+],
+{ name:'_refundAddress', type:'address'},
+},
+],
+{ name:'lzTokenFee', type:'uint256'},
+{ name:'nativeFee', type:'uint256'},
+components:[
+type:'tuple',
+name:'_fee',
+{
+},
+],
+{ name:'oftCmd', type:'bytes'},
+{ name:'composeMsg', type:'bytes'},
+{ name:'extraOptions', type:'bytes'},
+{ name:'minAmountLD', type:'uint256'},
+{ name:'amountLD', type:'uint256'},
+{ name:'to', type:'bytes32'},
+{ name:'dstEid', type:'uint32'},
+components:[
+type:'tuple',
+name:'_sendParam',
+{
+inputs:[
+{
+// send: bridge tokens cross-chain
+},
+type:'function',
+
+=== PAGE 52 ===
+frenteaTwin.Estecontenidonoconstituyeofertapúblicaniasesoramientofinanciero,deinversiónnilegal.
+parapruebastécnicasduranteelevento,ynoconstituyenunaemisiónniunaventaniotorganderechoderedención
+requierecumplirconlaregulaciónaplicable.Lostokensentregadosparatestearseotorganenmontosmínimos,solo
+Losproyectossondesarrolladosporlosparticipantesbajosuexclusivaresponsabilidad,ycualquierusocomercial
+Stablecoinsnidesusreservasyesbajoexclusivoriesgodelusuario.
+garantiza,ycualquierrendimientooresultadodeusarloslodeterminanesosprotocolos,noprovienedelasTwin
+solocomoreferenciatécnicaparaelHackathon,nocomorecomendaciónnioferta.Twinnolosopera,controlani
+Lospools,vaultsydemásprotocolosmencionadossondeterceros,operanbajosuspropiostérminosyseincluyen
+únicamentecomoemisorynoprestaserviciosdeintercambio,crédito,custodianitransferencia.
+cursolegal,noestángarantizadasporningúngobiernoynogeneranintereses,rendimientosniretornos.Twinactúa
+LasTwinStablecoinssonemitidasporTwinFinanceS.A.S.Nosonvaloresnegociables,depósitosnimonedade
+Avisolegal
+Desempate:losjuradosdebatenparadefiniralganador.
+PitchUnahistoriaclaraen3minutos,conunademofuncionandoquerespaldeloquecontás
+NegocioQuetengauncaminoviableausuariosoclientesyunmodeloquetengasentidodespuésdelhack
+ProblemaQueresuelvaunproblemareal,conunusuarioidentificadoyundolorconcretoenlaregión
+elnúcleodelproducto
+Idea
+Queseaoriginalyaprovecheloquesoloesposibleconmonedalocalonchain.LasTwinStablecoinstienenqueser
+CriterioQuébuscamos
+Eljuradopuntúacadacriteriode1a5.Loscuatropesanlomismo,yelpuntajefinaleselpromediosobre100.
+Cómovamosaevaluar
+elhistorialdecommitstienequemostrarlo.
+Podésusarboilerplate,libreríasytemplatesabiertos.Lalógicadelproductotienequeconstruirseduranteelevento,y
+Pitch3minutosdepresentacióny2minutosdepreguntasdeljuradoeneldemoday
+DemofuncionalLinkalaappdesplegadaodemoenvivoduranteelpitch
+PruebaonchainAlmenosunhashdetransacciónejecutadaportuproducto,verificableenelexplorer
+RepositorioPúblico,conunREADMEqueindiquetoken(s),chainydireccionesdecontratoqueusaste
+EntregableDetalle
+Laentregacierraalas18:00delsábado7/11.Loquelleguedespuésnoseevalúa.
+Entregables
+]asconst;
+},
