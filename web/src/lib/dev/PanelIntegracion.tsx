@@ -242,6 +242,9 @@ export function PanelIntegracion() {
               ) : (
                 <>
                   ❌ <b>{l.r.error?.mensaje}</b> <small>({l.r.error?.nombre})</small>
+                  {l.r.error?.detalle && (
+                    <pre style={{ fontSize: 11, whiteSpace: "pre-wrap", margin: "4px 0", color: "#555" }}>{l.r.error.detalle}</pre>
+                  )}
                 </>
               )}
             </li>
