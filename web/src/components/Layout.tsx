@@ -1,5 +1,5 @@
 import { NavLink, Outlet } from "react-router-dom";
-import { config } from "../lib";
+import { config } from "../lib/config";
 import { acortar } from "./formato";
 import { useSesion } from "./useSesion";
 

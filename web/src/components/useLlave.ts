@@ -1,11 +1,13 @@
-// Lee la Llave cada 2 s (un ciclo = estado + herederos + agentes) y escucha los eventos.
+// Lee la Llave cada 2 s (un ciclo = estado + herederos + agente + bot) y escucha los eventos.
 import { useCallback, useEffect, useRef, useState } from "react";
 import { cliente } from "../lib";
 import type { AgenteVista, EstadoLlave, EventoLlave, HerederoVista } from "../lib";
 
 export interface DatosLlave {
-  estado: EstadoLlave; herederos: HerederoVista[]; agentes: AgenteVista[];
-  leidoEn: number;   // Date.now() de la lectura, para corregir el reloj local con `ahoraCadena`
+  estado: EstadoLlave; herederos: HerederoVista[];
+  agente: AgenteVista | null;   // el que debería pasar (KUMPLY tier 5)
+  bot: AgenteVista | null;      // el impostor sin atestación (rebota con NotAgent)
+  leidoEn: number;              // Date.now() de la lectura, para corregir el reloj local con `ahoraCadena`
 }
 
 export function useLlave(intervaloMs = 2000) {
@@ -18,10 +20,13 @@ export function useLlave(intervaloMs = 2000) {
     if (leyendo.current) return;
     leyendo.current = true;
     try {
-      const [estado, herederos, agentes] = await Promise.all([
-        cliente.estado(), cliente.herederos(), cliente.agentes?.().catch(() => []) ?? Promise.resolve([]),
+      const [estado, herederos, agente, bot] = await Promise.all([
+        cliente.estado(),
+        cliente.herederos(),
+        cliente.agente?.().catch(() => null) ?? Promise.resolve(null),
+        cliente.bot?.().catch(() => null) ?? Promise.resolve(null),
       ]);
-      setDatos({ estado, herederos, agentes, leidoEn: Date.now() });
+      setDatos({ estado, herederos, agente, bot, leidoEn: Date.now() });
       setError(null);
     } catch (e) {
       setError(e instanceof Error ? e.message : String(e));

@@ -115,7 +115,6 @@ const err = {
   porcentajes: (suma: number) => new Revert(`PorcentajesInvalidos(${suma})`, "Los porcentajes tienen que sumar 100%."),
   cantidadHerederos: () => new Revert("CantidadHerederosInvalida", "Tiene que haber entre 1 y 5 herederos."),
   plazoInvalido: () => new Revert("PlazoInvalido", "Un plazo es menor al mínimo permitido."),
-  noDisponible: () => new Revert("NoDisponible", "Esta Llave no tiene pagos de emergencia: solo herencia por inactividad."),
 };
 
 // ───────────── Lecturas puras ─────────────
@@ -210,7 +209,6 @@ async function tx(simular: (s: EstadoMock) => void, aplicar: (s: EstadoMock) => 
   for (const e of evs) avisar(e);
   return { ok: true, hash, url, ms: ms(), msFinal: 0, patrocinada: true };
 }
-const noDisponible = async (): Promise<ResultadoTx> => ({ ok: false, error: { nombre: err.noDisponible().nombre, mensaje: err.noDisponible().mensaje } });
 
 // ───────────── Acciones del agente (reutilizadas por la sesión y por los controles de ensayo) ─────────────
 function iniciarReclamoComo(quien: Address) {
@@ -298,27 +296,25 @@ export function crearClienteMock(): LlaveCliente {
         saldo: s.saldo, decimales: 18, simbolo: "mPESO",
         ultimaSenal: s.ultimaSenal, venceEn: venceEnDe(s),
         reclamoIniciadoEn: s.reclamoIniciadoEn, graciaTerminaEn: graciaTerminaDe(s),
-        foto: s.liberadaEn > 0 ? s.totalLiberado : 0n, emergenciaDisponible: 0n, cantidadEmergencias: 0,
-        ahoraCadena: ahoraDe(s),
-        comisionBps: s.comisionBps, tesoreria: CUENTAS.tesoreria.cuenta,
-        liberadaEn: s.liberadaEn, totalLiberado: s.totalLiberado, plazoInactividad: s.plazoInactividad, plazoGracia: s.plazoGracia,
+        liberadaEn: s.liberadaEn, totalLiberado: s.totalLiberado,
+        plazoInactividad: s.plazoInactividad, plazoGracia: s.plazoGracia, comisionBps: s.comisionBps,
+        ahoraCadena: ahoraDe(s), tesoreria: CUENTAS.tesoreria.cuenta,
       };
     },
     async herederos(): Promise<HerederoVista[]> {
       const s = cargar();
       return s.herederos.map((h) => ({
         cuenta: h.cuenta, alias: aliasDe(s, h.cuenta), bps: h.bps, parte: parteDe(s, h.cuenta),
-        cobro: s.liberadaEn > 0, verificacion: verificacionDe(s, h.cuenta),
+        verificacion: verificacionDe(s, h.cuenta),
       }));
     },
-    async guardianes() { return []; },
-    async emergencias() { return []; },
-    async agentes(): Promise<AgenteVista[]> {
+    async agente(): Promise<AgenteVista> {
       const s = cargar();
-      return [
-        { cuenta: CUENTAS.agente.cuenta, alias: CUENTAS.agente.alias, verificacion: verificacionDe(s, CUENTAS.agente.cuenta), rol: "agente" },
-        { cuenta: CUENTAS.bot.cuenta, alias: CUENTAS.bot.alias, verificacion: verificacionDe(s, CUENTAS.bot.cuenta), rol: "bot" },
-      ];
+      return { cuenta: CUENTAS.agente.cuenta, alias: CUENTAS.agente.alias, verificacion: verificacionDe(s, CUENTAS.agente.cuenta) };
+    },
+    async bot(): Promise<AgenteVista> {
+      const s = cargar();
+      return { cuenta: CUENTAS.bot.cuenta, alias: CUENTAS.bot.alias, verificacion: verificacionDe(s, CUENTAS.bot.cuenta) };
     },
     async saldoDe(cuenta: Address): Promise<bigint> {
       const s = cargar();
@@ -412,12 +408,5 @@ export function crearClienteMock(): LlaveCliente {
     // agente (tier 5): desde la sesión de la pestaña. Una cuenta sin atestación rebota con NotAgent.
     iniciarReclamo() { return iniciarReclamoComo(requiereSesion().cuenta); },
     liberar() { return liberarComo(requiereSesion().cuenta); },
-
-    // alcance viejo (emergencias): no existe en v2-herencia
-    cobrar: noDisponible,
-    proponerEmergencia: noDisponible,
-    aprobarEmergencia: noDisponible,
-    ejecutarEmergencia: noDisponible,
-    vetarEmergencia: noDisponible,
   };
 }

@@ -1,4 +1,4 @@
-import { config } from "../lib";
+import { config } from "../lib/config";
 
 /** Link al comprobante en Snowtrace + tiempo medido. En mock avisa que es simulado. */
 export function TxLink({ hash, url, ms, etiqueta = "ver comprobante" }: { hash?: string; url?: string; ms?: number; etiqueta?: string }) {

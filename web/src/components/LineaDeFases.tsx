@@ -9,18 +9,17 @@ export const NOMBRE_FASE: Record<Fase, string> = {
   EnGracia: "Aviso y espera",
   Ejecutable: "Lista para liberar",
   Liberada: "Herencia enviada",
-  Repartiendo: "Herencia enviada",
 };
 
 export function LineaDeFases({ estado, leidoEn, grande = false }: { estado: EstadoLlave; leidoEn: number; grande?: boolean }) {
-  const idx = Math.max(0, FASES.indexOf(estado.fase === "Repartiendo" ? "Liberada" : estado.fase));
+  const idx = Math.max(0, FASES.indexOf(estado.fase));
   const detalle = (f: Fase) => {
     switch (f) {
       case "Activa": return <CuentaRegresiva objetivo={estado.venceEn} ahoraCadena={estado.ahoraCadena} leidoEn={leidoEn} prefijo="Vence en " />;
       case "Vencida": return <span>El agente puede avisar</span>;
       case "EnGracia": return <CuentaRegresiva objetivo={estado.graciaTerminaEn} ahoraCadena={estado.ahoraCadena} leidoEn={leidoEn} prefijo="Se libera en " />;
       case "Ejecutable": return <span>El agente libera la herencia</span>;
-      default: return <span>Se repartió <Monto valor={estado.totalLiberado ?? estado.foto} decimales={estado.decimales} /></span>;
+      default: return <span>Se repartió <Monto valor={estado.totalLiberado} decimales={estado.decimales} /></span>;
     }
   };
   return (

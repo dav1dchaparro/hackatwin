@@ -2,7 +2,8 @@
 // Muestra la cuenta regresiva, el agente verificado (KUMPLY tier 5), el bot rebotado y la herencia enviada.
 import { useEffect, useRef, useState } from "react";
 import type { Address } from "viem";
-import { aliasDe as aliasLib, cliente, config } from "../lib";
+import { cliente } from "../lib";
+import { aliasDe as aliasLib, config } from "../lib/config";
 import type { EventoLlave, ResultadoTx } from "../lib";
 import { BadgeKumply } from "../components/BadgeKumply";
 import { BotonTx } from "../components/BotonTx";
@@ -43,12 +44,11 @@ export function Demo() {
   }, [datos, agenteAuto, recargar]);
 
   if (!datos) return <main className="demo"><p>Cargando…</p></main>;
-  const { estado, herederos, agentes } = datos;
+  const { estado, herederos, agente, bot } = datos;
   const dec = estado.decimales;
   const alias = (c: Address) => cliente.aliasDe?.(c) ?? aliasLib(c);
   const duena = alias(estado.dueno);
-  const agente = agentes.find((a) => a.rol === "agente");
-  const bot = agentes.find((a) => a.rol === "bot");
+  const yaLiberada = estado.liberadaEn > 0;
   const liberada = eventos.find((e) => e.nombre === "Liberada");
   const envios = liberada ? eventos.filter((e) => e.nombre === "HerenciaEnviada" && e.hash === liberada.hash) : [];
   const comision = liberada ? eventos.find((e) => e.nombre === "ComisionCobrada" && e.hash === liberada.hash) : undefined;
@@ -72,13 +72,13 @@ export function Demo() {
         <div className="tile tile-principal">
           <span>Bóveda de {duena}</span>
           <strong><Monto valor={estado.saldo} decimales={dec} /></strong>
-          {(estado.totalLiberado ?? 0n) > 0n && <small>Se repartieron {formatearMonto(estado.totalLiberado ?? 0n, dec)}</small>}
+          {yaLiberada && <small>Se repartieron {formatearMonto(estado.totalLiberado, dec)}</small>}
         </div>
         {herederos.map((h) => (
           <div key={h.cuenta} className="tile">
             <span>{h.alias} · heredero {h.bps / 100}%</span>
             <strong><Monto valor={saldos[h.cuenta.toLowerCase()] ?? 0n} decimales={dec} /></strong>
-            <small>{h.cobro ? "recibió ✓" : <>le corresponde {formatearMonto(h.parte, dec)}</>}</small>
+            <small>{yaLiberada ? "recibió ✓" : <>le corresponde {formatearMonto(h.parte, dec)}</>}</small>
           </div>
         ))}
         {agente && (
@@ -113,7 +113,7 @@ export function Demo() {
             {comision && <span>Comisión Llave {formatearMonto(BigInt(String(comision.args.monto ?? 0)), dec)} <small>1%, escrito en el contrato</small></span>}
             <span>{typeof liberada.ms === "number" ? `${liberada.ms} ms` : "—"} <small>enviado → incluido (pasa por 0xGasless)</small></span>
             <span>definitivo al incluirse <small>en Avalanche, incluido = final</small></span>
-            <span>costo de red {liberada.costo ?? "≈ centavos"} <small>lo cubre 0xGasless</small></span>
+            <span>costo de red ≈ centavos <small>lo cubre 0xGasless</small></span>
             <span>{duena} pagó $0</span>
             <TxLink hash={liberada.hash} url={liberada.url} etiqueta="ver comprobante" />
           </div>

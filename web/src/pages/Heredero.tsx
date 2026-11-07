@@ -2,7 +2,8 @@
 import { useEffect, useState } from "react";
 import { Link, useSearchParams } from "react-router-dom";
 import type { Address } from "viem";
-import { aliasDe as aliasLib, cliente } from "../lib";
+import { cliente } from "../lib";
+import { aliasDe as aliasLib } from "../lib/config";
 import { Chip } from "../components/Chip";
 import { CuentaRegresiva } from "../components/CuentaRegresiva";
 import { LineaDeFases } from "../components/LineaDeFases";
@@ -48,7 +49,7 @@ export function Heredero() {
     );
   }
 
-  const liberada = estado.fase === "Liberada" || estado.fase === "Repartiendo";
+  const liberada = estado.liberadaEn > 0;
   const comision = estado.comisionBps ?? 0;
   const miEnvio = eventos.find((e) => e.nombre === "HerenciaEnviada" && mismaCuenta(String(e.args.heredero ?? ""), cuenta));
 

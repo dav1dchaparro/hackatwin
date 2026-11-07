@@ -36,7 +36,7 @@ export function Dueno() {
   const { estado, herederos } = datos;
   const esDuena = mismaCuenta(sesion.cuenta, estado.dueno);
   const fase = estado.fase;
-  const liberada = fase === "Liberada" || fase === "Repartiendo";
+  const liberada = estado.liberadaEn > 0;
   const montoBig = parsearMonto(monto, estado.decimales);
   const mandarOk = esDuena && /^0x[0-9a-fA-F]{40}$/.test(destino.trim()) && montoBig !== null && montoBig > 0n && !liberada;
 
@@ -99,7 +99,7 @@ export function Dueno() {
           {herederos.map((h) => (
             <li key={h.cuenta} className="item fila-entre">
               <span><strong>{h.alias}</strong> <small className="muted">{acortar(h.cuenta)}</small></span>
-              <span><strong>{porcentaje(h.bps)}</strong> · <Monto valor={h.parte} decimales={estado.decimales} />{h.cobro ? " · recibido ✓" : ""}</span>
+              <span><strong>{porcentaje(h.bps)}</strong> · <Monto valor={h.parte} decimales={estado.decimales} />{liberada ? " · recibido ✓" : ""}</span>
             </li>
           ))}
         </ul>
@@ -135,7 +135,7 @@ function Configuracion({ datos, esDuena, alRecargar }: { datos: DatosLlave; esDu
   const suma = bps.reduce((a, b) => a + b, 0);
   const sumaOk = suma === 10_000 && bps.every((b) => b > 0);
   const cuentasOk = filasVisibles.length > 0 && filasVisibles.every((f) => /^0x[0-9a-fA-F]{40}$/.test(f.cuenta.trim()));
-  const liberada = estado.fase === "Liberada" || estado.fase === "Repartiendo";
+  const liberada = estado.liberadaEn > 0;
   const config: ConfigLlave = {
     herederos: filasVisibles.map((f) => f.cuenta.trim() as Address),
     bps,

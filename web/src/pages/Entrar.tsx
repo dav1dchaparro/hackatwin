@@ -1,7 +1,8 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { cliente, config } from "../lib";
+import { cliente } from "../lib";
+import { config } from "../lib/config";
 import { Chip } from "../components/Chip";
 import { acortar, mismaCuenta } from "../components/formato";
 import { useLlave } from "../components/useLlave";
@@ -23,7 +24,7 @@ export function Entrar() {
     const r: Rol[] = [];
     if (mismaCuenta(cuenta, datos.estado.dueno)) r.push("dueña");
     if (datos.herederos.some((h) => mismaCuenta(h.cuenta, cuenta))) r.push("heredero");
-    if (datos.agentes.some((a) => a.rol === "agente" && mismaCuenta(a.cuenta, cuenta))) r.push("agente");
+    if (datos.agente && mismaCuenta(datos.agente.cuenta, cuenta)) r.push("agente");
     return r;
   }
 
