@@ -100,6 +100,22 @@ const a = await cliente.agente?.();        // { cuenta, alias, verificacion: { e
 - Comisión: `estado.comisionBps / 100` % ("Comisión Llave: 1% al liberar"); `herederos[i].parte` ya es el neto.
 - Chips: `fuenteKumply()` para "KUMPLY (sdk)" y `ResultadoTx.patrocinada` para "gas pagado por 0xGasless".
 
+## Evidencias en Fuji (7/11/2026, Llave A `0xd466…F8BA`, smart account de Marta `0x77A7…dE2f` con 0 AVAX)
+
+Todas salieron de la smart account con gas pagado por el paymaster de 0xGasless (bundler → EntryPoint `0x5FF1…2789`).
+
+| Acción desde la web | Tx | Efecto |
+|---|---|---|
+| 1.ª userOp (despliega la smart account) | [0xf336…adf3](https://testnet.snowtrace.io/tx/0xf336ed45ba3aaa60757a88e8dcf80f8feef4e7d898d2b2753e81044ad55eadf3) | cuenta desplegada, 0 AVAX, gas 0,0012 AVAX pagado por el paymaster |
+| `MockPesos.faucet()` | [0xba87…bed9](https://testnet.snowtrace.io/tx/0xba87c6ba929daf2a91817a9189672b25420c67e55428028a7b4e1eebbba4bed9) | 1.000.000 mPESO para Marta |
+| `estoyBien()` | [0xe5a0…ee85](https://testnet.snowtrace.io/tx/0xe5a0aa061a5b1ee53bf8c257926f8f42fcd397ede1b8ed6e7872be5c464aee85) | `SenalDeVida`: Vencida → Activa |
+| `cargarPesosDePrueba(200.000)` (faucet + approve + depositar en una userOp) | [0x77aa…d6cb](https://testnet.snowtrace.io/tx/0x77aa94f600de85b33732610b6ec266afdeb5226b08cc96c865c94b38c72cd6cb) | `Depositado`: saldo 1.200.000 |
+| `retirar(Lucía, 200.000)` | [0x4f6b…d0a4](https://testnet.snowtrace.io/tx/0x4f6bddd43c9bbe4c1fa7d4a4699f4a8398a4581b090314e5c232623844d1d0a4) | `Retirado`: saldo 1.000.000, cuenta como señal |
+| `estoyBien()` (medición) | [0xd6d5…bfd8e](https://testnet.snowtrace.io/tx/0xd6d5c4c942f9bfc9c77da61cdb7308293fc766dec5b35f104c4972d4f8dbfd8e) | 8,7 s desde la firma hasta incluida; final = incluida |
+
+Smart accounts por email: Marta `0x77A7AFE7b3AAeE0edD8c7caC09266f20FFaCdE2f`, Lucía `0xE072386cb7eCF2a5C99f2FcB277c3618d9bA0269`,
+Tomás `0xECbB281061653d71c0984A1d188376b2A8096ef8`. Los tiempos (8-20 s) incluyen el bundler de 0xGasless; se dicen tal cual.
+
 ## ABI
 
 `src/lib/abi-llave.ts` tiene el ABI escrito con `parseAbi` desde `contracts/src/Llave.sol` (da los tipos). En runtime,
