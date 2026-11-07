@@ -16,9 +16,11 @@ import type { Verificacion } from "./tipos";
  * - `0x2260…C599` → tier 3 (persona, vence 17/07/2027).
  * - `0x7Fc6…DaE9` → tier 4 (empresa KYB, vence 17/07/2027).
  * - `0x1F98…F984` (el "tier 2" del plan) HOY NO tiene atestación (verified=false, tier 0): sirve como caso bloqueado.
- * Tier 5 (agente): la EOA del agente, atestada por el staff (`deployments.fuji.json → cuentas.agente`).
+ * - `0x9f8F…79A2` → tier 5 (agente KYA, vence 17/07/2027): verificado 15:05 con `isAgent`. Es el fixture de
+ *   `deployments/fuji.json → fixturesKumply.agenteTier5`; el agente real de la demo es la EOA de `agente/` (P1).
  */
 export const FIXTURES_KUMPLY = {
+  agente5: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2" as Address,
   persona3: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599" as Address,
   empresa: "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9" as Address,
   sinVerificar: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984" as Address,
