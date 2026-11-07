@@ -1,5 +1,5 @@
 /**
- * Errores del contrato → texto en castellano (PLAN_CONSTRUCCION_LLAVE.md §2.7, tabla de errores).
+ * Errores del contrato → texto en castellano (PLAN_CONSTRUCCION_LLAVE.md §2.7 + contracts/README.md §18).
  * P3 muestra `mensaje` tal cual y `nombre` en chico. Nunca llega una tx revertida al bundler: se simula antes.
  */
 import { BaseError, ContractFunctionRevertedError, decodeErrorResult, formatUnits, type Hex } from "viem";
@@ -22,8 +22,8 @@ export interface ContextoError {
 }
 
 export const MENSAJE_GENERICO = "No se pudo mandar. Probá de nuevo.";
-/** P2-8: política de patrocinio en el cliente. */
-export const MENSAJE_SIN_GAS = "Tu cuenta tiene que estar verificada para operar sin gas.";
+/** P2-8: la web solo manda operaciones de la dueña (las del agente salen de su propia cuenta). */
+export const MENSAJE_SOLO_DUENA = "Esta cuenta no es la dueña de esta Llave: solo ella puede operar desde acá.";
 export const MENSAJE_SIN_SESION = "Entrá con tu email para operar.";
 
 export function mmss(segundos: number): string {
@@ -47,49 +47,40 @@ type Traductor = (args: readonly unknown[], ctx: ContextoError) => string;
 
 export const MENSAJES: Record<string, Traductor> = {
   // KumplyGated
+  NotAgent: ([, tier]) => {
+    const t = Number(tier);
+    if (t === 0) return "Este bot no es un agente verificado por KUMPLY.";
+    if (t === 4) return "Es una empresa, no un agente.";
+    return "Es una persona, no un agente verificado por KUMPLY.";
+  },
   NotPerson: ([, tier]) =>
     Number(tier) === 4 || Number(tier) === 5
       ? "Esta cuenta es una empresa o un agente, no una persona."
-      : "Esta cuenta no tiene identidad verificada en KUMPLY. No puede cobrar ni aprobar.",
-  NotBusiness: () => "El destino tiene que ser un comercio o clínica verificada (KUMPLY empresa).",
-  NotAgent: () => "Esta cuenta no es un agente verificado en KUMPLY.",
+      : "Esta cuenta no tiene identidad verificada en KUMPLY.",
+  NotBusiness: () => "Tiene que ser una empresa verificada en KUMPLY.",
   InvalidPersonLevel: () => "Nivel de verificación inválido.",
   KumplyStoreInvalid: () => "El registro de identidades de KUMPLY no está disponible.",
-  // roles
-  NoEsDueno: () => "Esta cuenta no es la dueña de esta llave.",
-  NoEsHeredero: () => "Esta cuenta no es heredera de esta llave.",
-  NoEsGuardian: () => "Esta cuenta no es guardiana de esta llave.",
-  // tiempos
-  SigueVivo: ([venceEn], ctx) => `Todavía no venció el plazo: faltan ${faltan(venceEn, ctx)}.`,
-  GraciaEnCurso: ([terminaEn], ctx) =>
-    `Período de gracia: la dueña todavía puede cancelar. Faltan ${faltan(terminaEn, ctx)}.`,
-  VetoEnCurso: ([, desde], ctx) => `La dueña puede vetarlo por ${faltan(desde, ctx)} más.`,
-  // herencia
-  ReclamoYaIniciado: () => "Ya hay un reclamo en curso.",
-  SinReclamo: () => "Primero hay que iniciar el reclamo.",
-  YaCobraste: () => "Ya cobraste tu parte.",
-  RepartoEnCurso: () => "La herencia ya se está repartiendo: la bóveda no acepta más cambios.",
-  // emergencias
-  TopeEmergenciaSuperado: ([, disponible], ctx) =>
-    `Supera el tope de emergencia. Disponible: ${pesos(disponible, ctx)}.`,
-  YaVotaste: () => "Ya aprobaste.",
-  EmergenciaCerrada: () => "Este pedido caducó.",
-  EmergenciaInexistente: () => "Ese pedido no existe.",
-  FaltanVotos: () => "Falta 1 aprobación.",
-  DestinoNoPermitido: () => "Ese destino no está en la lista de la dueña.",
-  // dueño / configuración
+  // dueño
+  NoEsDueno: () => "Esta cuenta no es la dueña de esta Llave.",
   MontoInvalido: () => "El monto tiene que ser mayor a cero.",
   SaldoInsuficiente: ([, disponible], ctx) => `No alcanza el saldo. Disponible: ${pesos(disponible, ctx)}.`,
-  DireccionInvalida: () => "Esa dirección no sirve (vacía, o ya es heredera o guardiana).",
+  DireccionInvalida: () => "Esa dirección no sirve (vacía, repetida o es la dueña).",
   PorcentajesInvalidos: ([suma]) => `Los porcentajes tienen que sumar 100% (suman ${Number(suma) / 100}%).`,
   CantidadHerederosInvalida: () => "Tiene que haber entre 1 y 5 herederos.",
   PlazoInvalido: () => "El plazo es más corto que el mínimo permitido.",
-  TopeInvalido: () => "El tope de emergencia tiene que estar entre 0,01% y 20%.",
   ComisionInvalida: () => "La comisión configurada es inválida.",
-  ReentrancyGuardReentrantCall: () => "La bóveda está ocupada con otra operación. Probá de nuevo.",
+  // reloj y herencia
+  SigueVivo: ([venceEn], ctx) => `Todavía no venció el plazo: faltan ${faltan(venceEn, ctx)}.`,
+  GraciaEnCurso: ([terminaEn], ctx) =>
+    `Período de gracia: la dueña todavía puede cancelar. Faltan ${faltan(terminaEn, ctx)}.`,
+  ReclamoYaIniciado: () => "Ya hay un reclamo en curso.",
+  SinReclamo: () => "Primero hay que iniciar el reclamo.",
+  YaLiberada: () => "La herencia ya se envió.",
+  SinSaldo: () => "La Llave no tiene saldo para repartir.",
+  ReentrancyGuardReentrantCall: () => "La Llave está ocupada con otra operación. Probá de nuevo.",
   // MockPesos
   ERC20InsufficientBalance: ([, saldo], ctx) => `No alcanzan los pesos de prueba. Tenés ${pesos(saldo, ctx)}.`,
-  ERC20InsufficientAllowance: () => "Falta autorizar a la llave a mover tus pesos de prueba.",
+  ERC20InsufficientAllowance: () => "Falta autorizar a la Llave a mover tus pesos de prueba.",
 };
 
 export function mensajeDe(nombre: string, args: readonly unknown[] = [], ctx: ContextoError = {}): string {

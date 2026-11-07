@@ -1,24 +1,26 @@
 /**
- * Cliente real contra Fuji (`VITE_MODO=fuji`): lecturas con viem por el RPC público y escrituras patrocinadas
- * desde la smart account de 0xGasless. Implementa `LlaveCliente` (tipos.ts) igual que el mock de P3.
+ * Cliente real contra Fuji (`VITE_MODO=fuji`): lecturas con viem por el RPC público y escrituras del dueño
+ * patrocinadas desde la smart account de 0xGasless. Implementa `LlaveCliente` (tipos.ts) igual que el mock de P3.
  *
  * Escrituras: SIEMPRE `simulateContract` con `account` = SA antes de mandar. Si revierte, el error se traduce
  * (errores.ts) y se devuelve `ok:false` SIN mandar nada al bundler. Si pasa, va en una userOp patrocinada y se mide
  * el tiempo hasta el receipt (`ms`). En Avalanche la inclusión es la finalidad: `msFinal` = 0.
+ *
+ * `iniciarReclamo()` y `liberar()` NO se llaman desde la web: las manda el agente KUMPLY tier 5 (`agente/`, P1).
  */
 import { encodeFunctionData, getContract, type Address, type ContractFunctionArgs, type ContractFunctionName } from "viem";
 import { llaveAbi, pesosAbi } from "./abi-llave";
-import { aliasDe, config, direccionLlave, direccionPesos, urlTx } from "./config";
-import { interpretarError, mensajeDe, MENSAJE_SIN_GAS, MENSAJE_SIN_SESION, type ContextoError } from "./errores";
+import { aliasDe, config, direccionAgente, direccionLlave, direccionPesos, urlTx } from "./config";
+import { interpretarError, mensajeDe, MENSAJE_SIN_SESION, MENSAJE_SOLO_DUENA, type ContextoError } from "./errores";
 import { entrar, enviar, salir, sesion } from "./gasless";
 import { verificar } from "./kumply";
 import { clientePublico } from "./rpc";
 import {
   FASES,
-  type EmergenciaVista,
+  type AgenteVista,
+  type ConfigLlave,
   type EstadoLlave,
   type EventoLlave,
-  type GuardianVista,
   type HerederoVista,
   type LlaveCliente,
   type ResultadoTx,
@@ -35,13 +37,13 @@ export interface ExtrasFuji {
   faucet(): Promise<ResultadoTx>;
   /** userOp vacía (la SA se llama a sí misma): sirve para probar el patrocinio antes de tener contratos. */
   pruebaPatrocinio(): Promise<ResultadoTx>;
-  depositar(monto: bigint): Promise<ResultadoTx>;
-  /** mejora 4: lista blanca de destinos de emergencia (solo dueño). */
-  permitirDestino(destino: Address, permitido: boolean): Promise<ResultadoTx>;
-  /** P2-8: ¿la SA de la sesión puede operar sin gas? (es la dueña o pasa isPersonAtLeast(sa, 2)) */
-  puedeOperarSinGas(): Promise<boolean>;
+  transferirDueno(nuevo: Address): Promise<ResultadoTx>;
+  /** P2-8: ¿la SA de la sesión es la dueña de la Llave? (única cuenta que opera desde la web) */
+  puedeOperar(): Promise<boolean>;
   /** último `estado()` leído (para no esperar al próximo poll) */
   ultimoEstado(): EstadoLlave | null;
+  agente(): Promise<AgenteVista | null>;
+  aliasDe(cuenta: Address): string;
 }
 
 interface InfoToken {
@@ -50,13 +52,15 @@ interface InfoToken {
   simbolo: string;
 }
 
+const CERO = "0x0000000000000000000000000000000000000000";
+
 export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveCliente & ExtrasFuji {
   const pc = clientePublico();
   let direccion: Address | undefined = opciones.llave;
   const requerirDireccion = (): Address => {
     direccion ??= direccionLlave();
     if (!direccion) {
-      throw new Error("No hay dirección de la llave: usá ?llave=0x…, VITE_LLAVE_ADDRESS o deployments.fuji.json (llave.A).");
+      throw new Error("No hay dirección de la Llave: usá ?llave=0x…, VITE_LLAVE_ADDRESS o deployments.fuji.json (llave.A).");
     }
     return direccion;
   };
@@ -64,10 +68,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
 
   let token: InfoToken | null = null;
   let ultimo: EstadoLlave | null = null;
-  /** ABI v2 (A1): `comisionBps()` / `tesoreria()` existen */
-  let comisionSoportada: boolean | null = null;
-  /** mejoras 2/17: `emergenciaVigente(id)` existe */
-  let vigenteSoportado: boolean | null = null;
+  let tesoreria: Address | undefined;
 
   async function infoToken(): Promise<InfoToken> {
     if (token) return token;
@@ -80,11 +81,9 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     return token;
   }
 
-  /** Dirección de MockPesos aunque todavía no haya llave (P2-3). */
+  /** Dirección de MockPesos aunque todavía no haya Llave (P2-3). */
   async function pesos(): Promise<Address> {
-    const directa = direccionPesos();
-    if (directa) return directa;
-    return (await infoToken()).direccion;
+    return direccionPesos() ?? (await infoToken()).direccion;
   }
 
   // ───────────── lecturas ─────────────
@@ -92,18 +91,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
   async function estado(): Promise<EstadoLlave> {
     const l = llave();
     const [e, t] = await Promise.all([l.read.estado(), infoToken()]);
-    let comisionBps: number | undefined;
-    let tesoreria: Address | undefined;
-    if (comisionSoportada !== false) {
-      try {
-        const [c, ts] = await Promise.all([l.read.comisionBps(), l.read.tesoreria()]);
-        comisionBps = Number(c);
-        tesoreria = ts;
-        comisionSoportada = true;
-      } catch {
-        comisionSoportada = false; // ABI v1: A1 todavía no está en el contrato
-      }
-    }
+    if (tesoreria === undefined) tesoreria = await l.read.tesoreria().catch(() => CERO as Address);
     ultimo = {
       direccion: l.address,
       dueno: e.dueno,
@@ -115,12 +103,13 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
       venceEn: Number(e.venceEn),
       reclamoIniciadoEn: Number(e.reclamoIniciadoEn),
       graciaTerminaEn: Number(e.graciaTerminaEn),
-      foto: e.foto,
-      emergenciaDisponible: e.emergenciaDisponible,
-      cantidadEmergencias: Number(e.cantidadEmergencias),
+      liberadaEn: Number(e.liberadaEn),
+      totalLiberado: e.totalLiberado,
+      plazoInactividad: Number(e.plazoInactividad),
+      plazoGracia: Number(e.plazoGracia),
+      comisionBps: Number(e.comisionBps),
       ahoraCadena: Number(e.ahora),
-      comisionBps,
-      tesoreria,
+      tesoreria: tesoreria && tesoreria !== CERO ? tesoreria : undefined,
     };
     return ultimo;
   }
@@ -130,58 +119,8 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     const lista = await l.read.herederos();
     return Promise.all(
       lista.map(async (h) => {
-        const [parte, cobro, verificacion] = await Promise.all([
-          l.read.parteDe([h.cuenta]),
-          l.read.cobro([h.cuenta]),
-          verificar(h.cuenta),
-        ]);
-        return { cuenta: h.cuenta, alias: aliasDe(h.cuenta), bps: Number(h.bps), parte, cobro, verificacion };
-      }),
-    );
-  }
-
-  async function guardianes(): Promise<GuardianVista[]> {
-    const g = await llave().read.guardianes();
-    return Promise.all(
-      [...g].map(async (cuenta) => ({ cuenta, alias: aliasDe(cuenta), verificacion: await verificar(cuenta) })),
-    );
-  }
-
-  async function emergencias(): Promise<EmergenciaVista[]> {
-    const l = llave();
-    const n = Number(await l.read.cantidadEmergencias());
-    const yo = sesion()?.cuenta;
-    const ids = Array.from({ length: n }, (_, i) => i);
-    return Promise.all(
-      ids.map(async (id) => {
-        const [e, yoVote] = await Promise.all([
-          l.read.emergencia([BigInt(id)]),
-          yo ? l.read.voto([BigInt(id), yo]) : Promise.resolve(false),
-        ]);
-        let vigente: boolean | undefined;
-        if (vigenteSoportado !== false) {
-          try {
-            vigente = await l.read.emergenciaVigente([BigInt(id)]);
-            vigenteSoportado = true;
-          } catch {
-            vigenteSoportado = false;
-          }
-        }
-        return {
-          id,
-          proponente: e.proponente,
-          destino: e.destino,
-          aliasDestino: aliasDe(e.destino),
-          monto: e.monto,
-          motivo: e.motivo,
-          propuestaEn: Number(e.propuestaEn),
-          aprobadaEn: Number(e.aprobadaEn),
-          votos: Number(e.votos),
-          ejecutada: e.ejecutada,
-          vetada: e.vetada,
-          yoVote,
-          vigente,
-        };
+        const [parte, verificacion] = await Promise.all([l.read.parteDe([h.cuenta]), verificar(h.cuenta)]);
+        return { cuenta: h.cuenta, alias: aliasDe(h.cuenta), bps: Number(h.bps), parte, verificacion };
       }),
     );
   }
@@ -192,6 +131,12 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
 
   function verificacion(cuenta: Address): Promise<Verificacion> {
     return verificar(cuenta);
+  }
+
+  async function agente(): Promise<AgenteVista | null> {
+    const cuenta = direccionAgente();
+    if (!cuenta) return null;
+    return { cuenta, alias: aliasDe(cuenta) || "Agente", verificacion: await verificar(cuenta) };
   }
 
   /** Polling de logs cada `pollMs` desde el bloque actual (solo eventos nuevos). */
@@ -240,7 +185,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     };
   }
 
-  // ───────────── escrituras ─────────────
+  // ───────────── escrituras (solo la dueña, desde la smart account) ─────────────
 
   const fallo = (nombre: string, mensaje: string): ResultadoTx => ({ ok: false, error: { nombre, mensaje } });
 
@@ -249,19 +194,18 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     return { ahora: e?.ahoraCadena, decimales: e?.decimales, simbolo: e?.simbolo };
   }
 
-  /** P2-8: política de patrocinio en el cliente. No es un paymaster: evita mandar userOps que el contrato rechazaría. */
-  async function puedeOperarSinGasCuenta(cuenta: Address): Promise<boolean> {
+  /** P2-8: política en el cliente. No es un paymaster: evita mandar userOps que la Llave rechazaría con NoEsDueno. */
+  async function esDuena(cuenta: Address): Promise<boolean> {
     if (!config.politicaPatrocinio) return true;
     const dueno = ultimo?.dueno ?? (await llave().read.dueno().catch(() => undefined));
-    if (dueno && dueno.toLowerCase() === cuenta.toLowerCase()) return true;
-    return (await verificar(cuenta)).esPersona;
+    return !dueno || dueno.toLowerCase() === cuenta.toLowerCase();
   }
 
   async function ejecutar<N extends Escritura>(functionName: N, args: Args<N>): Promise<ResultadoTx> {
     try {
       const s = sesion();
       if (!s) return fallo("SinSesion", MENSAJE_SIN_SESION);
-      if (!(await puedeOperarSinGasCuenta(s.cuenta))) return fallo("SinPatrocinio", MENSAJE_SIN_GAS);
+      if (functionName !== "depositar" && !(await esDuena(s.cuenta))) return fallo("NoEsDueno", MENSAJE_SOLO_DUENA);
       const address = requerirDireccion();
       // 1) simular con account = SA: si revierte, el error sale en castellano y NO se manda nada
       await pc.simulateContract({ address, abi: llaveAbi, functionName, args, account: s.cuenta } as never);
@@ -281,11 +225,10 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
       const s = sesion();
       if (!s) return fallo("SinSesion", MENSAJE_SIN_SESION);
       if (monto <= 0n) return fallo("MontoInvalido", mensajeDe("MontoInvalido"));
-      if (!(await puedeOperarSinGasCuenta(s.cuenta))) return fallo("SinPatrocinio", MENSAJE_SIN_GAS);
       const address = requerirDireccion();
       const t = await infoToken();
-      // El batch (3 llamadas en una userOp) no se puede simular como una sola llamada en el RPC público.
-      // Se valida lo que se puede antes de mandar: faucet() simulado, saldo final suficiente y fase ≠ Repartiendo.
+      // El batch (3 llamadas en una userOp) no se simula como una sola llamada en el RPC público.
+      // Se valida lo que se puede antes de mandar: faucet() simulado, saldo final suficiente y Llave no liberada.
       const [montoFaucet, saldo, e] = await Promise.all([
         pc.readContract({ address: t.direccion, abi: pesosAbi, functionName: "MONTO_FAUCET" }).catch(() => 0n),
         saldoDe(s.cuenta),
@@ -295,7 +238,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
       if (saldo + montoFaucet < monto) {
         return fallo("SaldoInsuficiente", mensajeDe("SaldoInsuficiente", [monto, saldo + montoFaucet], await contexto()));
       }
-      if (e.fase === "Repartiendo") return fallo("RepartoEnCurso", mensajeDe("RepartoEnCurso"));
+      if (e.fase === "Liberada") return fallo("YaLiberada", mensajeDe("YaLiberada"));
       const r = await enviar([
         { to: t.direccion, data: encodeFunctionData({ abi: pesosAbi, functionName: "faucet" }) },
         { to: t.direccion, data: encodeFunctionData({ abi: pesosAbi, functionName: "approve", args: [address, monto] }) },
@@ -307,6 +250,25 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
       console.warn(`[fuji] cargarPesosDePrueba → ${err.nombre}`, err.crudo ?? "");
       return fallo(err.nombre, err.mensaje);
     }
+  }
+
+  async function configurar(c: ConfigLlave): Promise<ResultadoTx> {
+    const s = sesion();
+    if (!s) return fallo("SinSesion", MENSAJE_SIN_SESION);
+    if (c.herederos.length !== c.bps.length || c.herederos.length === 0) {
+      return fallo("CantidadHerederosInvalida", mensajeDe("CantidadHerederosInvalida"));
+    }
+    const suma = c.bps.reduce((a, b) => a + b, 0);
+    if (suma !== 10_000) return fallo("PorcentajesInvalidos", mensajeDe("PorcentajesInvalidos", [BigInt(suma)]));
+    return ejecutar("configurar", [
+      {
+        dueno: s.cuenta,
+        herederos: c.herederos,
+        bps: c.bps,
+        plazoInactividad: BigInt(c.plazoInactividad),
+        plazoGracia: BigInt(c.plazoGracia),
+      },
+    ]);
   }
 
   async function faucet(): Promise<ResultadoTx> {
@@ -341,34 +303,29 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     // lecturas
     estado,
     herederos,
-    guardianes,
-    emergencias,
     saldoDe,
     verificacion,
     escucharEventos,
+    agente,
+    aliasDe,
     // sesión
     sesion,
     entrar: (email: string) => entrar(email ? email.split("@")[0] : undefined),
     salir,
-    // escrituras (todas patrocinadas)
+    // escrituras de la dueña (todas patrocinadas)
     estoyBien: () => ejecutar("estoyBien", []),
     cargarPesosDePrueba,
+    depositar: (monto) => ejecutar("depositar", [monto]),
     retirar: (a, monto) => ejecutar("retirar", [a, monto]),
-    iniciarReclamo: () => ejecutar("iniciarReclamo", []),
-    cobrar: () => ejecutar("cobrar", []),
-    proponerEmergencia: (destino, monto, motivo) => ejecutar("proponerEmergencia", [destino, monto, motivo]),
-    aprobarEmergencia: (id) => ejecutar("aprobarEmergencia", [BigInt(id)]),
-    ejecutarEmergencia: (id) => ejecutar("ejecutarEmergencia", [BigInt(id)]),
-    vetarEmergencia: (id) => ejecutar("vetarEmergencia", [BigInt(id)]),
+    configurar,
     // extras
     direccion: requerirDireccion,
     faucet,
     pruebaPatrocinio,
-    depositar: (monto) => ejecutar("depositar", [monto]),
-    permitirDestino: (destino, permitido) => ejecutar("permitirDestino", [destino, permitido]),
-    puedeOperarSinGas: async () => {
+    transferirDueno: (nuevo) => ejecutar("transferirDueno", [nuevo]),
+    puedeOperar: async () => {
       const s = sesion();
-      return s ? puedeOperarSinGasCuenta(s.cuenta) : false;
+      return s ? esDuena(s.cuenta) : false;
     },
     ultimoEstado: () => ultimo,
   };

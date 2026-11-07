@@ -1,7 +1,8 @@
 /**
  * Semáforo de identidad con `@kumply/sdk` (bonus KUMPLY core, K1).
- * Regla (la misma que `KumplyGated` en el contrato): persona = ok && 2 ≤ tier ≤ 3; empresa = ok && tier == 4. Nunca `hasTier()`.
- * Si el SDK falla, el fallback a `verify()` del store con viem es DECLARADO (mejora 13): `fuente: "contrato"` + warning en consola.
+ * Reglas (las mismas que `KumplyGated` en el contrato): persona = ok && 2 ≤ tier ≤ 3; empresa = ok && tier == 4;
+ * **agente = ok && tier == 5** (el gate de `iniciarReclamo()` y `liberar()`). Nunca `hasTier()`.
+ * Si el SDK falla, el fallback a `verify()` del store con viem es DECLARADO (mejora 13): `fuente: "contrato"` + warning.
  */
 import { KumplyClient, TIER } from "@kumply/sdk";
 import type { Address } from "viem";
@@ -12,9 +13,10 @@ import type { Verificacion } from "./tipos";
 
 /**
  * Fixtures públicos del store de Fuji, VERIFICADOS con `@kumply/sdk` el 7/11/2026 14:30:
- * - `0x2260…C599` → tier 3 (persona, vence 17/07/2027): pasa `isPersonAtLeast(_, 2)`.
- * - `0x7Fc6…DaE9` → tier 4 (empresa KYB, la "Clínica", vence 17/07/2027): pasa `isBusiness`.
+ * - `0x2260…C599` → tier 3 (persona, vence 17/07/2027).
+ * - `0x7Fc6…DaE9` → tier 4 (empresa KYB, vence 17/07/2027).
  * - `0x1F98…F984` (el "tier 2" del plan) HOY NO tiene atestación (verified=false, tier 0): sirve como caso bloqueado.
+ * Tier 5 (agente): la EOA del agente, atestada por el staff (`deployments.fuji.json → cuentas.agente`).
  */
 export const FIXTURES_KUMPLY = {
   persona3: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599" as Address,
@@ -46,6 +48,7 @@ function armar(ok: boolean, tier: number, fuente: Verificacion["fuente"]): Verif
     tier,
     esPersona: ok && tier >= config.nivelPersona && tier <= 3,
     esEmpresa: ok && tier === 4,
+    esAgente: ok && tier === 5,
     fuente,
   };
 }
@@ -58,12 +61,13 @@ export async function verificar(cuenta: Address, opciones?: { sinCache?: boolean
   let v: Verificacion;
   try {
     const c = kumply();
-    const [r, esPersona, esEmpresa] = await Promise.all([
+    const [r, esPersona, esEmpresa, esAgente] = await Promise.all([
       c.verify(cuenta),
       c.isPersonAtLeast(cuenta, TIER.STANDARD),
       c.isBusiness(cuenta),
+      c.isAgent(cuenta),
     ]);
-    v = { ok: r.verified, tier: r.tier, esPersona, esEmpresa, fuente: "kumply-sdk" };
+    v = { ok: r.verified, tier: r.tier, esPersona, esEmpresa, esAgente, fuente: "kumply-sdk" };
     fuenteActiva = "kumply-sdk";
     motivoFallback = null;
   } catch (e) {
