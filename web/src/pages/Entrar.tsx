@@ -10,7 +10,7 @@ import { useLlave } from "../components/useLlave";
 import { useSesion } from "../components/useSesion";
 import { PERSONAS_DEMO } from "../mock/cliente-mock";
 
-type Rol = "dueño" | "agente";
+type Rol = "dueño" | "heredero" | "agente";
 
 export function Entrar() {
   const { sesion, entrar, salir } = useSesion();
@@ -19,13 +19,19 @@ export function Entrar() {
   const [email, setEmail] = useState("");
   const [ocupado, setOcupado] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [copiado, setCopiado] = useState(false);
 
   function rolesDe(cuenta: string): Rol[] {
     if (!datos) return [];
     const r: Rol[] = [];
     if (mismaCuenta(cuenta, datos.estado.dueno)) r.push("dueño");
+    if (datos.herederos.some((h) => mismaCuenta(h.cuenta, cuenta))) r.push("heredero");
     if (datos.agente && mismaCuenta(datos.agente.cuenta, cuenta)) r.push("agente");
     return r;
+  }
+
+  async function copiar(texto: string) {
+    try { await navigator.clipboard.writeText(texto); setCopiado(true); setTimeout(() => setCopiado(false), 2000); } catch { /* sin clipboard */ }
   }
 
   async function enviar(correo: string) {
@@ -33,9 +39,9 @@ export function Entrar() {
     setOcupado(true); setError(null);
     try {
       const s = await entrar(correo);
-      const estado = await cliente.estado();
-      if (mismaCuenta(s.cuenta, estado.dueno)) nav("/dueno");
-      else setError("Esta cuenta no es la del dueño de la Llave. Solo el dueño puede entrar.");
+      // La cuenta ya quedó creada con el email. Si es la dueña va a su Llave; si no, ve su cuenta para pasársela a quien la nombra.
+      const estado = await cliente.estado().catch(() => null);
+      if (estado && mismaCuenta(s.cuenta, estado.dueno)) nav("/dueno");
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo entrar. Probá de nuevo.");
     } finally {
@@ -81,8 +87,14 @@ export function Entrar() {
                 {roles.map((r) => <Chip key={r} tono="info">{r}</Chip>)}
                 {datos && roles.length === 0 && <Chip>sin rol en esta Llave</Chip>}
               </div>
+              {!roles.includes("dueño") && (
+                <p className="descripcion">
+                  Tu cuenta ya está creada y es tuya. Pasale esta dirección a quien te va a dejar su herencia (la carga en «Herederos» con tu email). La plata te llega sola cuando corresponda.
+                </p>
+              )}
               <div className="pila">
                 {roles.includes("dueño") && <Link className="btn btn-primario btn-grande" to="/dueno">Mi Llave <IcoFlecha tam={16} /></Link>}
+                <button type="button" className="btn btn-secundario" onClick={() => void copiar(sesion.cuenta)}>{copiado ? "Copiada ✓" : "Copiar mi dirección"}</button>
                 <button type="button" className="btn btn-fantasma" onClick={() => void salir()}>Salir</button>
               </div>
             </>
