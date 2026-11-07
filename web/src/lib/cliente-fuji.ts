@@ -160,12 +160,27 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     throw new Error(`No conozco la cuenta de ${email}: esa persona tiene que entrar una vez con su email y pasar su dirección.`);
   }
 
-  /** Historial reciente (más nuevo primero) para el feed del panel. El RPC público corta eth_getLogs en 2048 bloques. */
+  /** El RPC público de Fuji corta `eth_getLogs` en 100 bloques por pedido: se pide por tramos. */
+  const TRAMO = 100n;
+  async function logsPorTramos(address: Address, desde: bigint, hasta: bigint, maxTramos: number) {
+    const logs = [];
+    let cursor = desde;
+    let tramos = 0;
+    while (cursor <= hasta && tramos < maxTramos) {
+      const fin = cursor + TRAMO - 1n < hasta ? cursor + TRAMO - 1n : hasta;
+      logs.push(...(await pc.getContractEvents({ address, abi: llaveAbi, fromBlock: cursor, toBlock: fin })));
+      cursor = fin + 1n;
+      tramos++;
+    }
+    return { logs, siguiente: cursor };
+  }
+
+  /** Historial reciente (más nuevo primero) para el feed del panel: últimos ~300 bloques (3 tramos de 100). */
   async function eventosRecientes(): Promise<EventoLlave[]> {
     const address = requerirDireccion();
     const ultimoBloque = await pc.getBlockNumber();
-    const desde = ultimoBloque > 2000n ? ultimoBloque - 2000n : 0n;
-    const logs = await pc.getContractEvents({ address, abi: llaveAbi, fromBlock: desde, toBlock: ultimoBloque });
+    const desde = ultimoBloque > 299n ? ultimoBloque - 299n : 0n;
+    const { logs } = await logsPorTramos(address, desde, ultimoBloque, 3);
     const tiempos = new Map<bigint, number>();
     const salida: EventoLlave[] = [];
     for (const l of logs) {
@@ -198,8 +213,10 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
       try {
         const ultimoBloque = await pc.getBlockNumber();
         if (desde === null) desde = ultimoBloque;
+        // si la pestaña estuvo dormida mucho tiempo, no se intenta recuperar más de 5 tramos (500 bloques) por ciclo
+        if (ultimoBloque - desde > 500n) desde = ultimoBloque - 500n;
         if (ultimoBloque >= desde) {
-          const logs = await pc.getContractEvents({ address, abi: llaveAbi, fromBlock: desde, toBlock: ultimoBloque });
+          const { logs, siguiente } = await logsPorTramos(address, desde, ultimoBloque, 5);
           for (const l of logs) {
             const clave = `${l.transactionHash}:${l.logIndex}`;
             if (vistos.has(clave)) continue;
@@ -217,7 +234,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
               cuando,
             });
           }
-          desde = ultimoBloque + 1n;
+          desde = siguiente;
         }
       } catch (e) {
         console.warn("[fuji] eventos:", e);
