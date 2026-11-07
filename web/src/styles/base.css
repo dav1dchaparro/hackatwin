@@ -101,7 +101,7 @@ code { font-size: 12px; }
 .encabezado-texto { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .ceja { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: 600; letter-spacing: 0.06em; text-transform: uppercase; color: var(--fg-3); }
 .encabezado h1 { font-size: 24px; }
-.encabezado p { color: var(--fg-2); max-width: 64ch; }
+.encabezado p { color: var(--fg-2); }
 .encabezado-acciones { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
 .modulo { display: flex; flex-direction: column; gap: 14px; }
 .modulo-cab { display: flex; justify-content: space-between; align-items: flex-start; gap: 16px; flex-wrap: wrap; }
