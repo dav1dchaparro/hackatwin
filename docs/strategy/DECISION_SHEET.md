@@ -50,12 +50,19 @@
 ## The three gates (check by 11:30)
 
 1. **Rules:** organizers confirm the same project may be submitted to both tracks, and the Blockchain deadline is also 18:00.
-2. **Token:** Twin mentors confirm ARGt on Arbitrum + give a test balance; ask whether ARGt exists on Avalanche C-Chain mainnet.
+2. **Token:** Twin mentors confirm ARGt on Arbitrum + give a test balance. **Twin's docs list Base / Polygon / Arbitrum / Ethereum — no Avalanche.** Only an undocumented deployment reopens the dual path.
 3. **Dual only if:** ARGt is live on Avalanche mainnet **and** 0xGasless sits in the core flow **and** one person can deploy/verify in ≤45 min. Otherwise: **Stablecoins only**.
 
 **Default:** gates 1–2 pass, gate 3 fails → Stablecoins only. That is the expected outcome.
 
 ---
+
+## Verified from Twin's docs (11:15)
+
+- **Chains:** Base, Polygon, Arbitrum One, Ethereum. **No Avalanche** in the supported-chains table.
+- **Tokens:** 7 live (covered by the Sep-2026 PoR), 10 documented. ARGt is **~96% of circulation**.
+- **ARGt:** ARS 15.96 B in circulation (≈ USD 9.9 M), **1.09x** coverage, backed by **Argentine government securities**. The report is an agreed-upon-procedures engagement, not a full audit.
+- **Legal:** Twin calls the tokens *"payment instruments, not investment products, not securities… no yield, interest or returns."* Use that line.
 
 ## The 6-hour plan
 

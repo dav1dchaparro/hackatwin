@@ -11,7 +11,7 @@
 
 ## 0. Bottom line
 
-1. **Focus on Stablecoins. Do not run two builds.** The two rubrics pull in opposite directions: Stablecoins gives 25% of the score to "the Twin token is the core, not decorative"; Avalanche gives 25% to "uses Avalanche's own capabilities". One product can satisfy both only when Avalanche is load-bearing in the core flow — and then it is usually a weaker Stablecoins product. The only dual-track version worth considering is **one deployment on Avalanche C-Chain mainnet with real ARGt**, never two deployments (§3).
+1. **Focus on Stablecoins. Do not run two builds.** The two rubrics pull in opposite directions: Stablecoins gives 25% of the score to "the Twin token is the core, not decorative"; Avalanche gives 25% to "uses Avalanche's own capabilities". One product can satisfy both only when Avalanche is load-bearing in the core flow — and then it is usually a weaker Stablecoins product. The only dual-track version worth considering is **one deployment on Avalanche C-Chain mainnet with real ARGt**, never two deployments — and Twin's own docs (25 Aug 2026) list four chains with **no Avalanche**, so even that path is unlikely (§3).
 2. **The winning lane is local-currency credit, not another escrow, remittance app or agent wallet.** Every on-chain credit winner I could verify is USD-denominated (Cred-Fi, Strevvo, Ghost Finance, Dow, Efy). The Twin track explicitly asks for things that are *only* possible with local money; a peso-denominated credit primitive is the open lane (§5.4).
 3. **Recommended concept: `Aval` — social collateral, priced on-chain.** A borrower with no payslip and no property pledges her network: two people she knows lock a capped amount of ARGt as first-loss guarantee; a lender funds the loan at a much lower rate; the contract releases or seizes the guarantee automatically; the repayment history becomes a portable "legajo". The token is not decoration: income, loan, collateral and repayment are all in the same unit, which removes the FX mismatch that makes dollar credit unusable for this borrower (§7).
 4. **Why it can win this jury:** it is a payment/settlement primitive (no yield promise, which matters after the CNV episode), it gives Twin a credit story on top of payments, it gives Belo a reason to keep ARGt balances, and it has a physical, human 30-second demo: *"Rosa no tenía garantía. Tenía una red."*
@@ -105,7 +105,7 @@ The table says the EV can favor dual *if* the second submission is nearly free. 
 Before considering dual, answer four questions at the venue:
 
 1. **Can the same project be submitted to both tracks?** The rules are silent **[UNVERIFIED]**. Ask the organizers on the record; if the answer is no, the decision is over.
-2. **Does ARGt exist on Avalanche C-Chain mainnet, and can the Twin mentors give a test balance?** The track PDF lists Avalanche as a supported chain; the repo's reference address is `0x2E4e93eCA2E16E4989b894e188B7F7fC0175703B` **[UNVERIFIED, confirm with Twin]**. If there is no ARGt on Avalanche, C dies; B is the only dual path, and B is not worth it.
+2. **Does ARGt exist on Avalanche C-Chain mainnet, and can the Twin mentors give a test balance?** The track PDF lists Avalanche as eligible, but **Twin's own docs (25 Aug 2026) list only Base, Polygon, Arbitrum One and Ethereum** — no Avalanche ([supported chains](https://docs.twin.finance/stablecoins/supported-chains)). The repo's reference address `0x2E4e93eCA2E16E4989b894e188B7F7fC0175703B` is **[UNVERIFIED]**. Unless a mentor confirms an undocumented Avalanche deployment, C is dead; B (two builds) is the only dual path, and B is not worth it.
 3. **Is there an Avalanche-native capability in the core flow?** For `Aval`, the credible ones are **KUMPLY** as the avalista identity gate (unique verified humans — Sybil resistance is the security model, not a bolt-on) and **0xGasless** as the borrower onboarding (no ETH). Two caveats: KUMPLY's Fuji attestations are demo-only and a **mainnet** contract cannot read Fuji state, so using KUMPLY in the live flow implies a Fuji deployment; and 0xGasless support on Avalanche mainnet must be confirmed. If neither is usable on the mainnet deployment, "why Avalanche" is "cheap and fast", which any EVM claims, and the 25-point criterion collapses.
 4. **Can one person deploy and verify it in ≤45 minutes?** If not, it is not a free option.
 
@@ -114,7 +114,9 @@ Before considering dual, answer four questions at the venue:
 **Default: Option A — Stablecoins only, on Arbitrum One.**
 Reasons: (a) Arbitrum is where Twin's real liquidity lives — the Curve ARGt/USDT0 pool and the Morpho ARGt vault are there, and the addresses are documented; (b) the Stablecoins rubric is the one that rewards the thing you can uniquely build today; (c) the 500 USDT is small, but the relationship value with Twin/Belo is not; (d) one demo, rehearsed three times, is worth more than two demos rehearsed once.
 
-**Exception: Option C, only if all four gates in §3.3 pass by 11:30.** Then build the *same* product on Avalanche C-Chain mainnet with real ARGt and submit to both. Be precise about the Avalanche hook: **0xGasless on mainnet** is a clean, core-flow story if it is supported; **KUMPLY** is a Fuji-only demo, so earning that bonus means a second (Fuji) deployment — i.e. Option B. Do not claim a mainnet contract reads Fuji attestations. If the only honest answer is "cheap and fast", skip the second track.
+**Option C (now unlikely — see the update below), only if all four gates in §3.3 pass by 11:30.** Then build the *same* product on Avalanche C-Chain mainnet with real ARGt and submit to both. Be precise about the Avalanche hook: **0xGasless on mainnet** is a clean, core-flow story if it is supported; **KUMPLY** is a Fuji-only demo, so earning that bonus means a second (Fuji) deployment — i.e. Option B. Do not claim a mainnet contract reads Fuji attestations. If the only honest answer is "cheap and fast", skip the second track.
+
+**Update (11:30):** Twin's docs list four chains and **not Avalanche**, and the September reserve report covers **seven tokens** (not the ten the docs list). Until a mentor confirms an Avalanche deployment, treat Option C as dead and build on Arbitrum. The dual-track question is now mostly settled by the issuer's own documentation.
 
 **What I would not do:** port a peso-credit product to Fuji with a test token, then tell the Avalanche jury that "fast finality" is why it is on Avalanche. The 25-point "use of Avalanche" score will see through it, and the Stablecoins jury will see a project that spent its morning on a second chain.
 
@@ -122,13 +124,13 @@ Reasons: (a) Arbitrum is where Twin's real liquidity lives — the Curve ARGt/US
 
 ## 4. The asset: what ARGt is, and what it isn't
 
-### 4.1 Mechanics (from the track PDF)
+### 4.1 Mechanics (track PDF + Twin docs, 25 Aug 2026)
 
-- Seven tokens: **ARGt, BRAt, COLt, PERt, MEXt, CHLt, BOLt**; ERC-20 upgradeable (OpenZeppelin beacon proxy); 18 decimals; permissionless transfers.
-- Chains: **Arbitrum, Base, Polygon, Ethereum, Avalanche**.
+- **Seven live tokens** in the September 2026 reserve report: **ARGt, BRAt, COLt, PERt, MEXt, CHLt, BOLt**; ERC-20, 18 decimals, permissionless. Twin's docs list **ten** deployed (the extra **PRYt, URYt and VENt** are not in the PoR yet).
+- **Four chains in Twin's docs (25 Aug 2026): Base (8453), Polygon (137), Arbitrum One (42161), Ethereum (1). Avalanche is not in the supported-chains table**, even though the track PDF lists it as eligible. Treat the PDF as the event's eligibility list and the docs as the deployment reality; confirm with the mentors.
 - Issuer: **Twin Finance S.A.S.** (Uruguay) for stablecoins; **Twin Finance Bermuda Ltd.** (Class M Digital Asset Business licence) for tokenized assets.
-- Reserves: a combination of public and private securities in pesos, cauciones, FCIs, local and foreign currency, USDT/USDC and DeFi positions, according to Belo's own description in the CNV file.
-- Bridge: **LayerZero V2 OFT**, adapter per chain, live for ARGt between Arbitrum, Base, Polygon and Ethereum (not Avalanche).
+- Reserves (30 Sep 2026 PoR): **ARGt — Argentine government securities, 1.09x coverage**; BRAt — BRL stablecoins, 1.37x; COLt — USD stablecoins, 1.32x; PERt — USD stablecoins, 1.85x; MEXt — USD stablecoins + tokenized bonds, 1.21x; CHLt — USD stablecoins, 1.40x; BOLt — USD stablecoins, 1.95x. The report is an **agreed-upon-procedures** engagement by NEXXO Solutions (Montevideo), not a full audit ([PoR](https://cdn.twin.finance/Proof%20of%20Reserves/stablecoins/PoR-260930-en.pdf)).
+- Bridge: **LayerZero V2 OFT, burn & mint**, all tokens across the four documented chains; one adapter per token per chain (ARGt Arbitrum adapter `0x4821FBf47B261F0D52Ba0F941CF67b8648f82691`).
 - Liquidity on Arbitrum: one **Curve** pool per token vs USDT0 (e.g. ARGt/USDT0 `0x356d349da9add7efb56a35fab939a2c6d852f853`), one **Morpho** vault per token (e.g. ARGt vault `0x9Dd3F844747AB78d616BF76DB92756E17A064aDD`).
 - Price API: `https://api.belo.app/public/price` (bid/ask/mid per pair) — off-chain, for display and quotes, not for settlement.
 - **Non-deterministic deploys:** the same address can be a different token on another chain (the PDF's own example: `0x5986…2214` is ARGt on Arbitrum and Ethereum, MEXt on Base, BRAt on Polygon). Always read `symbol()` at runtime; never hard-code an address by chain.
@@ -151,7 +153,7 @@ A peso stablecoin is not a better dollar. It is a different unit of account, and
 
 - **Income, obligation and collateral in the same unit.** If Rosa earns in pesos, borrows in USDT and the peso depreciates 30%, her debt grows 30% in real terms even if she pays every installment. A peso loan removes the FX bet and leaves only credit risk — which is exactly what a guarantee prices. This is the strongest "only possible with local money" argument available, and it is economically correct.
 - **Obligations that are legally in pesos.** Wages, rents, invoices, taxes, school fees and utility bills are denominated in ARS. A product that settles them on-chain must use a peso unit, or it is just a dollar app with an FX step.
-- **Composability across seven currencies.** The same standard on seven LATAM currencies, with Curve pools on Arbitrum and an OFT bridge for ARGt, makes cross-border local-currency products possible without a USD leg. That is Twin's unique asset; very few teams will use it well.
+- **Composability across currencies.** The same standard on seven live LATAM currencies (ten documented), with Curve pools on Arbitrum and an OFT bridge, makes cross-border local-currency products possible without a USD leg. But **ARGt is ~96% of circulation** (ARS 15.96 B vs ~USD 0.37 M for the other six combined), so a multi-currency demo is a roadmap slide, not a live flow.
 
 ### 4.4 What ARGt is not
 
@@ -533,7 +535,7 @@ A rotating savings circle (ROSCA) — *pasanaku* in Bolivia, *tanda* in Mexico, 
 
 ## 11. Appendix
 
-### 11.1 Verified addresses and endpoints (from the track PDF; verify at runtime)
+### 11.1 Verified addresses and endpoints (track PDF + Twin docs, 25 Aug 2026; verify `symbol()`/`decimals()` at runtime)
 
 **Arbitrum One (chain 42161):**
 
@@ -546,6 +548,11 @@ A rotating savings circle (ROSCA) — *pasanaku* in Bolivia, *tanda* in Mexico, 
 | MEXt | `0xb96aA6babCcD738d6644ADd4912fE5eFbEBF5a25` | `0x6edbf3ada7b6d9524c3248955538d573aae449cf` | `0x3046bc254bD2269eC5C3478692be619441Bb11A5` |
 | CHLt | `0xe8dbC4680235cCAeFf48e4C0B0EaceeBb89E5e17` | `0xa087f05ecd245476d7844f6eab28d98724696ac2` | `0xb5cd19e8e884e8e0e6dD8eDF54C172BD865A7BAd` |
 | BOLt | `0x1edF5E61B6a4Fe19FEf3A695328F61aAa07728eA` | `0x9c7809c813bcc67e288c56d5ce5e0225996bfcd2` | `0x8dE92AFea0266A67c451b5AD1318bc0A9d834a7E` |
+| PRYt | `0x6Bb883b61D58f3531cd2e15563F2CDd0E9B24E32` | — | — |
+| URYt | `0x2eCC8c60C881436D43b9AE8EEC7bc226D5404E71` | — | — |
+| VENt | `0x8c4106beE19CB995abab20f3De6Ba9DF9CF9A17f` | — | — |
+
+**Infrastructure on Arbitrum:** Oracle `0x5Eaa8760c3290eb78A2BE5E33b6696bE42e47DD9`; USDC `0xaf88d065e77c8cC2239327C5EDb3A432268e5831`; USDT `0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9`. **Docs:** [contracts](https://docs.twin.finance/stablecoins/contracts), [chains](https://docs.twin.finance/stablecoins/supported-chains), [bridge](https://docs.twin.finance/stablecoins/bridge), [PoR](https://cdn.twin.finance/Proof%20of%20Reserves/stablecoins/PoR-260930-en.pdf).
 
 **ARGt LayerZero OFT adapters:** Ethereum `0x5Eaa8760c3290eb78A2BE5E33b6696bE42e47DD9` (EID 30101), Polygon `0xD70ad085684b2A9f4B5d54D7BDB2ecA37a273216` (30109), Base `0xe80Af1d12426dB4394b147e04f179a38e7C5Dfe7` (30184), Arbitrum `0x4821FBf47B261F0D52Ba0F941CF67b8648f82691` (30110). The bridge is live for ARGt between Arbitrum, Base, Polygon and Ethereum; **not** Avalanche.
 
