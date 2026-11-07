@@ -13,7 +13,7 @@
 
 **The concept.** **Aval** turns a guarantee — *el aval* — into a first-class on-chain primitive: a **transferable guarantee certificate** backed by a **risk pool denominated in ARGt**, issued by an existing **SGR** (Sociedad de Garantía Recíproca) or mutual, consumed by any lender, and priced by the repayment record of the borrower.
 
-The user story stays human: **Rosa, 44**, runs a kiosco in La Matanza, is a monotributista, has no property and no payslip. She needs **ARGt 3,000,000** for inventory. A bank asks for a property guarantee; a fintech offers **90–120% TNA**. Her cooperative — an SGR with a risk fund — can guarantee **50%** of the loan. Today that guarantee is a paper certificate that takes weeks, cannot be verified by a lender in another province, and cannot be sold or reinsured. With Aval it is minted in seconds, verified by any lender, and **the rate falls from 90% to 45%**. If Rosa defaults, the pool pays the lender automatically and Rosa's `legajo` records it.
+The user story stays human: **Rosa, 44**, runs a kiosco in La Matanza, is a monotributista, has no property and no payslip. She needs **ARGt 3,000,000** for inventory. A bank asks for a property guarantee; a fintech offers **90% TNA**. Her cooperative — an SGR with a risk fund — can guarantee **50%** of the loan. Today that guarantee is a paper certificate that takes weeks, cannot be verified by a lender in another province, and cannot be sold or reinsured. With Aval it is minted in seconds, verified by any lender, and **the rate falls from 90% to 45%**. If Rosa defaults, the pool pays the lender automatically and Rosa's `legajo` records it.
 
 **Why this is the open lane.** Every on-chain credit winner of 2025–26 that I could verify is **USD-denominated** — unsecured lending or credit-adjacent (Cred-Fi, Strevvo, Ghost, Dow, Efy). The category of **guarantees** — the instrument that actually unlocks bank credit for small firms in Argentina, Chile, Korea, Japan and Germany — has no on-chain product in LATAM. The closest public work I found is a 2026 academic framework (BLINK), not a company. And on **2 June 2026** Argentina published **Resolución 94/2026**, which requires SGRs that use electronic guarantee contracts to do so on a **blockchain-associated support** for identity validation and transaction security. The regulation just created the demand; nobody has shipped the product.
 
@@ -161,12 +161,40 @@ That last point is the wedge. **The regulator has mandated a blockchain support 
 
 **The world has built on-chain *lending* and on-chain *savings*; it has not built on-chain *guarantees* — the instrument that actually converts a small firm's cash flow into bank credit in most of the world.** Argentina just made that instrument digital-by-law. That is the opening.
 
+### 3.5 What winning projects do — and what Aval steals
+
+| Winner (event) | What it did | What Aval steals |
+|---|---|---|
+| **Paybot** (ETHGlobal Buenos Aires 2025) | x402 micropayments unlock physical devices; the provider pays the gas | **Remove gas and wallet friction from the person who has the least** — the SGR or the lender can sponsor the borrower's onboarding |
+| **Payload Exchange** (ETHGlobal BA 2025) | a third party sponsors part of the payment in exchange for data or an action | **The party that benefits from the guarantee pays for the certification** — the lender, not Rosa |
+| **Onda** (Arc/Circle, Cannes 2026) | $0.01 to the artist, escrowed until claimed | **Escrow the guarantee fee until the loan is funded**; no fee if the loan never happens |
+| **PayMate** (Cannes 2026) | a programmable credit pool: providers borrow, investors earn | **Pool + credit is a winning primitive**; Aval turns the pool into a guarantee fund |
+| **Strevvo** (Chainlink Convergence 2026) | revenue-based financing, CRE-orchestrated | **Repayment as a share of sales** is the natural next iteration for merchant guarantees |
+| **Saving Circles** (ETHGlobal BA 2025, Chainlink prize) | ROSCA with VRF draws and **NFT seats as liquid positions** | **The certificate is the liquid seat**: cession is the killer feature, not a back-office detail |
+| **Meridian** (Avalanche Build Games, $100k) | institutional credit infrastructure | **Institutional credit infrastructure wins on Avalanche**; Aval is the same category with a different instrument (guarantees, not loans) |
+
+The pattern is consistent: one user, one number that moves, one live transaction, and a business line that survives the weekend. Aval's number is **90% → 45%**; its live transaction is the **ARGt allocation and disbursement**; its business line is the **SGR's compliance budget**.
+
 ---
 
 ## 4. The concept: Aval
 
 > **"Rosa no tenía garantía. Su cooperativa sí."**
 > *Aval convierte el aval en un certificado on-chain, con un fondo de riesgo en ARGt, que cualquier prestamista puede verificar y ejecutar.*
+
+### 4.0 The shortlist (and why this one)
+
+Scored 1–5 on Twin's four criteria plus feasibility for a **5-hour build by four people**. The "token core?" column asks: *if you removed ARGt, would the product still work?*
+
+| Concept | Idea | Problem | Business | Pitch | Feasibility | Token core? |
+|---|---|---|---|---|---|---|
+| **Aval Network — SGR guarantees** | 5 | 5 | 5 | 4 | 4 | **Yes** |
+| **Aval Direct — friends' aval** | 4 | 4 | 3 | 5 | 5 | **Yes** |
+| **La Cadena — merchant ROSCA** | 3 | 4 | 3 | 5 | 4 | Partial |
+| **La Libreta — fiado ledger + merchant credit** | 4 | 5 | 4 | 4 | 3 | Yes |
+| **El Plan — on-chain layaway** | 4 | 4 | 3 | 3 | 2 | Yes |
+
+**Aval Network wins** because it is the only concept where (a) the customer has a **legal mandate** to digitize, (b) the risk capital is **already funded** (the SGR's risk fund), (c) a **secondary market** exists to be unlocked, and (d) the demo is still a human story. **Aval Direct** is the fallback if no SGR or mutual is reachable at the venue: same certificate, but the guarantors are two people who trust Rosa instead of a pool. It is more emotional and less defensible; build it only if the institutional door is closed.
 
 ### 4.1 The users
 
@@ -226,14 +254,14 @@ That positioning is also the answer to the CNV question: **Aval is not an invest
 
 ### 5.1 The contract core
 
-Keep it to **four contracts and one library**, all in Solidity 0.8.24, deployed on **Arbitrum One (42161)** with real ARGt.
+Keep it to **four small contracts**, all in Solidity 0.8.24, deployed on **Arbitrum One (42161)** with real ARGt.
 
 ```
-AvalCore.sol
-  ├── GuaranteePool      // ARGt risk fund: deposit, allocate, release, claim
-  ├── GuaranteeCertificate // ERC-721: terms, status, cession (fractional participation)
-  ├── LoanBook           // fund, repay, waterfall, markDefault
-  └── Legajo             // portable repayment record (SBT or mapping)
+contracts/
+  GuaranteePool.sol        // ARGt risk fund: deposit, allocate, release, claim
+  GuaranteeCertificate.sol // ERC-721: terms, status, cession (fractional participation)
+  LoanBook.sol             // fund, repay, waterfall, markDefault
+  Legajo.sol               // portable repayment record (SBT or mapping)
 ```
 
 **Data model (abridged):**
@@ -303,7 +331,7 @@ poolAvailable() -> uint256
 
 ```
 aval/
-  contracts/        AvalCore.sol, interfaces/, test/
+  contracts/        GuaranteePool.sol, GuaranteeCertificate.sol, LoanBook.sol, Legajo.sol, test/
   script/           Deploy.s.sol, Seed.s.sol, Demo.s.sol
   app/              Next.js
   docs/             architecture.md, demo.md
@@ -312,7 +340,7 @@ aval/
 
 ---
 
-## 6. The 6.5-hour build
+## 6. The build window (11:15–17:00)
 
 ### 6.1 Scope: the minimum that wins
 
@@ -328,7 +356,7 @@ aval/
 
 | Role | Owns | Deliverable by |
 |---|---|---|
-| **P1 — Contracts** | `AvalCore.sol`, tests, deploy, verify, seed | contract verified by **13:30** |
+| **P1 — Contracts** | `GuaranteePool.sol`, `GuaranteeCertificate.sol`, `LoanBook.sol`, tests, deploy, verify, seed | contract verified by **13:30** |
 | **P2 — SGR + borrower UI** | request, underwrite, mint, repay | end-to-end by **15:00** |
 | **P3 — Lender + certificate page + design** | lender view, public certificate, visual system | by **15:30** |
 | **P4 — Narrative + ops** | deck, script, video, README, sponsor liaison, ARGt/gas, submission | deck by **16:30**, video by **16:00** |
@@ -382,19 +410,19 @@ aval/
 > "Todo esto es en pesos. Si el fondo estuviera en dólares, la SGR estaría apostando al tipo de cambio contra sus propias garantías: una devaluación del 30% le mueve el ratio de cobertura. En ARGt, el activo y el pasivo están en la misma unidad. El token local no es un detalle: es lo que hace que el riesgo sea asegurable."
 
 **[2:30–3:00] Business and close.**
-> "Le vendemos la infraestructura a las 50 SGR y mutuales que ya existen: SaaS más 15 puntos básicos del volumen garantizado. Desde junio, la resolución 94/2026 les exige blockchain para los contratos de garantía. Ya no es una idea: es una obligación sin producto. El banco pide garantías. Nosotros las hacemos verificables."
+> "Le vendemos la infraestructura a las SGR y mutuales que ya existen: SaaS más 15 puntos básicos del volumen garantizado. Desde junio, la resolución 94/2026 les exige blockchain para los contratos electrónicos de garantía. Ya no es una idea: es una obligación sin producto. El banco pide garantías. Nosotros las hacemos verificables."
 
-### 7.2 Choreography (90 seconds of demo inside the 3 minutes)
+### 7.2 Choreography (64 seconds of demo inside the 3 minutes)
 
 | Time | Screen | Action | What the judge sees |
 |---|---|---|---|
 | 0:50 | SGR desk | Open Rosa's request; `legajo` empty; coverage slider 0 → 50% | the problem in one number |
 | 1:00 | SGR desk | Tap **Emitir certificado**; tx confirms | a real ARGt allocation, a real hash |
 | 1:10 | Lender view | Certificate appears with **50% coverage**; rate card flips **90% → 45%** | the pricing moment |
-| 1:25 | Lender view | Tap **Fondear**; ARGt lands in Rosa's wallet | the money moves |
-| 1:40 | Borrower | Tap **Pagar cuota**; waterfall animates | the repayment is automatic |
-| 1:50 | Certificate page | Status `Repaid`; `legajo` ticks up | the compounding |
-| 2:00 | SGR desk | **Ceder 30%** to a second SGR; tx confirms | the secondary market — the wow |
+| 1:22 | Lender view | Tap **Fondear**; ARGt lands in Rosa's wallet | the money moves |
+| 1:34 | Borrower | Tap **Pagar cuota**; waterfall animates | the repayment is automatic |
+| 1:44 | Certificate page | Status `Repaid`; `legajo` ticks up | the compounding |
+| 1:54 | SGR desk | **Ceder 30%** to a second SGR; tx confirms | the secondary market — the wow |
 
 **Rules:** pre-seed the request and the pool; do only the mint, the funding and one repayment live; cede on a *separate* certificate if time is short; never run the default live on the happy path; have a recorded video of the full flow.
 
@@ -404,13 +432,13 @@ aval/
 |---|---|
 | "Why not USDC?" | The guarantee covers a peso obligation and the pool is accounted in pesos. A USD pool makes the SGR take an FX position against its own guarantees. ARGt leaves one risk — credit — which is what a guarantee prices. |
 | "Isn't this just a guarantor?" | A guarantor is uncapped, unpriced, unenforceable and unportable. Aval's certificate is capped (coverage %), priced (fee), funded (pool), enforceable (claim) and transferable (cession). |
-| "Why would an SGR use this?" | Res. 94/2026 requires a blockchain support; the certificate is verifiable by any lender; the pool can be reinsured; cession frees capital and reduces concentration. |
+| "Why would an SGR use this?" | Res. 94/2026 requires a blockchain support for electronic contracts; the certificate is verifiable by any lender; the pool can be reinsured; cession frees capital and reduces concentration. |
 | "Who pays?" | The SGR pays SaaS + bps; the borrower pays the guarantee fee (embedded in the rate); the secondary buyer pays a fee. |
 | "Is this lending? Are you regulated?" | No. Aval does not lend, take deposits or promise yield. The SGR is the regulated guarantor; Aval is its infrastructure. |
 | "What if the borrower defaults?" | The pool pays the lender up to the covered amount; the SGR keeps collection rights; the `legajo` records it; the loss is visible to future lenders. |
 | "What about the CNV case?" | We deliberately built a guarantee product, not an investment product. No yield, no deposits, no pooled retail funds. |
 | "How do you prevent fraud?" | The SGR underwrites with its own data and the on-chain `legajo`; caps per borrower and per SGR; role-gated issuance; document hashes; a post-hackathon audit and identity layer. |
-| "What did you build today?" | `AvalCore.sol`, the certificate, the pool, the loan waterfall, the three views and the live ARGt tx. Everything else is boilerplate, and the README says so. |
+| "What did you build today?" | `GuaranteePool.sol`, `GuaranteeCertificate.sol`, `LoanBook.sol`, the `legajo`, the three views and the live ARGt tx. Everything else is boilerplate, and the README says so. |
 | "Why not Avalanche?" | The product needs ARGt liquidity (Arbitrum) and an institutional consortium chain is a post-hackathon architecture, not a 9-hour build. We chose the chain where the guarantee can actually settle. |
 
 ---
@@ -545,7 +573,7 @@ aval/
 
 - **SGR** — Sociedad de Garantía Recíproca: a regulated Argentine guarantee institution that backs SME loans with a risk fund.
 - **Aval** — guarantee; in Argentina, the signature that backs a loan.
-- **Certificado de garantía** — the legal instrument the SGR issues; Res. 94/2026 allows it to be signed electronically and requires a blockchain support.
+- **Certificado de garantía** — the legal instrument the SGR issues; Res. 94/2026 allows it to be signed electronically and requires a blockchain support for electronic contracts.
 - **Fondo de riesgo** — the SGR's reserve that backs its guarantees.
 - **Legajo** — the borrower's portable credit record.
 - **Cession** — transfer of a share of the guarantee to another institution; the secondary market.

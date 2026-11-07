@@ -224,7 +224,7 @@ text(s, 7.05, 2.85, 5.3, 1.2, "45%", size=76, color=GREEN, bold=True)
 text(s, 7.05, 4.2, 5.3, 0.6, "la tasa que Rosa puede pagar", size=15, color=INK)
 text(s, 0.6, 5.35, 12.1, 1.3, [
     ("La SGR cubre el 50% de la pérdida esperada y cobra 3% anual por el aval.", {"size": 18}),
-    ("El prestamista baja su loss-given-default y compite por el crédito.", {"size": 18}),
+    ("El prestamista baja su pérdida esperada y compite por el crédito.", {"size": 18}),
 ])
 text(s, 0.6, 6.55, 12.1, 0.45,
      "El pricing no es una promesa: es una función del contrato.", size=14, color=AMBER, bold=True)
