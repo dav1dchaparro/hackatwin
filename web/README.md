@@ -4,8 +4,8 @@ Vite + React + TypeScript + viem. La dueña entra con su **email** y opera **sin
 smart account ERC-4337 + paymaster). La identidad del agente la verifica **KUMPLY** (`@kumply/sdk`, tier 5). Todo en
 **Avalanche Fuji (43113)**. Alcance: **herencia por inactividad** (sin emergencias ni guardianes).
 
-Pantallas: `/` (entrar), `/dueno`, `/heredero` (solo lectura), `/demo` (panel para el proyector) y `/integracion`
-(panel de P2 contra Fuji, sin diseño).
+Pantallas: `/` (entrar con email, pantalla completa), `/dueno` (consola del dueño) e `/integracion`
+(panel de P2 contra Fuji, sin diseño). Sistema visual en `src/styles/base.css` (P3).
 
 - `web/src/lib/` (P2): integración web ↔ contrato, sesión 0xGasless, KUMPLY, errores en castellano. **Este README.**
 - `web/src/pages`, `components`, `mock`, `styles` (P3): pantallas y mock con la misma máquina de estados.
