@@ -15,12 +15,12 @@ export const UNO = 10n ** 18n;
 export const TIER_AGENTE = 5;
 const BPS_TOTAL = 10_000n;
 const EXPLORER = "https://testnet.snowtrace.io";
-const CLAVE_ESTADO = "llave.mock.v2";
+const CLAVE_ESTADO = "llave.mock.v3";
 const CLAVE_SESION = "llave.mock.sesion";
 
 export interface PersonaDemo { alias: string; cuenta: Address; tier: number; rol: string }
 export const CUENTAS = {
-  marta:     { alias: "Marta",   cuenta: "0x1000000000000000000000000000000000000001" as Address, tier: 0, rol: "dueña" },
+  gonzalo:   { alias: "Gonzalo", cuenta: "0x1000000000000000000000000000000000000001" as Address, tier: 0, rol: "dueño de la Llave" },
   lucia:     { alias: "Lucía",   cuenta: "0x1000000000000000000000000000000000000002" as Address, tier: 0, rol: "heredera 60%" },
   tomas:     { alias: "Tomás",   cuenta: "0x1000000000000000000000000000000000000003" as Address, tier: 0, rol: "heredero 40%" },
   agente:    { alias: "Agente Llave", cuenta: "0x9f8F72aA9304c8B593d555F12eF6589cC3A579A2" as Address, tier: 5, rol: "agente verificado (KUMPLY tier 5)" },
@@ -28,7 +28,9 @@ export const CUENTAS = {
   tesoreria: { alias: "Tesorería Llave", cuenta: "0x1000000000000000000000000000000000000009" as Address, tier: 0, rol: "cobra la comisión" },
 } satisfies Record<string, PersonaDemo>;
 export const LLAVE_MOCK: Address = "0x100000000000000000000000000000000000000a";
-export const PERSONAS_DEMO: PersonaDemo[] = [CUENTAS.marta, CUENTAS.lucia, CUENTAS.tomas, CUENTAS.agente, CUENTAS.bot];
+export const PERSONAS_DEMO: PersonaDemo[] = [CUENTAS.gonzalo];
+/** Todas las cuentas conocidas (para resolver emails como lucia@… o tomas@…) */
+const CONOCIDAS: PersonaDemo[] = [CUENTAS.gonzalo, CUENTAS.lucia, CUENTAS.tomas, CUENTAS.agente, CUENTAS.bot];
 
 interface EstadoMock {
   desfase: number;                       // segundos que se "adelantó" el reloj (controles de la demo)
@@ -57,9 +59,9 @@ function inicial(): EstadoMock {
   for (const p of Object.values(CUENTAS)) { atestaciones[k(p.cuenta)] = p.tier; aliases[k(p.cuenta)] = p.alias; }
   return {
     desfase: 0,
-    dueno: CUENTAS.marta.cuenta,
+    dueno: CUENTAS.gonzalo.cuenta,
     herederos: [{ cuenta: CUENTAS.lucia.cuenta, bps: 6000 }, { cuenta: CUENTAS.tomas.cuenta, bps: 4000 }],
-    plazoInactividad: 60, plazoGracia: 30, comisionBps: 100, periodoMinimo: 1,
+    plazoInactividad: 90 * 86_400, plazoGracia: 7 * 86_400, comisionBps: 100, periodoMinimo: 1,
     saldo: 1_000_000n * UNO, ultimaSenal: ahora, reclamoIniciadoEn: 0, liberadaEn: 0, totalLiberado: 0n,
     saldos: {}, atestaciones, aliases, eventos: [],
   };
@@ -330,7 +332,7 @@ export function crearClienteMock(): LlaveCliente {
     async eventosRecientes(): Promise<EventoLlave[]> { return cargar().eventos; },
     async cuentaDeEmail(email: string): Promise<Address> {
       const local = sinAcentos(email.split("@")[0] ?? "");
-      const persona = PERSONAS_DEMO.find((p) => local.includes(sinAcentos(p.alias.split(" ")[0])));
+      const persona = CONOCIDAS.find((p) => local.includes(sinAcentos(p.alias.split(" ")[0])));
       if (persona) return persona.cuenta;
       const cuenta = cuentaDesdeTexto(email.trim().toLowerCase());
       const s = cargar();
@@ -343,7 +345,7 @@ export function crearClienteMock(): LlaveCliente {
     async entrar(email: string): Promise<Sesion> {
       await dormir(600);
       const local = sinAcentos(email.split("@")[0] ?? "");
-      const persona = PERSONAS_DEMO.find((p) => local.includes(sinAcentos(p.alias.split(" ")[0])));
+      const persona = CONOCIDAS.find((p) => local.includes(sinAcentos(p.alias.split(" ")[0])));
       const s = cargar();
       let sesion: Sesion;
       if (persona) {

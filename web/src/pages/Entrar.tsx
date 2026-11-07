@@ -10,7 +10,7 @@ import { useLlave } from "../components/useLlave";
 import { useSesion } from "../components/useSesion";
 import { PERSONAS_DEMO } from "../mock/cliente-mock";
 
-type Rol = "dueña" | "heredero" | "agente";
+type Rol = "dueño" | "agente";
 
 export function Entrar() {
   const { sesion, entrar, salir } = useSesion();
@@ -23,8 +23,7 @@ export function Entrar() {
   function rolesDe(cuenta: string): Rol[] {
     if (!datos) return [];
     const r: Rol[] = [];
-    if (mismaCuenta(cuenta, datos.estado.dueno)) r.push("dueña");
-    if (datos.herederos.some((h) => mismaCuenta(h.cuenta, cuenta))) r.push("heredero");
+    if (mismaCuenta(cuenta, datos.estado.dueno)) r.push("dueño");
     if (datos.agente && mismaCuenta(datos.agente.cuenta, cuenta)) r.push("agente");
     return r;
   }
@@ -34,9 +33,9 @@ export function Entrar() {
     setOcupado(true); setError(null);
     try {
       const s = await entrar(correo);
-      const [estado, herederos] = await Promise.all([cliente.estado(), cliente.herederos()]);
+      const estado = await cliente.estado();
       if (mismaCuenta(s.cuenta, estado.dueno)) nav("/dueno");
-      else if (herederos.some((h) => mismaCuenta(h.cuenta, s.cuenta))) nav("/heredero");
+      else setError("Esta cuenta no es la del dueño de la Llave. Solo el dueño puede entrar.");
     } catch (e) {
       setError(e instanceof Error ? e.message : "No se pudo entrar. Probá de nuevo.");
     } finally {
@@ -83,8 +82,7 @@ export function Entrar() {
                 {datos && roles.length === 0 && <Chip>sin rol en esta Llave</Chip>}
               </div>
               <div className="pila">
-                {roles.includes("dueña") && <Link className="btn btn-primario btn-grande" to="/dueno">Mi Llave <IcoFlecha tam={16} /></Link>}
-                {roles.includes("heredero") && <Link className="btn btn-primario btn-grande" to="/heredero">Mi herencia <IcoFlecha tam={16} /></Link>}
+                {roles.includes("dueño") && <Link className="btn btn-primario btn-grande" to="/dueno">Mi Llave <IcoFlecha tam={16} /></Link>}
                 <button type="button" className="btn btn-fantasma" onClick={() => void salir()}>Salir</button>
               </div>
             </>
@@ -104,7 +102,7 @@ export function Entrar() {
               </form>
               {config.modo === "mock" && (
                 <>
-                  <div className="divisor">o entrá como alguien de la demo</div>
+                  <div className="divisor">o entrá con la cuenta de prueba</div>
                   <div className="personas">
                     {PERSONAS_DEMO.map((p) => (
                       <button key={p.cuenta} type="button" className="persona" disabled={ocupado}
