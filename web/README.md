@@ -1,5 +1,8 @@
 # Llave · web
 
+**Demo publicada:** https://llave-emergencia.vercel.app (Vercel, build estático con `VITE_MODO=fuji` contra la Llave A;
+`?llave=0x…` cambia de instancia). Se despliega con `cd web && vercel build --prod && vercel deploy --prebuilt --prod`.
+
 Vite + React + TypeScript + viem. La dueña entra con su **email** y opera **sin gas** con **0xGasless** (embedded wallet +
 smart account ERC-4337 + paymaster). La identidad del agente la verifica **KUMPLY** (`@kumply/sdk`, tier 5). Todo en
 **Avalanche Fuji (43113)**. Alcance: **herencia por inactividad** (sin emergencias ni guardianes).
