@@ -1,32 +1,154 @@
-=== PAGE 2 ===
-HMaanckdaatTowryirneq—uirBemloecnktcshainTrack:RulesandRequirements
-OOpvetirovnieawlbonuspoints
-0AAIJKMMOOOPPRTTUUUnuyhaoUxevpppcpptpraapGraeqiteMttyntrnnttteliiuag1oaoooHootddePsris6njnnravaaael++1Le,ecaaacttYtc110h2dsooikllltn000usi0earrnftgayy2oiThtrntweo6reaitoguqteei·nnrrugld@airgipBotraiisaeelbotoormisinoctflinniknetcyeonhrttsasm'inteoetortlasacilkslshniaxostreareqsquinuirgierleemdpe,rnbiztuset.isiTtonaocdtodemslippgoeibtinelet,sfeoovrnetrthyoepptroroafjectkchtepmrjiuzuersy,tesmcvoeerneeti.ftEhitaecehmarannsdbaotonruys
-123456......BEOPSWmnuurhdibsgayi-lniriuncAtesavcrseleoasrwplnmiaontonrotsraceikdthcroetfferarlo..oycAnA.metWn.AlsItevnihwtaatheeelsatrgcenlrovaeacetnahtnemereti.ct.innhoDLsiemitmebapcprluoalloaomnrntyitie:eoraswannt,cthSlatemaDsnatKwduspstsid,rttoohebjnbupoaelslieoltwesmiyfmremypbialutearossnttiroetnclsmoigvnaenoAsnsttbvr,rdaaiuwlclepcahtrtnaiioioonpchrntpthesp.heAreaoocnvACjudeeLvsrcIaattoaolsadnmrnaeoarecstehcrbhreaoieisplrte,ltodnhciwoooeonsteewywsdosio,tnftebrotkmhut,et,
-Aipnovtaienlgatrsna.cthioenriesqsucioreremdesnetpsa(rsactoerleydaunpdtboo1th00capnobinetsc)o.mInbteingeradti(nmga0xximGausmle+ss20o)r.KUMPLYisoptionalandadds
-adgoosaeronnctnlcihtysueeifwrtmsyaetottecnehrtnekusittsrerb(eredFue.vuiqielnjtuin)dtiurohueerermiamnrneegandpittnohw.nseihethaot:tarCycit.k-sCVachatohlaimodinnpeoixesrateimytvoivpauellreuasoad:twevtinadmn.LetI1fa.tgyoTeohfuiiesns.actAaolinrtnytyt,frecraoaucmrtsltymoavmunasleLtidx1biasecttoiivonnengfriig(pfuuiresordeajertosico,ntnp,t,tohhteeential
-upto20bonuspoints.
-RcccoouEmrsArtDeopsmMlipaeoEnrncmsde,uiinansngttedcerlxvpepiraeilrvowlayrsec)syre.isfpIofaaryrpoianlutusestci.wrteuhataitoetnwyaoalusurbseouwicltansdLeu1sr,,inIintgtmethruceshteasvihneonMwt.emsseaagsiunrga(bICleMP)-.Chain
+# Clean transcription — HackaTwin Blockchain Track (EN)
+# Source PDF: "HackaTwin — Blockchain Track Rules and Requirements (EN).docx.pdf" (5 pages).
+# Extracted 2026-11-07 with docs/strategy/source/extract_pdf2.py, a position-aware parser that
+# tracks the PDF graphics-state CTM and per-glyph Tm/Td. The earlier extract_pdf.py merged glyphs
+# from different text blocks onto the same line, which garbled the text. If a figure/address is
+# missing here, check the PDF page image; the numbers below were cross-checked against the PDF.
+
+=== PAGE 1 ===
+HackaTwin — Blockchain Track: Rules and Requirements
+Oct 16, 2026 · @sofi
+Overview
+The HackaTwin Blockchain track has a single prize. To compete, every project must meet the mandatory
+Avalanche requirements (scored up to 100 points). Integrating 0xGasless or KUMPLY is optional and adds
+up to 20 bonus points.
+Part Type Points
+Avalanche requirements Mandatory Required for eligibility
+Jury evaluation Mandatory Up to 100
+0xGasless integration Optional Up to +10
+KUMPLY integration Optional Up to +10
+Mandatory requirements
+A project that does not meet all six requirements is not eligible for the track prize, even if it earns bonus
+points.
+1. Smart contract on Avalanche. Deploy at least one smart contract in the Avalanche ecosystem,
+on testnet (Fuji) or mainnet: C-Chain or your own L1. The contract must be verified on the
+corresponding explorer. If you create your own L1, it must show measurable P-Chain
 transactions.
+2. End-user interface. Integrate the contracts with a web or mobile app. A CLI or a bot does not
+satisfy this requirement.
+3. Why Avalanche. At least one component must justify using Avalanche over another network,
+documented in the repository. Valid examples: time to finality, custom L1 configuration,
+compliance and privacy for institutional use cases, Interchain Messaging (ICM).
+4. Business model. Answer at minimum: what problem it solves, who the customer is, how it
+generates revenue and what its competitive advantage is. Any early validation (users, potential
+customers, interviews) is a plus.
+5. Public repository. With clear installation and deployment instructions and a description of the
+architecture.
+6. Original work from the event. Libraries, SDKs, boilerplates and prior projects are allowed, but
+only work built during the hackathon is evaluated. If you start from an existing project, the
+README must clearly separate what was built during the event.
+Optional bonus points
+Integrating our partners' tools is not required, but it adds points on top of the jury score. Each
+integration is scored separately and both can be combined (maximum +20).
 
-=== PAGE 9 ===
-KUMPLY—upto+10points
-(++++0xGaslessABBCCFIIIIKLLOPPTTUWWegiimmoopsttwwwxxnnnnshhpooee44auxoo1155ssYaprooaaPsneahhtfaaeehhavvotA00jBPaas00ssiieerrreIEccl-rieeennireemseealiiaan22,ddceunsvroocppgRkeccurrsttellastthssaersddnereeuussrrCtapppstshtoaaooattl,risiiternnne-ellaatthhotnotpraieEu8ddnotwiihyttnwyy)eeeenoowcnl,R::0cuuenommaesdaa0lnnitiaddtC0Asccppyitcnduls@hnx,,uneehtttl4ost-err-eo—eeGrv',4reg0voosnnc)s(LeAansxnktenwoee3xhajjtt)ea,oRnm4ueetreIso(rrrGt3supaionaieinfE0sihcc,matotlft7aonfiaatesmndahAyttien2Agairhenuriescpstcpnemm,tDgaFspalbdataiassvtel(eaxonheolynuMtiedtrseecfuuexco)4syairti/nlodjtdirdAoaooostssihm,+10n0sgsiEtpawsogttrmdnprdmwoaecKi2benasioaeeneussosakrtsniipsylpAtshhrxnys(dpysoamTtasw,aitlfpoeootsPsnaeapoinpcoekifMntplnori(wwnIkr,gegpcrreahtsdt,leer)aahyaCiriapnaoodnnsP(totensr)ftots)nrcAwe(Idhaaeictgptheernescttcosaamttoieoppdnoe)snr,:aeatpnneetdoowspntalaeAstveu(aKsilYenaCdnt)ch,ahebneudRswEwinAitheDhysoM,swueEtsitth(hhKoaYeldtBxiFp)nulagojnirAedaVrtAAtleiIXnsatkfgaoset.rin0ogtxnasGss(.aKasYrleAes)d.semo
-aptrtoevsitdaetsiofnresewAitPhInkeoyrseaanliddepnaytimtyavseterirficcraetdioitns.(KfrUeMePtiLeYroofffe1r,5s0m0ewnatollresthsi)patnodtteeacmhnsitchaaltsuinptpeogrrattdeuirti.ngthe
+=== PAGE 2 ===
+0xGasless — up to +10 points
+Infrastructure that lets users or AI agents operate on Avalanche without holding AVAX for gas.
+Level What the project must show Points
+Basic Uses any 0xGasless component +5
+(server wallet, embedded
+wallet, ERC-4337 paymaster,
+x402 payments, AgentKit, MCP
+or ERC-8004) and shows a
+sponsored transaction or an
+x402 payment on Fuji or
+mainnet
+Core In addition, 0xGasless is part of +10
+the product's main flow (for
+example, an AI agent paying per
+API call with x402, or an app
+where the user never pays gas)
+To count: the README explains which component was used and why, with explorer links. 0xGasless
+provides free API keys and paymaster credits (free tier of 1,500 wallets) and technical support during the
 event.
+KUMPLY — up to +10 points
+On-chain identity and compliance attestations: people (KYC), businesses (KYB) and AI agents (KYA).
+Level What the project must show Points
+Basic Integrates @kumply/sdk and +5
+gates an on-chain action with
+isPersonAtLeast(),
+isBusiness() or isAgent() on
+Fuji, showing one address that
+passes and one that is blocked
+Core In addition, verification is key to +10
+the product, with priority for
+KYA use cases (for example, a
+marketplace or an x402 API
+where only verified agents can
+operate)
+To count: do not use hasTier() (deprecated), and state in the README that Fuji attestations are demo
+attestations with no real identity verification. KUMPLY offers mentorship to teams that integrate it.
 
-=== PAGE 12 ===
-Deliverablesandscoring
-Usecases
-0000AAAAAADEGGHIIJKKKOSSTTUUUaaaaabbbcgioopptwnnnuhoraettacccnhUUUxxxxaauuuppIInoeaoSssniavtatmppercccsGGGGltcrUyydeeessyeeaaeDselwMMMolboynbhvooeorahiesriiirggrraaaapgasSvonngoCsinpocsiolgpuuosaacectceePPPeafssssrDrieaptalajeea/gaenlattotttnnileaevekllllesnngcLLLlyrn,cUosieeeeoosssCryntleYYYrtiaattosacoaAeoettyetdssbgaigssssnmirrssStatssotplinbomeineVrnfssssn(((inoe,upnsacDdnowKKKnptasnltwastAlnoBndona+delhyhdsigTrYYYlcapssniXerie2tvsisdatAarhtuCteBKtcvbbeaiwpeehfBeerrothbtweesb))Uy)idaeaeaArdrstinceprmimpscttaniyMsostsPoiooctwthkafesasms(ghrwheIivnimnreoyeuyPtaseaeoecAnelsodeveesmupcLdsyepbwawrctPYontmeatinsgbelifkteffpIiltnntnowoaaotirsyseaasnwoeveehrsirwviiunwKtenao1dwnstloiasevasdUhtrga0ploanbvthehyreiooll0ftplMrlieleloreeliefyrewuxeeeiritrpfsepPt4itotdrheioftoedsaL0ineoreYoi(dc2kdlnrfdynkostasrg)eex.aTmhpelfei,naal0sxcGoaresleisstshpeajyumryasstceorreth(autpotnoly10sp0o)npsluosrsbgoansufsoproaignetnstfsrom
-••••IPVWfuecorbliralfkiiicemindrgiencpdgooenbsmtoirtnoaoucr(ytsUawpRdoLidtiohnrertassv:sRidaaEenARodED)AMeaDxnEpMd:loiEanrsespteriatclclitlnhaioktoni.ofonun,pdttehope3loinmytmeingeurnattet,isoa.nrc(h0ixteGcatsulrees,swanhdy/AovraKlaUnMchPeL,Ya)nwdith
-ivnetreifgireadtiwonitsh(KuUpMtoP+LY2)0c).anearnthefull+20.
-lwinhkasttwoatshebudieltmdourtirnagnsthaceteiovnesn.t.
+=== PAGE 3 ===
+A project that combines both (for example, a 0xGasless paymaster that only sponsors gas for agents
+verified with KUMPLY) can earn the full +20.
+Use cases
+Use case Integration How it applies
+Onboarding without a wallet or 0xGasless Users sign in with email or
+gas Google and transact without
+buying AVAX
+AI agents that pay per use 0xGasless An agent with its own wallet
+pays for each API call with x402
+in USDC
+Stablecoin payments and 0xGasless USDC/USDT payments where
+collections the payer needs no gas
+Services for verified people only KUMPLY (KYC) A pool, benefit or vote only
+accepts addresses with a person
+attestation
+Transactions between verified KUMPLY (KYB) Invoicing, B2B payments or
+businesses payroll only between verified
+business addresses
+AI agents with a verified KUMPLY (KYA) A marketplace or API only works
+operator with agents backed by a verified
+operator
+Gas sponsored only for verified 0xGasless + KUMPLY The paymaster checks KUMPLY
+accounts and only covers gas for attested
+accounts
+Deliverables and scoring
+Each team submits a single package. The final score is the jury score (up to 100) plus bonus points from
+integrations (up to +20).
+Deliverables
+• Public repository with a README: installation, deployment, architecture, why Avalanche, and
+what was built during the event.
+• Verified contract address and explorer link.
+• Working demo (URL or video) and a pitch of up to 3 minutes.
+• If claiming bonus points: a README section on the integration (0xGasless and/or KUMPLY) with
+links to the demo transactions.
+Jury evaluation (up to 100 points)
 
-=== PAGE 14 ===
-Resourcesforteams
-0000000112222@@@AABBBBCDDIIIKKKKKLMMPPPQRSSTUWWcddgkkkkpuuuwmnneaiuuuuDDiaoUUUUU000255xxxxxxxreaamorppuuooggaosnutiteeCaihp00kcGGGGGGgtmmmmrycs0sieheepcisKKesnntcMMMMMkinhltthtpusbxPahxxoaaacemishdnnuuaaaaaaaguuoonneopppptidoggnlkm.sstsbbruPPPPPbtssssssettcrmybms0isseeanilifaaellllonnhiaK++illlllltortte-oLLLLLyyyyior::c.nxlpeeeeeersstnssoc:AekYYYYYtcctuiee11....iasoanga0Katnstgtpllxxxxsssssslieeyosssvseen00myeoirlabfrtssssssxyyyyuUSptmeogScm.dma/disstrfnasczzzzGuaDoi-mDrslaesM)ssl.dl////oktvlsaoa0i/ed(n//aKptlaKtoelbbdeyeAmt0niaddmx(siPkfss)aociteelubas0oxsgPgcoleoi(aLconebv,cni-.xKghareYaInllgkclkspetsdGiadYsnekataol/yyhrslilshCea:tbnogteseamcelye,ytsleeudpasleea:lsKpsslieeKv,mlrsw.sYradrsciUecro/tsBsnooiearaynMjademrllpgageakgceiPn-bvlsetownLdaisaYwlttnii-K)ntttSsityhhYtddDphA-ekkiKrstno:hdebpeetlnewphpmliomogrhykaee'sddrdojuwr@nyksucmoprley,/esxcdlkud(oinrgnbpomn/usyaproni)n.ts,wins.
+=== PAGE 4 ===
+Criterion Points
+Impact: solves a real, relevant problem 25
+Use of Avalanche: leverages the network's own 25
+capabilities
+Technical feasibility: works and is deployed 20
+Business model and scalability 20
+Presentation and clarity 10
+Bonus: 0xGasless up to +10
+Bonus: KUMPLY up to +10
+Maximum total 120
+In case of a tie, the project with the higher jury score, excluding bonus points, wins.
+Resources for teams
+Partner Resource Link
+0xGasless Website 0xgasless.com
+0xGasless Documentation docs.0xgasless.com
+0xGasless Dashboard (API keys and dashboard.0xgasless.com
+paymaster)
+0xGasless AgentKit SDK github.com/0xgasless/agent-sdk
+0xGasless Agent npm package @0xgasless/agent
+0xGasless MCP integration @0xgasless/mcp
+KUMPLY Builder guide (KYC, KYB and KYA kumply.xyz/blog/building-with-k
+with the SDK) umply-kyc-kyb-kya
+KUMPLY What to build kumply.xyz/build
+KUMPLY Integrations (0xGasless pilot) kumply.xyz/ecosystem
+KUMPLY SDK on npm @kumply/sdk
+KUMPLY SDK docs kumply.xyz/developers
+Quick install for the KUMPLY SDK: pnpm add @kumply/sdk (or npm / yarn).
 
-=== PAGE 28 ===
-Openitemstoconfirm
-•••••☐☐☐☐☐0CCHJuxooarGnncykaffciissrrolmmdemaswwstpeoaiisttnshh.idt0KioKUxnUGMMaaPsnPlLdeYLsYwshmhothoweenvtptaeolaairdymsma,stwaerssiettqheeuarmcechsreetnpddtaoietrrsmtsnphoeeiprar'sthttebeoaosumtnrasu.t.isopnosionnts.Fujiduringtheevent.
+=== PAGE 5 ===
+Open items to confirm
+• ☐ Hacks dates.
+• ☐ 0xGasless and KUMPLY mentors, with mentorship hours.
+• ☐ Jury composition and who validates each partner's bonus points.
+• ☐ Confirm with 0xGasless the paymaster credits per team.
+• ☐ Confirm with KUMPLY how teams request demo attestations on Fuji during the event.

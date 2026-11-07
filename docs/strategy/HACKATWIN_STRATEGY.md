@@ -1,6 +1,8 @@
 # HackaTwin 2026 — Stablecoins Track
 ## Strategy memo, concept and build plan
 
+> **Update, 11:15 ART — the concept decision is superseded.** Read [`../proposal/HACKATWIN_PROPOSAL.md`](../proposal/HACKATWIN_PROPOSAL.md) for the current proposal. The track/EV research below still stands; the recommended concept is now **Aval Network** — on-chain guarantee certificates and an ARGt risk pool for SGRs and mutuals — because **Resolución 94/2026** (June 2026) requires SGRs that use electronic contracts to do so on a blockchain support, and the consumer version has a weaker business and regulatory footing. Keep this memo for §2–3 (dual-track math) and §5 (evidence base); build from the proposal.
+
 **Prepared:** Saturday 7 Nov 2026, ~10:50 ART · **Submission closes:** 18:00 · **Demo day:** 19:00–21:00
 **Scope:** the Twin "Stablecoins" track PDF (`track twin.pdf`), the Avalanche "Blockchain" track PDF, and the public HackaTwin listing.
 **Status of numbers:** every external claim is linked; anything inferred or unverified is marked **[UNVERIFIED]** or **[ASSUMPTION]**.

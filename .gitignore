@@ -1,0 +1,12 @@
+# Python
+__pycache__/
+*.pyc
+
+# Local scratch (PDF extraction, pip target, render previews)
+.tmp/
+.pylibs/
+.dsh-office-*/
+
+# Browser scratch profile used to read the Twin site
+.edge-twin/
+twin_explore.html
