@@ -10,7 +10,7 @@ import { BotonTx } from "../components/BotonTx";
 import { Chip } from "../components/Chip";
 import { CuentaRegresiva } from "../components/CuentaRegresiva";
 import { Encabezado } from "../components/Encabezado";
-import { IcoCorazon, IcoMas, IcoX } from "../components/Iconos";
+import { IcoMas, IcoX } from "../components/Iconos";
 import { NOMBRE_FASE } from "../components/LineaDeFases";
 import { Modulo } from "../components/Modulo";
 import { Tile } from "../components/Tile";
@@ -53,10 +53,6 @@ export function Dueno() {
       <Encabezado
         titulo="Mi Llave"
         descripcion="Mientras das señales de vida, tu plata es tuya. Si dejás de darlas, un agente verificado avisa, espera y la reparte como vos dijiste. Cuánto hay en tu bóveda lo sabés solo vos."
-        acciones={
-          <BotonTx texto="Estoy bien" icono={<IcoCorazon tam={18} />} variante="ok" tamano="grande" accion={() => cliente.estoyBien()}
-            onResultado={() => void recargar()} deshabilitado={!esDuena || liberada} />
-        }
       />
 
       {!esDuena && <Aviso tono="mal" titulo="Esta cuenta no es la del dueño de esta Llave.">Solo el dueño puede entrar. Salí y conectate con tu email. Cuenta: {acortar(sesion.cuenta)}</Aviso>}
