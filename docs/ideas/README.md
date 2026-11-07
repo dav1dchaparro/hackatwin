@@ -13,5 +13,6 @@ Resto:
 - `ronda-1/`, `ronda-2/`, `ronda-3/`: todas las ideas, con sus ataques, puntajes y planes.
 - `final/EVAL_*.md`: evaluación de cada idea según cada track.
 - `final/BLOCKCHAIN_IDEAS.md`: 17 ideas solo para el Blockchain Track, con puntajes del jurado; elegida: Tesorero con Correa.
+- `ronda-4/`: 10 ideas investigadas en paralelo (otras competencias + features de partners poco usadas) y la propuesta Dos agentes; ranking recalibrado en `ronda-4/README.md`.
 
 Lo marcado [SIN VERIFICAR] no está confirmado.

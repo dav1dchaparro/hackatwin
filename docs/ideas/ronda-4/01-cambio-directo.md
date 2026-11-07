@@ -1,0 +1,71 @@
+# Idea: Cambio Directo
+**Ángulo asignado:** FX / cobertura cambiaria entre monedas locales de LatAm (disparador 3 de Twin), sin agente con correa ni escrow con KYC.
+**En una frase:** Pagás una factura en reales (o pesos chilenos) desde pesos: el contrato rutea ARGt→USDT0→BRAt por los pools de Curve en una sola tx, muestra la tasa ejecutada contra el mid de belo, y opcionalmente te fija la tasa por 7 días con margen on-chain.
+
+## Plantilla del equipo
+- **Problema:** Pagar servicios chicos entre países de LatAm es caro y lento: un giro SWIFT desde Argentina cuesta "desde US$15 en tramos bajos hasta 0,30 % con mínimos de US$50 a US$125" más spread y tarda 1-5 días hábiles (Rankia); en Brasil el ingreso de divisas paga IOF 0,38 % y la salida 3,5 % (desde mayo 2025). La alternativa real hoy es USDT por P2P: dos conversiones manuales, sin recibo, y el que cobra pierde en el cambio de su lado. El flujo existe: freelancers argentinos cobran en promedio US$42.000/año del exterior, con contratación +25 % en 2025 (Deel vía iProfesional); argentinos gastan ≈US$8 M/día vía Pix en Brasil (kamiPay, feb-2025); comercio Argentina–Brasil 2025 ≈US$31.000 M (exp. 12.771 / imp. 18.417 M, déficit 5.224 M según CAC) [SIN VERIFICAR el desglose exacto]. Dato incómodo verificado hoy: la propia API de belo cotiza BRAt/ARS con 2,5 % de spread, MEXt/CHLt 3,7 %, PERt 6,8 %, y no hay ningún par cruzado entre Twin tokens: todo pasa por ARS.
+- **Usuario:** Lucía, 34, dueña de una agencia de marketing en Rosario. Le paga R$ 4.000/mes a Pedro, editor de video en Florianópolis. Hoy compra USDT en una exchange, se los manda, Pedro vende en Brasil; nadie sabe qué tasa pagó, y una vez el pago tardó 4 días por un rechazo del banco. No es importadora de bienes: no tiene MULC, no tiene "dólar oficial".
+- **Solución:** Un router on-chain que convierte ARGt a BRAt/CHLt/COLt en una sola transacción atómica usando los pools Twin/USDT0 de Curve, con slippage máximo calculado contra el mid de belo, recibo on-chain de la tasa ejecutada, y un contrato de "tasa fija" que bloquea el tipo de cambio N días con margen de ambas partes.
+- **Demo (lo que se ve a las 18:00):**
+  1. Lucía carga "R$ 4.000 a Pedro". La app muestra: mid belo BRAt/ARS 297,85, ruta Curve ARGt→USDT0→BRAt, costo estimado total ≈0,9 % (fee 0,30 % × 2 + impacto) vs 2,5 % del spread minorista y vs US$50-125 + 3-7 días del banco.
+  2. VERDE: "Pagar ahora" → tx real en Arbitrum mainnet: el router hace los dos `exchange` con `min_dy` y transfiere BRAt a la wallet de Pedro; el explorer muestra el hash y el evento `Recibo(tasaEjecutada, mid, desvío)`.
+  3. ROJO: la misma orden con quote vencida (>60 s) o desvío >1,5 % contra el mid firmado revierte; no se pierde plata.
+  4. VERDE: "Fijar tasa 7 días" en Fuji (contrato `CambioFijo` con ARGt de prueba): Lucía deposita 10 % de margen, la mesa (wallet del equipo) deposita 10 %, KUMPLY `isBusiness()` deja pasar la wallet KYB; gas pagado por paymaster 0xGasless. ROJO: una wallet sin atestación es rechazada.
+  5. Vencimiento simulado: el feed firmado marca 310 → el contrato liquida la diferencia desde el margen de la mesa; Lucía paga a 297,85 como se pactó.
+- **On-chain:** (a) Atomicidad: dos swaps + pago al proveedor en una tx; si falla cualquier pata, revierte (con una base de datos el usuario queda con USDT a mitad de camino). (b) Liquidez pública: los pools de Curve son la contraparte, nadie custodia. (c) Recibo verificable de la tasa ejecutada vs referencia (el proveedor brasileño puede auditar sin confiar en Lucía ni en la app). (d) La tasa fija es un contrato con colateral bloqueado de ambos lados: sin cadena hace falta un broker con balance y confianza.
+- **IA:** Casi no usa. Lo honesto: un LLM lee la factura (PDF/foto) y arma la orden (monto, moneda, wallet) y explica en lenguaje llano "pagaste 0,9 % sobre el mid". No es el núcleo; no venderlo como producto de IA.
+- **Riesgo:** (1) Liquidez: el pool ARGt/USDT0 tiene ≈24,5 M ARGt + US$14,8k USDT0 y BRAt/USDT0 ≈83k BRAt + US$9,3k; medido hoy con `get_dy`: US$100 → +0,6 % sobre el ask de belo, US$1.000 → +2,0 %, US$5.000 → +8 %. La demo real tiene que ser de US$10-100. (2) Dos chains: el swap real vive en Arbitrum, el contrato de Avalanche en Fuji con tokens de prueba; el jurado puede verlo como dos demos. (3) Brecha: la referencia USD/ARS pública hoy es 1.545 (open.er-api) vs 1.642-1.658 del dólar cripto (belo / oráculo del pool) [SIN VERIFICAR cuál es el oficial hoy]; si la brecha es ~6 %, quien tiene MULC paga menos con el banco; el nicho son servicios y montos chicos. (4) La tasa fija requiere una contraparte con margen: en la demo es el equipo.
+
+## Precedentes en otras competencias
+- Instant FX for Emerging Markets (ETHBogotá 2022, premio Polygon + Coinbase Wallet): https://ethglobal.com/showcase/instant-fx-for-emerging-markets-currencies-kcvyp — RCOP + fork de Uniswap + Chainlink PoR. Bien: cuantificaron el dolor (bancos 3-5 % + 5-7 días). Faltó: liquidez real y rampa; dependía de su propio stablecoin.
+- DeltaFX (ETHGlobal Cannes 2026, premio Chainlink): https://ethglobal.com/showcase/deltafx-9fewc — opciones FX on-chain (Garman-Kohlhagen en Solidity) para BRL/MXN/ZAR. Bien: cobertura con prima chica. Faltó: sin feeds de BRL en testnet, todo mockeado; demasiado complejo para pymes.
+- ForwardX (Chainlink Hack 2026): https://chain.link/hack-26/projects/forwardx — forwards P2P como NFT + forwards tokenizados con suma cero. Bien: mecanismo simple de liquidación lineal. Faltó: sin oráculo para su par, sin usuario concreto.
+- Numo (Arbitrum NYC, HackQuest): https://hackquest.io/projects/Numo-naQp7w — forwards/tasa fija con MXNB en Arbitrum, AMM tipo YieldSpace. Lección citada: "las stablecoins no-USD son activos incompletos sin curva de tasas". Faltó: usuario final.
+- Nakō (Kona): https://kona-1.gitbook.io/how-it-works/hedging — hedge de BRZ; documenta que el NDF de BRL cuesta ~10,5 % anual: el argumento de por qué fijar tasa 7-30 días con margen es más barato que un forward bancario.
+- Mento/Celo (cREAL, cCOP, producto real): https://forum.celo.org/t/launch-of-ccop-colombia-s-first-decentralized-stablecoin/9211 — FX on-chain con market makers anclados a oráculo. Faltó: liquidez (cREAL ≈US$150k) y desvíos de 1-2 % tras migrar a L2: el mismo riesgo que tienen los pools Twin hoy.
+- Bitso/Juno MXNB en Arbitrum (2025): https://business.bitso.com/blog/what-does-launching-a-stablecoin-pegged-to-the-mexican-peso-mean — B2B México–Brasil con MXNB/BRL1. Es el competidor "real"; no ofrece tasa fija ni pesos argentinos.
+- xFX (Serie A US$17 M, mar-2026): https://fortune.com/2026/03/26/xfx-17-million-series-a-stablecoins-fiat-castle-island-ventures/ — FX fiat↔stablecoin USD/MXN/COP. Valida el problema ("segundos en cripto, días en fiat"); es infraestructura para instituciones, no para Lucía.
+- Belo Pix (producción): https://www.iproup.com/finanzas/61089-belo-con-pix-marca-un-record-de-transacciones-de-argentinos-en-brasil — B2C turismo, >50 % de los pagos Pix de argentinos. No cubre B2B, no da recibo de tasa, no fija tasa.
+
+## Feature de partner que aprovecha
+- **Twin, pools de Curve en Arbitrum (verificados hoy vía api.curve.finance, registro factory-twocrypto, fee 0,30 %):** ARS/USDT0 `0x356D349dA9ADd7Efb56a35fAB939A2c6D852f853` (ARGt `0x59863989d080B22476DB95656d0C3CC18be92214`), BRL/USDT0 `0xEef48Df5F1c509cD9730774b4e8A4464626ef8D5` (BRAt `0xC4ed6Aba5373D78E160F4df39e011F078Be54df8`), CLP/USDT0 `0xA087f05ecD245476d7844f6eab28D98724696ac2` (CHLt `0xe8dbC4680235cCAeFf48e4C0B0EaceeBb89E5e17`), MXN/USDT0 `0x6EdBF3adA7B6D9524c3248955538D573AAE449CF`; USDT0 `0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9`. Se usan `get_dy(i,j,dx)` para cotizar y `exchange(i,j,dx,min_dy,receiver)` para ejecutar. Nadie del repo toca los pools ni BRAt/CHLt.
+- **API pública de belo** (`https://api.belo.app/public/price`, campos `pairCode/bid/ask/spread`): el backend firma `{mid, timestamp}` de BRAt/ARS y USDT/ARS; el router exige quote <60 s y desvío ≤1,5 %. Poco usada: nadie la usa como referencia de ejecución.
+- **KUMPLY `isBusiness(addr)`** en Fuji para abrir una tasa fija (solo empresas); **0xGasless paymaster ERC-4337** para que Lucía nunca pague gas en Fuji. Ambos en nivel básico.
+- **Avalanche:** contrato `CambioFijo` en Fuji; "Why Avalanche": finalidad 1-2 s para liquidar vencimientos, y camino a una L1 permissioned con TxAllowList para mesas KYB y eERC para ocultar montos de facturas B2B (roadmap, no demo).
+
+## Qué suma en cada track
+- **Avalanche:** cumple los 6 obligatorios si `CambioFijo` queda verificado en Fuji con front web. "Why Avalanche" es flojo de verdad: la liquidez está en Arbitrum y el bridge OFT de ARGt no llega a Avalanche; ARGt en C-Chain tiene supply 1.770 (verificado por RPC) y no hay BRAt allí [SIN VERIFICAR]. Bonus 0xGasless básico (+5, paymaster en Fuji) y KUMPLY básico (+5, gate `isBusiness` con wallet que pasa y otra bloqueada). Core de ninguno.
+- **Twin:** ARGt y BRAt son el núcleo (sin ellos no hay producto); disparador 3 exacto. Tx real hoy: SÍ, en Arbitrum mainnet, sin pedirle nada a nadie: con ~US$30 de USDT0 y ~US$2 de ETH se compran ARGt en el pool y se ejecuta el router. Es la ventaja grande de esta idea: no depende de tokens de mentores.
+- **Belo:** consigna 1 "Plata sin fronteras". Regulatorio: solo medio de pago, cero rendimiento (CNV intimó el 11-mar-2026 y levantó el 14-abr-2026 cuando se quitó toda mención a rendimientos). IA real: débil (lectura de factura + explicación). Un equipo de Belo podría continuarlo (ya tienen BRAt y la API).
+
+## Factibilidad en 7 h con 4 personas
+- **Contratos:** `RutaFX.sol` en Arbitrum (~100 líneas: `cotizar(view)`, `pagar(montoARGt, destino, minBRAt, quoteFirmada)`, verificación ECDSA de la quote, dos `exchange`, evento `Recibo`); `CambioFijo.sol` en Fuji (~150 líneas: `abrir(tasa, vence, margen)`, `tomar()`, `liquidar(precioFirmado)`, gate KUMPLY, ERC-20 mock de ARGt/BRAt). Verificación en Arbiscan y Snowtrace.
+- **Front:** Next.js + wagmi, dos redes; pantalla de cotización con mid belo vs ruta Curve vs banco; botón pagar; pantalla tasa fija.
+- **Agente:** opcional, parser de factura con un LLM (1 h). Si falta tiempo, se corta.
+- **Dependencias externas:** USDT0 + ETH en Arbitrum (comprar y retirar, 30-60 min), AVAX de faucet Fuji, API key 0xGasless, atestación KYB (tier 4) emitida a mano por staff de KUMPLY (pedirla YA; plan B: `isPersonAtLeast(addr, 2)`).
+- **Plan B:** si Fuji no llega, presentar solo Twin + Belo con el router en Arbitrum (sigue siendo producto completo); si el pool está desbalanceado al momento de la demo, bajar el monto a US$10.
+- **Veredicto:** ALTO riesgo si se hacen los dos contratos y las dos chains; MEDIO si se prioriza el router en Arbitrum (Twin) y `CambioFijo` queda como mock verificado con demo corta.
+
+## Puntaje estimado (honesto, no inflar)
+Avalanche: Imp 15/25 · Ava 11/25 · Fact 12/20 · Neg 13/20 · Pres 7/10 · bonus 10/20 · **total 68/120**. Twin: Idea 4 · Problema 4 · Negocio 3 · Pitch 4 → **15/20** (es el track donde más rinde). Belo: Problema 24/30 · Funciona 15/25 · Producto 15/25 · IA 6/20 → **60/100**.
+
+## Comparación con las ideas existentes más cercanas
+- **Sin Triangular / P2P USDT (swap atómico con KYC):** es ARS↔USDT entre dos personas con KYC; acá no hay contraparte humana ni USD en manos del usuario: la liquidez es un AMM público y el destino es una factura en otra moneda local, con recibo de tasa y opción de fijarla.
+- **Tesorero con Correa:** paga facturas en ARGt a proveedores locales. Cambio Directo puede ser su módulo de cambio ("el Tesorero paga en reales"), pero el núcleo es distinto: ruteo FX + cobertura, no la correa del agente. Si el equipo no pivotea, es un complemento natural.
+- **Mesa P2P Agéntica:** un agente market maker con tope; acá no hay agente ni mesa propia, y el producto nuevo es la tasa fija colateralizada, que no existe en ninguna de las 36.
+
+## Fuentes
+- API belo (consultada hoy, pares y spreads): https://api.belo.app/public/price
+- API Curve, pools Twin en Arbitrum (consultada hoy) y cotizaciones `get_dy` vía RPC `arb1.arbitrum.io/rpc`: https://api.curve.finance/v1/getPools/arbitrum/factory-twocrypto
+- Twin FAQ (chains, "no generan rendimientos", DIA oracles): https://www.twin.finance/es/faqs
+- CNV y ARGt (11-mar / 14-abr-2026): https://www.criptonoticias.com/regulacion/argentina-efecto-medida-belo-twin-stablecoin-argt/
+- Costos SWIFT desde Argentina: https://www.rankia.com.ar/blog/mejores-cuentas-bancarias-argentina/4250874-como-enviar-dinero-extranjero-argentina ; demoras 3-7 días: https://www.global66.com/blog/transferencia-internacional-santander-argentina/
+- IOF Brasil 0,38 % / 3,5 % (mayo 2025): https://www.brasildefato.com.br/2025/05/23/aumento-do-iof-confira-ponto-a-ponto-as-mudancas-no-imposto/
+- Freelancers (Deel 2025): https://www.iprofesional.com/management/451512-empresas-extranjeras-contratan-freelancers-argentinos-es-negocio-con-dolar-planchado
+- Pix de argentinos US$8 M/día (kamiPay): https://www.primeraedicion.com.ar/nota/100969730/argentinos-gastan-con-pix-el-equivalente-a-unos-8-millones-de-dolares-por-dia-en-brasil/
+- Comercio Argentina–Brasil 2025 (CAC, déficit 5.224 M): https://www.forbesargentina.com/negocios/el-comercio-bilateral-brasil-cayo-169-diciembre-argentina-logro-su-primer-superavit-17-meses-n84517 ; cifras anuales exp/imp [SIN VERIFICAR]: https://mercado.com.ar/economia-y-politica/el-comercio-bilateral-entre-argentina-y-brasil-cayo-169-interanual-en-diciembre-de-2025
+- Turismo receptivo 2025 (brasileños 24,8 %, gasto US$114,5/día): https://mercado.com.ar/para-entender/es-sostenible-el-turismo-internacional-mas-argentinos-viajan-al-exterior-mientras-sigue-cayendo-el-ingreso-de-visitantes
+- Stablecoin FX (Numo, Mento, spreads EURC/USDC 6 bps): https://research.4pillars.io/en/research/the-rise-of-stablecoin-fx-rebuilding-global-currency-exchange-onchain
+- eERC Avalanche: https://build.avax.network/integrations/encrypted-erc
+- Tasa de referencia USD/ARS 1.545 y USD/BRL 5,50 (open.er-api, 7-nov-2026) [SIN VERIFICAR contra BCRA]: https://open.er-api.com/v6/latest/USD
+- [SIN VERIFICAR] existencia de BRAt en Avalanche C-Chain; existencia de feed DIA para ARS/USD; conteo de pymes argentinas que pagan servicios a Brasil.
