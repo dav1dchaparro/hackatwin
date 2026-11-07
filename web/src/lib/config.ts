@@ -93,9 +93,9 @@ export function direccionLlave(): Address | undefined {
 export function direccionPesos(): Address | undefined {
   return noCero(param("pesos")) ?? noCero(env.VITE_PESOS_ADDRESS) ?? noCero(deployments.mockPesos);
 }
-/** Fixture de KUMPLY "Clínica" (tier 4, vence 16/07/2027). Solo recibe plata. */
-export function clinicaDemo(): Address {
-  return noCero(deployments.cuentas?.clinica?.cuenta) ?? "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9";
+/** EOA del agente ejecutor (KUMPLY tier 5): `VITE_AGENTE_ADDRESS` > `deployments.fuji.json → cuentas.agente`. */
+export function direccionAgente(): Address | undefined {
+  return noCero(env.VITE_AGENTE_ADDRESS) ?? noCero(deployments.cuentas?.agente?.cuenta);
 }
 
 export function urlTx(hash: Hash | string): string {
