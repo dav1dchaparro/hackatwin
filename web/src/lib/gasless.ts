@@ -195,8 +195,17 @@ export async function enviar(llamadas: Llamada[]): Promise<Envio> {
   if (llamadas.length === 0) throw new Error("Nada que enviar.");
   await cuentaActiva();
   const c = clienteGasless();
-  const t0 = performance.now();
-  const resp = llamadas.length === 1 ? await c.sendTransaction(llamadas[0]) : await c.sendBatchTransactions(llamadas);
+  // `ms` mide desde que el usuario FIRMÓ (no desde el clic): el tiempo humano en el widget no cuenta.
+  let t0 = performance.now();
+  const offFirma = c.auth.on("signatureComplete", () => {
+    t0 = performance.now();
+  });
+  let resp: Awaited<ReturnType<OxGasClient["sendTransaction"]>>;
+  try {
+    resp = llamadas.length === 1 ? await c.sendTransaction(llamadas[0]) : await c.sendBatchTransactions(llamadas);
+  } finally {
+    offFirma();
+  }
   if (resp.error) {
     throw new Error(`0xGasless rechazó la operación: ${resp.error.message} (código ${resp.error.code})`);
   }
