@@ -79,6 +79,11 @@ export function Dueno() {
           <Tile etiqueta="Última señal" valor={haceX(estado.ultimaSenal, ahora)} chico nota={horaDe(estado.ultimaSenal)} />
           <Tile etiqueta="Espera para cancelar" valor={etiquetaPeriodo(estado.plazoGracia)} chico nota="Después del aviso del agente" />
         </div>
+        <div className="tarjeta">
+          <div className="tarjeta-cab"><div><h3>Estoy bien</h3><p className="descripcion">Un toque y el reloj vuelve a empezar. Sale desde tu cuenta, sin comisiones de red.</p></div></div>
+          <BotonTx texto="Estoy bien" tamano="xl" accion={() => cliente.estoyBien()} onResultado={() => void recargar()} deshabilitado={!esDuena || liberada}
+            nota={fase === "EnGracia" || fase === "Ejecutable" ? "Cancela el aviso del agente y reinicia el plazo." : `Vuelve a contar ${etiquetaPeriodo(estado.plazoInactividad)} desde ahora.`} />
+        </div>
         <PeriodoConfig datos={datos} esDuena={esDuena} email={sesion.email} alRecargar={() => void recargar()} />
       </Modulo>
 
