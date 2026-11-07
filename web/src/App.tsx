@@ -5,6 +5,7 @@ import { Dueno } from "./pages/Dueno";
 import { Heredero } from "./pages/Heredero";
 import { Guardian } from "./pages/Guardian";
 import { Demo } from "./pages/Demo";
+import { PanelIntegracion } from "./lib/dev/PanelIntegracion";
 
 export default function App() {
   return (
@@ -17,6 +18,8 @@ export default function App() {
       </Route>
       {/* El panel del proyector no lleva barra de navegación */}
       <Route path="/demo" element={<Demo />} />
+      {/* P2: panel de integración contra Fuji (sin diseño). P3 puede sacarlo cuando las pantallas estén conectadas. */}
+      <Route path="/integracion" element={<PanelIntegracion />} />
     </Routes>
   );
 }
