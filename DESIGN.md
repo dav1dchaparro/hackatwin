@@ -19,12 +19,12 @@ colors:
   borde-fuerte: "#b7d0df"
   texto: "#012a4a"
   texto-2: "#3b5f7b"
-  texto-3: "#6b8aa3"
+  texto-3: "#4f6f89"
   acento-suave: "#e3f0f7"
   acento-borde: "#89c2d9"
   enlace: "#2a6f97"
   anillo: "#468faf"
-  ok: "#1b7f5a"
+  ok: "#166b4c"
   ok-suave: "#e3f4ec"
   alerta: "#9a5b00"
   alerta-suave: "#fff3df"
@@ -158,10 +158,10 @@ Una familia de azules del equipo que va del profundo al espuma, sobre un fondo a
 - **Fondo** (#f4f8fb): el suelo de toda la app. Oscuro: #0a1623.
 - **Superficie** (#ffffff) para paneles, tarjetas y barra lateral; **Superficie 2** (#ebf3f8) para cabeceras de tabla, segmentados y la tarjeta de sesión. Oscuro: #0f2033 / #142b43.
 - **Borde** (#d6e4ed) en paneles y filas; **Borde fuerte** (#b7d0df) en inputs y botones secundarios. Oscuro: #1f3f5c / #2c5a80.
-- **Texto** (#012a4a), **Texto 2** (#3b5f7b) para descripciones, **Texto 3** (#6b8aa3) para etiquetas y metadatos. Oscuro: #e9f2f8 / #a9d6e5 / #7ea4bd.
+- **Texto** (#012a4a), **Texto 2** (#3b5f7b) para descripciones, **Texto 3** (#4f6f89) para etiquetas y metadatos. Oscuro: #e9f2f8 / #a9d6e5 / #7ea4bd. En oscuro, el texto sobre acento suave usa Azul hielo (#89c2d9) para mantener AA.
 
 ### Semantic
-- **Ok** (#1b7f5a / suave #e3f4ec): «Estoy bien», guardado, recibido, listo.
+- **Ok** (#166b4c / suave #e3f4ec): «Estoy bien», guardado, recibido, listo.
 - **Alerta** (#9a5b00 / suave #fff3df): plazo vencido, cambios sin guardar, modo ensayo.
 - **Peligro** (#b42336 / suave #fde8eb): aviso del agente abierto, errores del contrato, quitar.
 - Oscuro: ok #4cc38a / #0f2f24, alerta #f0b35a / #33240c, peligro #f28b98 / #3a141c.

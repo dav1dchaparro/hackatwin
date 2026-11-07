@@ -10,10 +10,10 @@
 
   --bg: #f4f8fb; --superficie: #ffffff; --superficie-2: #ebf3f8; --superficie-3: #dfebf3;
   --borde: #d6e4ed; --borde-fuerte: #b7d0df;
-  --fg: #012a4a; --fg-2: #3b5f7b; --fg-3: #6b8aa3;
-  --acento: #01497c; --acento-hover: #013a63; --acento-fg: #ffffff; --acento-suave: #e3f0f7; --acento-borde: #89c2d9;
+  --fg: #012a4a; --fg-2: #3b5f7b; --fg-3: #4f6f89;
+  --acento: #01497c; --acento-hover: #013a63; --acento-fg: #ffffff; --acento-suave: #e3f0f7; --acento-borde: #89c2d9; --acento-texto: #01497c;
   --enlace: #2a6f97; --anillo: #468faf;
-  --ok: #1b7f5a; --ok-suave: #e3f4ec; --ok-borde: #a3d8c0;
+  --ok: #166b4c; --ok-suave: #e3f4ec; --ok-borde: #a3d8c0;
   --alerta: #9a5b00; --alerta-suave: #fff3df; --alerta-borde: #f1cb8f;
   --peligro: #b42336; --peligro-suave: #fde8eb; --peligro-borde: #f2a9b3;
   --sombra: 0 1px 2px rgba(1, 42, 74, 0.06);
@@ -27,7 +27,7 @@
     --bg: #0a1623; --superficie: #0f2033; --superficie-2: #142b43; --superficie-3: #1a3652;
     --borde: #1f3f5c; --borde-fuerte: #2c5a80;
     --fg: #e9f2f8; --fg-2: #a9d6e5; --fg-3: #7ea4bd;
-    --acento: #2c7da0; --acento-hover: #468faf; --acento-fg: #ffffff; --acento-suave: #10314d; --acento-borde: #2a6f97;
+    --acento: #2c7da0; --acento-hover: #468faf; --acento-fg: #ffffff; --acento-suave: #10314d; --acento-borde: #2a6f97; --acento-texto: #89c2d9;
     --enlace: #89c2d9; --anillo: #61a5c2;
     --ok: #4cc38a; --ok-suave: #0f2f24; --ok-borde: #1f5a42;
     --alerta: #f0b35a; --alerta-suave: #33240c; --alerta-borde: #6b4b14;
@@ -40,7 +40,7 @@
   --bg: #0a1623; --superficie: #0f2033; --superficie-2: #142b43; --superficie-3: #1a3652;
   --borde: #1f3f5c; --borde-fuerte: #2c5a80;
   --fg: #e9f2f8; --fg-2: #a9d6e5; --fg-3: #7ea4bd;
-  --acento: #2c7da0; --acento-hover: #468faf; --acento-fg: #ffffff; --acento-suave: #10314d; --acento-borde: #2a6f97;
+  --acento: #2c7da0; --acento-hover: #468faf; --acento-fg: #ffffff; --acento-suave: #10314d; --acento-borde: #2a6f97; --acento-texto: #89c2d9;
   --enlace: #89c2d9; --anillo: #61a5c2;
   --ok: #4cc38a; --ok-suave: #0f2f24; --ok-borde: #1f5a42;
   --alerta: #f0b35a; --alerta-suave: #33240c; --alerta-borde: #6b4b14;
@@ -73,7 +73,7 @@ code { font-size: 12px; }
 .nav { display: flex; flex-direction: column; gap: 2px; }
 .nav-item { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border-radius: 6px; color: var(--fg-2); text-decoration: none; font-weight: 500; }
 .nav-item:hover { background: var(--superficie-2); color: var(--fg); }
-.nav-item.active { background: var(--acento-suave); color: var(--acento); }
+.nav-item.active { background: var(--acento-suave); color: var(--acento-texto); }
 .lateral-pie { margin-top: auto; display: flex; flex-direction: column; gap: 8px; padding-top: 12px; border-top: 1px solid var(--borde); }
 .sesion-tarjeta { display: flex; align-items: center; gap: 10px; padding: 8px 10px; border: 1px solid var(--borde); border-radius: 8px; background: var(--superficie-2); min-width: 0; }
 .sesion-texto { display: flex; flex-direction: column; min-width: 0; line-height: 1.25; flex: 1; }
@@ -173,7 +173,7 @@ input.mono { font-family: var(--mono); font-size: 13px; }
 .badge { display: inline-flex; align-items: center; gap: 6px; height: 24px; padding: 0 9px; border: 1px solid var(--borde); border-radius: 999px; background: var(--superficie-2); color: var(--fg-2); font-size: 12px; font-weight: 500; white-space: nowrap; }
 .badge-ok { color: var(--ok); background: var(--ok-suave); border-color: var(--ok-borde); }
 .badge-mal { color: var(--peligro); background: var(--peligro-suave); border-color: var(--peligro-borde); }
-.badge-info, .badge-agente { color: var(--acento); background: var(--acento-suave); border-color: var(--acento-borde); }
+.badge-info, .badge-agente { color: var(--acento-texto); background: var(--acento-suave); border-color: var(--acento-borde); }
 .badge-alerta { color: var(--alerta); background: var(--alerta-suave); border-color: var(--alerta-borde); }
 .badge-gris { color: var(--fg-3); }
 .punto { width: 7px; height: 7px; border-radius: 50%; background: currentColor; display: inline-block; }
@@ -186,7 +186,7 @@ input.mono { font-family: var(--mono); font-size: 13px; }
 .aviso-ok { color: var(--ok); background: var(--ok-suave); border-color: var(--ok-borde); }
 .aviso-mal { color: var(--peligro); background: var(--peligro-suave); border-color: var(--peligro-borde); }
 .aviso-alerta { color: var(--alerta); background: var(--alerta-suave); border-color: var(--alerta-borde); }
-.aviso-info { color: var(--acento); background: var(--acento-suave); border-color: var(--acento-borde); }
+.aviso-info { color: var(--acento-texto); background: var(--acento-suave); border-color: var(--acento-borde); }
 .aviso .regresiva strong { color: inherit; }
 
 /* ───────── etapas (línea de tiempo de la Llave) ───────── */
@@ -199,8 +199,8 @@ input.mono { font-family: var(--mono); font-size: 13px; }
 .etapa-detalle { font-size: 13px; color: var(--fg-2); }
 .etapa.pasada .etapa-num i { background: var(--ok); border-color: var(--ok); color: #fff; }
 .etapa.actual { background: var(--acento-suave); }
-.etapa.actual .etapa-nombre { color: var(--acento); }
-.etapa.actual .etapa-num { color: var(--acento); }
+.etapa.actual .etapa-nombre { color: var(--acento-texto); }
+.etapa.actual .etapa-num { color: var(--acento-texto); }
 .etapa.actual .etapa-num i { background: var(--acento); border-color: var(--acento); color: #fff; }
 .etapa.futura .etapa-nombre { color: var(--fg-3); font-weight: 500; }
 .etapas-xl .etapa { padding: 22px 24px; gap: 8px; }
