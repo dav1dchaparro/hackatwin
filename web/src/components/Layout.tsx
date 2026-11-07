@@ -1,7 +1,7 @@
 import { NavLink, Outlet } from "react-router-dom";
 import { config } from "../lib/config";
 import { acortar } from "./formato";
-import { IcoCasa, IcoHerencia, IcoLlave, IcoLuna, IcoPanel, IcoSalir, IcoSol } from "./Iconos";
+import { IcoCasa, IcoHerencia, IcoLlave, IcoLuna, IcoSalir, IcoSol } from "./Iconos";
 import { useSesion } from "./useSesion";
 import { useTema } from "./useTema";
 
@@ -18,7 +18,6 @@ export function Layout() {
         <nav className="nav" aria-label="Principal">
           <NavLink to="/dueno" className="nav-item"><IcoCasa /><span>Mi Llave</span></NavLink>
           <NavLink to="/heredero" className="nav-item"><IcoHerencia /><span>Mi herencia</span></NavLink>
-          <NavLink to="/demo" className="nav-item"><IcoPanel /><span>Panel en vivo</span></NavLink>
         </nav>
         <div className="lateral-pie">
           {config.modo === "mock" && <span className="badge badge-alerta" title="Datos simulados, sin cadena"><i className="punto" /><span>Modo ensayo</span></span>}
@@ -32,7 +31,7 @@ export function Layout() {
               <button type="button" className="btn btn-fantasma btn-icono" onClick={() => void salir()} aria-label="Salir" title="Salir"><IcoSalir /></button>
             </div>
           ) : (
-            <NavLink to="/" className="btn btn-secundario">Entrar</NavLink>
+            <NavLink to="/" className="btn btn-secundario">Conectar</NavLink>
           )}
         </div>
       </aside>

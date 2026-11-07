@@ -8,7 +8,6 @@ import { Aviso } from "../components/Aviso";
 import { Chip } from "../components/Chip";
 import { CuentaRegresiva } from "../components/CuentaRegresiva";
 import { Encabezado } from "../components/Encabezado";
-import { IcoHerencia } from "../components/Iconos";
 import { LineaDeFases, NOMBRE_FASE } from "../components/LineaDeFases";
 import { Modulo } from "../components/Modulo";
 import { Monto } from "../components/Monto";
@@ -34,8 +33,8 @@ export function Heredero() {
   if (!cuenta) {
     return (
       <>
-        <Encabezado ceja="Heredero" titulo="Mi herencia" descripcion={<>Entrá con tu email para ver tu parte, o abrí esta pantalla con <code>?cuenta=0x…</code>.</>} />
-        <div><Link className="btn btn-primario" to="/">Entrar</Link></div>
+        <Encabezado titulo="Mi herencia" descripcion={<>Conectá tu cuenta con tu email para ver tu parte, o abrí esta pantalla con <code>?cuenta=0x…</code>.</>} />
+        <div><Link className="btn btn-primario" to="/">Conectar</Link></div>
       </>
     );
   }
@@ -47,7 +46,7 @@ export function Heredero() {
   if (!yo) {
     return (
       <>
-        <Encabezado ceja="Heredero" titulo="Mi herencia" />
+        <Encabezado titulo="Mi herencia" />
         <Aviso tono="mal" titulo="Esta cuenta no es heredera de esta Llave.">Cuenta: {acortar(cuenta)}</Aviso>
       </>
     );
@@ -61,8 +60,7 @@ export function Heredero() {
   return (
     <>
       <Encabezado
-        ceja={<><IcoHerencia tam={14} /> Heredero · {yo.alias}</>}
-        titulo="Mi herencia"
+        titulo={`Mi herencia · ${yo.alias}`}
         descripcion={<>Tu parte de la Llave de {duena}. No tenés que hacer nada: cuando corresponda, se te envía sola.</>}
         acciones={<Chip tono="ok">Sin trámites</Chip>}
       />

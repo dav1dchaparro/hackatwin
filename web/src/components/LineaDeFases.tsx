@@ -1,6 +1,7 @@
 import { FASES } from "../lib";
 import type { EstadoLlave, Fase } from "../lib";
 import { CuentaRegresiva } from "./CuentaRegresiva";
+import { IcoCheck } from "./Iconos";
 import { Monto } from "./Monto";
 
 export const NOMBRE_FASE: Record<Fase, string> = {
@@ -11,7 +12,7 @@ export const NOMBRE_FASE: Record<Fase, string> = {
   Liberada: "Herencia enviada",
 };
 
-/** Las 5 etapas de la Llave en orden real (es una secuencia): la actual resaltada con su cuenta regresiva. */
+/** Las 5 etapas de la Llave en su orden real: la actual resaltada con su cuenta regresiva. */
 export function LineaDeFases({ estado, leidoEn, grande = false }: { estado: EstadoLlave; leidoEn: number; grande?: boolean }) {
   const idx = Math.max(0, FASES.indexOf(estado.fase));
   const detalle = (f: Fase) => {
@@ -27,7 +28,7 @@ export function LineaDeFases({ estado, leidoEn, grande = false }: { estado: Esta
     <ol className={`etapas${grande ? " etapas-xl" : ""}`} aria-label="Etapas de la Llave">
       {FASES.map((f, i) => (
         <li key={f} className={`etapa ${i < idx ? "pasada" : i === idx ? "actual" : "futura"}`} aria-current={i === idx ? "step" : undefined}>
-          <span className="etapa-num"><i>{i < idx ? "✓" : i + 1}</i>{i === idx ? "Ahora" : i < idx ? "Hecho" : "Después"}</span>
+          <span className="etapa-num"><i>{i < idx ? <IcoCheck tam={11} /> : i + 1}</i>{i === idx ? "Ahora" : i < idx ? "Hecho" : "Después"}</span>
           <span className="etapa-nombre">{NOMBRE_FASE[f]}</span>
           {i === idx && <span className="etapa-detalle">{detalle(f)}</span>}
         </li>

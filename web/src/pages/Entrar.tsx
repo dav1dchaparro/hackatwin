@@ -74,7 +74,7 @@ export function Entrar() {
           {sesion ? (
             <>
               <div>
-                <div className="ceja">Sesión abierta</div>
+                
                 <h2>Hola, {sesion.alias}</h2>
                 <p className="descripcion mono" title={sesion.cuenta}>{acortar(sesion.cuenta)}</p>
               </div>
@@ -85,14 +85,13 @@ export function Entrar() {
               <div className="pila">
                 {roles.includes("dueña") && <Link className="btn btn-primario btn-grande" to="/dueno">Mi Llave <IcoFlecha tam={16} /></Link>}
                 {roles.includes("heredero") && <Link className="btn btn-primario btn-grande" to="/heredero">Mi herencia <IcoFlecha tam={16} /></Link>}
-                <Link className="btn btn-secundario" to="/demo">Ver el panel en vivo</Link>
                 <button type="button" className="btn btn-fantasma" onClick={() => void salir()}>Salir</button>
               </div>
             </>
           ) : (
             <>
               <div>
-                <h2>Entrá con tu email</h2>
+                <h2>Conectá tu cuenta con tu email</h2>
                 <p className="descripcion">No instalás nada, no comprás nada y no pagás comisiones de red.</p>
               </div>
               <form className="pila" onSubmit={onSubmit}>
@@ -100,7 +99,7 @@ export function Entrar() {
                   <span>Email</span>
                   <input id="email" type="email" inputMode="email" autoComplete="email" placeholder="vos@ejemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} required />
                 </label>
-                <button type="submit" className="btn btn-primario btn-grande" disabled={ocupado}>{ocupado ? <><span className="spinner" aria-hidden /> Entrando…</> : "Entrar"}</button>
+                <button type="submit" className="btn btn-primario btn-grande" disabled={ocupado}>{ocupado ? <><span className="spinner" aria-hidden /> Conectando…</> : "Conectar"}</button>
                 {error && <p className="tx-error" role="alert">{error}</p>}
               </form>
               {config.modo === "mock" && (

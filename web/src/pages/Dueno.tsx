@@ -1,60 +1,64 @@
+// Mi Llave: consola de la dueña (gestora de la herencia). Conectar → señal de vida y período → herederos y
+// destinos → mi plata. Todo lo que se guarda "en la cadena" pasa por `configurar`; emails y nombres quedan en el dispositivo.
 import { useEffect, useRef, useState } from "react";
-import { Link } from "react-router-dom";
+import type { FormEvent } from "react";
 import type { Address } from "viem";
 import { cliente } from "../lib";
-import type { ConfigLlave } from "../lib";
+import type { ConfigLlave, ResultadoTx } from "../lib";
 import { Aviso } from "../components/Aviso";
 import { BotonTx } from "../components/BotonTx";
 import { Chip } from "../components/Chip";
 import { CuentaRegresiva } from "../components/CuentaRegresiva";
 import { Encabezado } from "../components/Encabezado";
-import { IcoCasa, IcoCorazon, IcoEnviar } from "../components/Iconos";
+import { IcoCorazon, IcoEnviar, IcoEscudo, IcoMas, IcoX } from "../components/Iconos";
 import { LineaDeFases, NOMBRE_FASE } from "../components/LineaDeFases";
 import { Modulo } from "../components/Modulo";
 import { Monto } from "../components/Monto";
 import { Tile } from "../components/Tile";
-import { acortar, bpsIguales, haceX, horaDe, mismaCuenta, parsearMonto, porcentaje } from "../components/formato";
+import { acortar, bpsIguales, haceX, horaDe, mismaCuenta, mmss, parsearMonto, porcentaje } from "../components/formato";
+import { cargarMeta, cargarRecordatorio, guardarMeta, guardarRecordatorio, NOMBRE_TIPO } from "../components/metaDestinos";
+import type { MetaDestino, TipoDestino } from "../components/metaDestinos";
 import { useLlave } from "../components/useLlave";
 import type { DatosLlave } from "../components/useLlave";
 import { useReloj } from "../components/useReloj";
 import { useSesion } from "../components/useSesion";
 import { UNO } from "../mock/cliente-mock";
 
+const DIA = 86_400;
+const PERIODOS = [
+  { seg: 60, etiqueta: "1 minuto", nota: "para ensayar" },
+  { seg: 30 * DIA, etiqueta: "30 días" },
+  { seg: 90 * DIA, etiqueta: "90 días" },
+  { seg: 180 * DIA, etiqueta: "180 días" },
+];
+const GRACIAS = [
+  { seg: 30, etiqueta: "30 segundos", nota: "para ensayar" },
+  { seg: 7 * DIA, etiqueta: "7 días" },
+  { seg: 30 * DIA, etiqueta: "30 días" },
+];
+const ES_CUENTA = /^0x[0-9a-fA-F]{40}$/;
+
 export function Dueno() {
   const { sesion } = useSesion();
   const { datos, recargar } = useLlave();
-  const [destino, setDestino] = useState("");
-  const [monto, setMonto] = useState("");
-  const [editando, setEditando] = useState(false);
   const ahora = useReloj(datos?.estado.ahoraCadena ?? 0, datos?.leidoEn ?? Date.now(), 1000);
 
-  if (!sesion) {
-    return (
-      <>
-        <Encabezado ceja="Dueña" titulo="Mi Llave" descripcion="Entrá con tu email para ver tu Llave." />
-        <div><Link className="btn btn-primario" to="/">Entrar</Link></div>
-      </>
-    );
-  }
+  if (!sesion) return <Conectar />;
   if (!datos) return <p className="muted">Cargando tu Llave…</p>;
 
   const { estado, herederos } = datos;
   const esDuena = mismaCuenta(sesion.cuenta, estado.dueno);
   const fase = estado.fase;
   const liberada = estado.liberadaEn > 0;
-  const montoBig = parsearMonto(monto, estado.decimales);
-  const mandarOk = esDuena && /^0x[0-9a-fA-F]{40}$/.test(destino.trim()) && montoBig !== null && montoBig > 0n && !liberada;
-  const comision = estado.comisionBps;
 
   return (
     <>
       <Encabezado
-        ceja={<><IcoCasa tam={14} /> Dueña · {sesion.alias}</>}
         titulo="Mi Llave"
-        descripcion="Tus ahorros con reglas que nadie puede saltear. Cada movimiento tuyo cuenta como señal de vida."
+        descripcion="Mientras das señales de vida, tu plata es tuya y la usás como quieras. Si dejás de darlas, un agente verificado avisa, espera y la reparte como vos dijiste."
         acciones={
-          <BotonTx texto="Cargar $1.000.000 de prueba" variante="secundario" accion={() => cliente.cargarPesosDePrueba(1_000_000n * UNO)}
-            onResultado={() => void recargar()} deshabilitado={liberada} />
+          <BotonTx texto="Estoy bien" icono={<IcoCorazon tam={18} />} variante="ok" tamano="grande" accion={() => cliente.estoyBien()}
+            onResultado={() => void recargar()} deshabilitado={!esDuena || liberada} />
         }
       />
 
@@ -68,147 +72,280 @@ export function Dueno() {
       {fase === "Vencida" && <Aviso tono="alerta" titulo="Pasó el plazo sin señales.">Tocá «Estoy bien» antes de que el agente avise a tus herederos.</Aviso>}
       {liberada && <Aviso tono="info" titulo="Tu Llave ya se liberó.">La plata se envió a tus herederos. Esta Llave no acepta más cambios.</Aviso>}
 
-      <Modulo titulo="Resumen">
+      <Modulo titulo="Señal de vida" descripcion="Cada movimiento tuyo cuenta como señal. Elegí cada cuánto querés darla y qué pasa si te olvidás.">
         <div className="tiles">
-          <Tile etiqueta="En tu bóveda" valor={<Monto valor={estado.saldo} decimales={estado.decimales} />} nota={`${estado.simbolo} · pesos de prueba en Fuji`} destacado />
-          <Tile etiqueta="Última señal" valor={haceX(estado.ultimaSenal, ahora)} chico nota={horaDe(estado.ultimaSenal)} />
-          <Tile
-            etiqueta={fase === "Activa" ? "Vence en" : fase === "EnGracia" ? "Se libera en" : "Estado"}
+          <Tile etiqueta={fase === "Activa" ? "Vence en" : fase === "EnGracia" ? "Se libera en" : "Etapa"}
             valor={fase === "Activa"
               ? <CuentaRegresiva objetivo={estado.venceEn} ahoraCadena={estado.ahoraCadena} leidoEn={datos.leidoEn} margen={0} />
               : fase === "EnGracia"
                 ? <CuentaRegresiva objetivo={estado.graciaTerminaEn} ahoraCadena={estado.ahoraCadena} leidoEn={datos.leidoEn} margen={0} />
                 : NOMBRE_FASE[fase]}
-            chico
-            nota={fase === "Activa" ? `Plazo: ${Math.round(estado.plazoInactividad / 60)} min sin señales` : NOMBRE_FASE[fase]}
-          />
-          <Tile etiqueta="Herederos" valor={String(herederos.length)} chico nota={herederos.map((h) => `${h.alias} ${porcentaje(h.bps)}`).join(" · ")} />
+            chico destacado nota={fase === "Activa" ? `Cada ${etiquetaPeriodo(estado.plazoInactividad)} sin señales` : NOMBRE_FASE[fase]} />
+          <Tile etiqueta="Última señal" valor={haceX(estado.ultimaSenal, ahora)} chico nota={horaDe(estado.ultimaSenal)} />
+          <Tile etiqueta="En tu bóveda" valor={<Monto valor={estado.saldo} decimales={estado.decimales} />} chico nota={`${estado.simbolo} · pesos de prueba`} />
+          <Tile etiqueta="Espera para cancelar" valor={etiquetaPeriodo(estado.plazoGracia)} chico nota="Después del aviso del agente" />
         </div>
-      </Modulo>
-
-      <Modulo titulo="Acciones" descripcion="Mandar plata también cuenta como señal de vida. Usás tu plata cuando quieras, sin costo.">
-        <div className="grilla-2">
-          <div className="tarjeta">
-            <div className="tarjeta-cab"><div><h3>¿Todo bien?</h3><p className="descripcion">Un toque reinicia el plazo y cancela cualquier aviso. No pagás nada.</p></div><IcoCorazon /></div>
-            <BotonTx texto="Estoy bien" icono={<IcoCorazon tam={20} />} variante="ok" tamano="xl" accion={() => cliente.estoyBien()}
-              onResultado={() => void recargar()} deshabilitado={!esDuena || liberada} />
-          </div>
-          <form className="tarjeta" onSubmit={(e) => e.preventDefault()}>
-            <div className="tarjeta-cab"><div><h3>Mandar plata</h3><p className="descripcion">A cualquier cuenta. Es tu plata: sin comisión y sin demora.</p></div><IcoEnviar /></div>
-            <label className="campo"><span>A la cuenta</span><input id="destino" className="mono" value={destino} onChange={(e) => setDestino(e.target.value)} placeholder="0x…" spellCheck={false} /></label>
-            <label className="campo"><span>Monto</span><input id="monto" inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="50.000" /></label>
-            <BotonTx texto="Mandar plata" icono={<IcoEnviar tam={16} />} tamano="grande" accion={() => cliente.retirar(destino.trim() as Address, montoBig ?? 0n)}
-              onResultado={(r) => { if (r.ok) setMonto(""); void recargar(); }} deshabilitado={!mandarOk} />
-          </form>
-        </div>
-      </Modulo>
-
-      <Modulo titulo="Etapas" descripcion="Dónde está tu Llave hoy y qué pasa después si dejás de dar señales.">
         <LineaDeFases estado={estado} leidoEn={datos.leidoEn} />
+        <div className="grilla-2">
+          <PeriodoConfig datos={datos} esDuena={esDuena} email={sesion.email} alRecargar={() => void recargar()} />
+          <div className="tarjeta">
+            <div className="tarjeta-cab"><div><h3>Seguridad y privacidad</h3></div><IcoEscudo /></div>
+            <ul className="lista-simple">
+              <li><strong>Las reglas viven con la plata.</strong> Quién cobra, cuánto y cuándo está en el mismo contrato que guarda tu bóveda. No hay administrador: ni nosotros podemos moverla.</li>
+              <li><strong>Solo un agente verificado puede liberar.</strong> Su identidad la confirma KUMPLY en la misma operación. Cualquier otro bot rebota.</li>
+              <li><strong>Tus datos no se publican.</strong> Los emails y nombres de tus herederos quedan en tu dispositivo; en la cadena solo van cuentas y porcentajes.</li>
+              <li><strong>Sin comisiones de red.</strong> Las cubre 0xGasless. Retirar tu plata es gratis y también cuenta como señal.</li>
+            </ul>
+          </div>
+        </div>
       </Modulo>
 
-      <Modulo
-        titulo="Herederos"
-        descripcion="Si dejás de dar señales, un agente con identidad verificada avisa, espera y después les envía la plata. Ellos no hacen nada."
-        extra={<button type="button" className="btn btn-chico btn-secundario" onClick={() => setEditando((v) => !v)} disabled={liberada}>{editando ? "Cerrar" : "Editar herederos y plazos"}</button>}
-      >
-        <div className="filas">
-          <div className="fila fila-cab"><span>Heredero</span><span>Porcentaje</span><span>Le corresponde</span><span>Estado</span></div>
-          {herederos.map((h) => (
-            <div key={h.cuenta} className="fila">
-              <span className="nombre">{h.alias}<span className="cuenta" title={h.cuenta}>{acortar(h.cuenta)}</span></span>
-              <span className="num">{porcentaje(h.bps)}</span>
-              <span className="num"><Monto valor={h.parte} decimales={estado.decimales} /></span>
-              {liberada ? <Chip tono="ok">Recibido</Chip> : <Chip>En espera</Chip>}
-            </div>
-          ))}
+      <Modulo titulo="Herederos y destinos" descripcion="Cargá a cada persona con su email y el porcentaje que le corresponde. Si querés, parte va a un fondo común o a una donación.">
+        <DestinosEditor datos={datos} esDuena={esDuena} alRecargar={() => void recargar()} />
+      </Modulo>
+
+      <Modulo titulo="Mi plata" descripcion="Usás tu plata cuando quieras, sin costo. Mandar también cuenta como señal de vida.">
+        <div className="grilla-2">
+          <MandarPlata datos={datos} esDuena={esDuena} alRecargar={() => void recargar()} />
+          <div className="tarjeta">
+            <div className="tarjeta-cab"><div><h3>Pesos de prueba</h3><p className="descripcion">En la red de prueba la bóveda se carga con pesos de juguete. En producción se carga desde tu billetera o tu cuenta.</p></div></div>
+            <BotonTx texto="Cargar $1.000.000 de prueba" variante="secundario" accion={() => cliente.cargarPesosDePrueba(1_000_000n * UNO)}
+              onResultado={() => void recargar()} deshabilitado={liberada} />
+            <p className="descripcion">Herederos actuales en la cadena: {herederos.map((h) => `${h.alias} ${porcentaje(h.bps)}`).join(" · ") || "ninguno"}.</p>
+          </div>
         </div>
-        {comision > 0 && <p className="descripcion">Comisión Llave: {porcentaje(comision)} al liberar, ya descontada de cada parte. Mandar plata ahora no tiene costo.</p>}
-        {editando && <Configuracion datos={datos} esDuena={esDuena} alRecargar={() => { void recargar(); }} />}
       </Modulo>
     </>
   );
 }
 
-type Preset = "iguales" | "porcentajes" | "uno";
-type Fila = { cuenta: string; pct: string };
+function etiquetaPeriodo(seg: number): string {
+  const p = PERIODOS.find((x) => x.seg === seg) ?? GRACIAS.find((x) => x.seg === seg);
+  if (p) return p.etiqueta;
+  if (seg >= DIA) return `${Math.round(seg / DIA)} días`;
+  return mmss(seg);
+}
 
-function Configuracion({ datos, esDuena, alRecargar }: { datos: DatosLlave; esDuena: boolean; alRecargar: () => void }) {
+/* ───────────── Conectar (sin sesión) ───────────── */
+function Conectar() {
+  const { entrar } = useSesion();
+  const [email, setEmail] = useState("");
+  const [ocupado, setOcupado] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  async function onSubmit(e: FormEvent) {
+    e.preventDefault();
+    if (!email.includes("@")) { setError("Escribí un email válido."); return; }
+    setOcupado(true); setError(null);
+    try { await entrar(email.trim()); } catch (err) { setError(err instanceof Error ? err.message : "No se pudo conectar. Probá de nuevo."); } finally { setOcupado(false); }
+  }
+  return (
+    <>
+      <Encabezado titulo="Mi Llave" descripcion="Conectá tu cuenta con tu email. No instalás nada, no comprás nada y no pagás comisiones de red." />
+      <form className="tarjeta tarjeta-angosta" onSubmit={onSubmit}>
+        <div><h3>Conectar mi cuenta</h3><p className="descripcion">Tu cuenta se crea con tu email y queda protegida por tu acceso. Nadie más la puede usar.</p></div>
+        <label className="campo"><span>Email</span><input id="email-conectar" type="email" inputMode="email" autoComplete="email" placeholder="vos@ejemplo.com" value={email} onChange={(e) => setEmail(e.target.value)} required /></label>
+        <button type="submit" className="btn btn-primario btn-grande" disabled={ocupado}>{ocupado ? <><span className="spinner" aria-hidden /> Conectando…</> : "Conectar"}</button>
+        {error && <p className="tx-error" role="alert">{error}</p>}
+        <div className="chips"><Chip title="La cuenta la crea 0xGasless a partir de tu email">0xGasless</Chip><Chip title="Red de prueba Fuji de Avalanche">Avalanche Fuji</Chip></div>
+      </form>
+    </>
+  );
+}
+
+/* ───────────── Período y recordatorio ───────────── */
+function PeriodoConfig({ datos, esDuena, email, alRecargar }: { datos: DatosLlave; esDuena: boolean; email: string; alRecargar: () => void }) {
   const { estado, herederos } = datos;
-  const [preset, setPreset] = useState<Preset>("porcentajes");
-  const [filas, setFilas] = useState<Fila[]>([]);
-  const [plazos, setPlazos] = useState({ inactividad: "60", gracia: "30" });
-  const inicializado = useRef(false);
-
-  useEffect(() => {
-    if (inicializado.current) return;
-    inicializado.current = true;
-    setFilas(herederos.map((h) => ({ cuenta: h.cuenta, pct: (h.bps / 100).toString() })));
-    setPlazos({ inactividad: String(estado.plazoInactividad), gracia: String(estado.plazoGracia) });
-  }, [herederos, estado]);
-
-  const filasVisibles = preset === "uno" ? filas.slice(0, 1) : filas;
-  const bps: number[] = preset === "iguales" ? bpsIguales(filasVisibles.length)
-    : preset === "uno" ? [10_000]
-    : filasVisibles.map((f) => Math.round((parseFloat(f.pct.replace(",", ".")) || 0) * 100));
-  const suma = bps.reduce((a, b) => a + b, 0);
-  const sumaOk = suma === 10_000 && bps.every((b) => b > 0);
-  const cuentasOk = filasVisibles.length > 0 && filasVisibles.every((f) => /^0x[0-9a-fA-F]{40}$/.test(f.cuenta.trim()));
+  const [periodo, setPeriodo] = useState(estado.plazoInactividad);
+  const [gracia, setGracia] = useState(estado.plazoGracia);
+  const guardado = cargarRecordatorio();
+  const [recordar, setRecordar] = useState(guardado?.activo ?? true);
+  const [emailRec, setEmailRec] = useState(guardado?.email ?? email);
+  const [diasAntes, setDiasAntes] = useState(guardado?.diasAntes ?? 3);
   const liberada = estado.liberadaEn > 0;
-  const config: ConfigLlave = {
-    herederos: filasVisibles.map((f) => f.cuenta.trim() as Address),
-    bps,
-    plazoInactividad: parseInt(plazos.inactividad, 10) || 0,
-    plazoGracia: parseInt(plazos.gracia, 10) || 0,
-  };
-  const elegirPreset = (p: Preset) => {
-    setPreset(p);
-    if (p === "iguales") setFilas((fs) => fs.map((f, i) => ({ ...f, pct: (bpsIguales(fs.length)[i] / 100).toString() })));
-    if (p === "uno") setFilas((fs) => [{ cuenta: fs[0]?.cuenta ?? "", pct: "100" }]);
-  };
+  const cambio = periodo !== estado.plazoInactividad || gracia !== estado.plazoGracia;
+  const periodosVisibles = PERIODOS.filter((p) => p.seg >= estado.plazoInactividad || p.seg >= 60);
+  const graciasVisibles = GRACIAS;
+
+  async function guardar(): Promise<ResultadoTx> {
+    guardarRecordatorio({ activo: recordar, email: emailRec.trim(), diasAntes });
+    if (!cambio) return { ok: true };
+    if (!cliente.configurar) return { ok: false, error: { nombre: "NoDisponible", mensaje: "Guardar en la cadena llega con la conexión real." } };
+    const config: ConfigLlave = { herederos: herederos.map((h) => h.cuenta), bps: herederos.map((h) => h.bps), plazoInactividad: periodo, plazoGracia: gracia };
+    return cliente.configurar(config);
+  }
 
   return (
     <div className="tarjeta">
-      <div className="tarjeta-cab">
-        <div><h3>Herederos y plazos</h3><p className="descripcion">Guardar también cuenta como señal de vida. Solo sobre la porción disponible de tu herencia.</p></div>
+      <div className="tarjeta-cab"><div><h3>Cada cuánto das señal de vida</h3><p className="descripcion">Si pasa este tiempo sin ninguna señal tuya, el agente avisa y abre la espera.</p></div></div>
+      <div className="segmentado" role="group" aria-label="Período sin señales">
+        {periodosVisibles.map((p) => (
+          <button key={p.seg} type="button" className={periodo === p.seg ? "activo" : ""} onClick={() => setPeriodo(p.seg)} title={p.nota}>{p.etiqueta}</button>
+        ))}
+      </div>
+      <label className="campo">
+        <span>Espera para cancelar, después del aviso</span>
+        <div className="segmentado" role="group" aria-label="Espera para cancelar">
+          {graciasVisibles.map((g) => (
+            <button key={g.seg} type="button" className={gracia === g.seg ? "activo" : ""} onClick={() => setGracia(g.seg)} title={g.nota}>{g.etiqueta}</button>
+          ))}
+        </div>
+      </label>
+      <div className="separador" />
+      <label className="campo campo-linea">
+        <input id="recordar" type="checkbox" checked={recordar} onChange={(e) => setRecordar(e.target.checked)} />
+        <span>Recordame por email antes de que venza</span>
+      </label>
+      {recordar && (
+        <div className="grilla-2">
+          <label className="campo"><span>Email</span><input id="email-recordatorio" type="email" value={emailRec} onChange={(e) => setEmailRec(e.target.value)} /></label>
+          <label className="campo"><span>Días antes</span><input id="dias-antes" inputMode="numeric" value={diasAntes} onChange={(e) => setDiasAntes(parseInt(e.target.value, 10) || 0)} /></label>
+        </div>
+      )}
+      <BotonTx texto={cambio ? "Guardar en la cadena" : "Guardar"} accion={guardar} onResultado={alRecargar} deshabilitado={!esDuena || liberada}
+        nota={cambio ? "El nuevo período queda escrito en el contrato y cuenta como señal de vida." : "El recordatorio se guarda en este dispositivo."} />
+    </div>
+  );
+}
+
+/* ───────────── Herederos y destinos (tabla editable) ───────────── */
+type Preset = "iguales" | "porcentajes" | "uno";
+interface FilaDestino { id: number; tipo: TipoDestino; email: string; nombre: string; cuenta: string; pct: string; resolviendo: boolean }
+
+function DestinosEditor({ datos, esDuena, alRecargar }: { datos: DatosLlave; esDuena: boolean; alRecargar: () => void }) {
+  const { estado, herederos } = datos;
+  const [preset, setPreset] = useState<Preset>("porcentajes");
+  const [filas, setFilas] = useState<FilaDestino[]>([]);
+  const inicializado = useRef(false);
+  const siguienteId = useRef(1);
+  const liberada = estado.liberadaEn > 0;
+
+  useEffect(() => {
+    if (inicializado.current || herederos.length === 0) return;
+    inicializado.current = true;
+    const meta = cargarMeta();
+    setFilas(herederos.map((h) => {
+      const m = meta[h.cuenta.toLowerCase()];
+      return { id: siguienteId.current++, tipo: m?.tipo ?? "persona", email: m?.email ?? "", nombre: m?.nombre ?? h.alias, cuenta: h.cuenta, pct: (h.bps / 100).toString(), resolviendo: false };
+    }));
+  }, [herederos]);
+
+  const bps: number[] = preset === "iguales" ? bpsIguales(filas.length)
+    : preset === "uno" ? filas.map((_, i) => (i === 0 ? 10_000 : 0))
+    : filas.map((f) => Math.round((parseFloat(f.pct.replace(",", ".")) || 0) * 100));
+  const suma = bps.reduce((a, b) => a + b, 0);
+  const sumaOk = suma === 10_000 && bps.every((b) => b > 0);
+  const cuentasOk = filas.length > 0 && filas.length <= 5 && filas.every((f) => ES_CUENTA.test(f.cuenta.trim()) && !f.resolviendo);
+  const repetidas = new Set(filas.map((f) => f.cuenta.toLowerCase())).size !== filas.length;
+  const sinCambios = filas.length === herederos.length && filas.every((f, i) => mismaCuenta(f.cuenta, herederos[i]?.cuenta) && bps[i] === herederos[i]?.bps);
+
+  const actualizar = (id: number, cambios: Partial<FilaDestino>) => setFilas((fs) => fs.map((f) => (f.id === id ? { ...f, ...cambios } : f)));
+  const agregar = (tipo: TipoDestino) => setFilas((fs) => [...fs, { id: siguienteId.current++, tipo, email: "", nombre: tipo === "persona" ? "" : NOMBRE_TIPO[tipo], cuenta: "", pct: "0", resolviendo: false }]);
+  const quitar = (id: number) => setFilas((fs) => fs.filter((f) => f.id !== id));
+  const elegirPreset = (p: Preset) => {
+    setPreset(p);
+    if (p === "iguales") setFilas((fs) => fs.map((f, i) => ({ ...f, pct: (bpsIguales(fs.length)[i] / 100).toString() })));
+    if (p === "uno") setFilas((fs) => fs.map((f, i) => ({ ...f, pct: i === 0 ? "100" : "0" })));
+  };
+  async function resolverEmail(f: FilaDestino) {
+    const email = f.email.trim();
+    if (!email.includes("@")) return;
+    if (!cliente.cuentaDeEmail) { actualizar(f.id, { resolviendo: false }); return; }
+    actualizar(f.id, { resolviendo: true });
+    try { const cuenta = await cliente.cuentaDeEmail(email); actualizar(f.id, { cuenta, resolviendo: false }); }
+    catch { actualizar(f.id, { resolviendo: false }); }
+  }
+  async function guardar(): Promise<ResultadoTx> {
+    if (!cliente.configurar) return { ok: false, error: { nombre: "NoDisponible", mensaje: "Guardar en la cadena llega con la conexión real." } };
+    const meta = cargarMeta();
+    for (const f of filas) {
+      const m: MetaDestino = f.tipo === "persona" ? { tipo: "persona", email: f.email.trim() } : { tipo: f.tipo, nombre: f.nombre.trim() || NOMBRE_TIPO[f.tipo] };
+      meta[f.cuenta.trim().toLowerCase()] = m;
+    }
+    guardarMeta(meta);
+    const config: ConfigLlave = { herederos: filas.map((f) => f.cuenta.trim() as Address), bps, plazoInactividad: estado.plazoInactividad, plazoGracia: estado.plazoGracia };
+    return cliente.configurar(config);
+  }
+  const parteDe = (cuenta: string) => herederos.find((h) => mismaCuenta(h.cuenta, cuenta))?.parte;
+
+  return (
+    <div className="pila">
+      <div className="resumen-reparto">
         <div className="segmentado" role="group" aria-label="Forma de reparto">
           <button type="button" className={preset === "iguales" ? "activo" : ""} onClick={() => elegirPreset("iguales")}>Partes iguales</button>
           <button type="button" className={preset === "porcentajes" ? "activo" : ""} onClick={() => elegirPreset("porcentajes")}>Porcentajes</button>
           <button type="button" className={preset === "uno" ? "activo" : ""} onClick={() => elegirPreset("uno")}>Un solo destino</button>
         </div>
+        <div className="chips">
+          {sinCambios ? <Chip tono="ok">Guardado en la cadena</Chip> : <Chip tono="alerta">Cambios sin guardar</Chip>}
+          <Chip>{filas.length} de 5 destinos</Chip>
+        </div>
       </div>
-      {preset === "uno" && <p className="descripcion">El 100% va a una sola persona de confianza.</p>}
 
       <div className="filas">
-        {filasVisibles.map((f, i) => (
-          <div key={i} className="fila fila-config">
-            <input id={`heredero-${i}`} className="mono" value={f.cuenta} onChange={(e) => setFilas((fs) => fs.map((x, j) => (j === i ? { ...x, cuenta: e.target.value } : x)))} placeholder="0x… cuenta del heredero" spellCheck={false} aria-label={`Cuenta del heredero ${i + 1}`} />
-            <span className="num">
-              <input id={`pct-${i}`} inputMode="decimal" value={preset === "porcentajes" ? f.pct : ((bps[i] ?? 0) / 100).toString()} disabled={preset !== "porcentajes"}
-                onChange={(e) => setFilas((fs) => fs.map((x, j) => (j === i ? { ...x, pct: e.target.value } : x)))} aria-label={`Porcentaje del heredero ${i + 1}`} /> %
+        <div className="fila fila-destino fila-cab"><span>Tipo</span><span>Quién</span><span>Cuenta</span><span>Porcentaje</span><span /></div>
+        {filas.length === 0 && <div className="fila"><span className="muted">Todavía no hay destinos. Agregá una persona, un fondo común o una donación.</span></div>}
+        {filas.map((f, i) => (
+          <div key={f.id} className="fila fila-destino">
+            <select aria-label="Tipo de destino" value={f.tipo} onChange={(e) => actualizar(f.id, { tipo: e.target.value as TipoDestino })}>
+              <option value="persona">Persona</option>
+              <option value="fondo">Fondo común</option>
+              <option value="donacion">Donación</option>
+            </select>
+            {f.tipo === "persona" ? (
+              <input type="email" inputMode="email" placeholder="email del heredero" aria-label="Email del heredero" value={f.email}
+                onChange={(e) => actualizar(f.id, { email: e.target.value })} onBlur={() => void resolverEmail(f)} />
+            ) : (
+              <input placeholder={f.tipo === "fondo" ? "Nombre del fondo (ej. Familia Pérez)" : "A quién donás (ej. Fundación Sí)"} aria-label="Nombre del destino" value={f.nombre}
+                onChange={(e) => actualizar(f.id, { nombre: e.target.value })} />
+            )}
+            {f.tipo === "persona" ? (
+              <span className="cuenta" title={f.cuenta}>{f.resolviendo ? "buscando cuenta…" : f.cuenta ? acortar(f.cuenta) : "se completa con el email"}</span>
+            ) : (
+              <input className="mono" placeholder="0x… cuenta del fondo" aria-label="Cuenta del destino" value={f.cuenta} spellCheck={false}
+                onChange={(e) => actualizar(f.id, { cuenta: e.target.value })} />
+            )}
+            <span className="num pct">
+              <input inputMode="decimal" aria-label="Porcentaje" value={preset === "porcentajes" ? f.pct : ((bps[i] ?? 0) / 100).toString()} disabled={preset !== "porcentajes"}
+                onChange={(e) => actualizar(f.id, { pct: e.target.value })} /> %
+              {parteDe(f.cuenta) !== undefined && <small className="muted">hoy <Monto valor={parteDe(f.cuenta)!} decimales={estado.decimales} /></small>}
             </span>
-            {preset !== "uno" && filasVisibles.length > 1
-              ? <button type="button" className="btn btn-fantasma btn-chico" onClick={() => setFilas((fs) => fs.filter((_, j) => j !== i))}>Quitar</button>
-              : <span />}
+            <button type="button" className="btn btn-fantasma btn-icono" onClick={() => quitar(f.id)} aria-label="Quitar destino" title="Quitar"><IcoX tam={16} /></button>
           </div>
         ))}
       </div>
+
       <div className="fila-acciones">
-        {preset !== "uno" && filas.length < 5 && <button type="button" className="btn btn-secundario btn-chico" onClick={() => setFilas((fs) => [...fs, { cuenta: "", pct: "0" }])}>+ Agregar heredero</button>}
-        <span className={sumaOk ? "tx-ok" : "tx-error"}>Suma: {suma.toLocaleString("es-AR")} de 10.000{sumaOk ? "" : " (tiene que dar 100%)"}</span>
+        <button type="button" className="btn btn-secundario btn-chico" onClick={() => agregar("persona")} disabled={filas.length >= 5}><IcoMas tam={14} /> Persona</button>
+        <button type="button" className="btn btn-secundario btn-chico" onClick={() => agregar("fondo")} disabled={filas.length >= 5}><IcoMas tam={14} /> Fondo común</button>
+        <button type="button" className="btn btn-secundario btn-chico" onClick={() => agregar("donacion")} disabled={filas.length >= 5}><IcoMas tam={14} /> Donación</button>
+        <span className={sumaOk ? "tx-ok" : "tx-error"}>Total: {(suma / 100).toLocaleString("es-AR")}% {sumaOk ? "" : "(tiene que dar 100%)"}</span>
+        {repetidas && <span className="tx-error">Hay dos destinos con la misma cuenta.</span>}
       </div>
 
-      <div className="separador" />
-      <div className="grilla-2">
-        <label className="campo"><span>Plazo sin señales (segundos)</span><input id="plazo-inactividad" inputMode="numeric" value={plazos.inactividad} onChange={(e) => setPlazos({ ...plazos, inactividad: e.target.value })} /><small>En la demo 60 s; en producción, meses.</small></label>
-        <label className="campo"><span>Espera para cancelar (segundos)</span><input id="plazo-gracia" inputMode="numeric" value={plazos.gracia} onChange={(e) => setPlazos({ ...plazos, gracia: e.target.value })} /><small>Tiempo en el que todavía podés tocar «Estoy bien».</small></label>
+      <div className="tarjeta">
+        <div className="tarjeta-cab"><div><h3>Guardar el reparto en la cadena</h3><p className="descripcion">Los porcentajes y las cuentas quedan en el contrato. Los emails y nombres quedan solo en este dispositivo. Comisión Llave: {porcentaje(estado.comisionBps)} al liberar.</p></div></div>
+        <BotonTx texto="Guardar en la cadena" accion={guardar} onResultado={alRecargar}
+          deshabilitado={!esDuena || liberada || !sumaOk || !cuentasOk || repetidas || sinCambios}
+          nota={!cuentasOk && filas.length > 0 ? "Completá el email de cada persona o la cuenta de cada fondo." : "Guardar también cuenta como señal de vida."} />
       </div>
-
-      {cliente.configurar ? (
-        <BotonTx texto="Guardar cambios" accion={() => cliente.configurar(config)} onResultado={alRecargar} deshabilitado={!esDuena || !sumaOk || !cuentasOk || liberada} />
-      ) : (
-        <p className="descripcion">Guardar desde la web llega con la conexión real; hoy el reparto se fija al crear la Llave.</p>
-      )}
     </div>
+  );
+}
+
+/* ───────────── Mandar plata ───────────── */
+function MandarPlata({ datos, esDuena, alRecargar }: { datos: DatosLlave; esDuena: boolean; alRecargar: () => void }) {
+  const { estado } = datos;
+  const [destino, setDestino] = useState("");
+  const [monto, setMonto] = useState("");
+  const montoBig = parsearMonto(monto, estado.decimales);
+  const ok = esDuena && ES_CUENTA.test(destino.trim()) && montoBig !== null && montoBig > 0n && estado.liberadaEn === 0;
+  return (
+    <form className="tarjeta" onSubmit={(e) => e.preventDefault()}>
+      <div className="tarjeta-cab"><div><h3>Mandar plata</h3><p className="descripcion">A cualquier cuenta. Es tu plata: sin comisión y sin demora.</p></div><IcoEnviar /></div>
+      <label className="campo"><span>A la cuenta</span><input id="destino" className="mono" value={destino} onChange={(e) => setDestino(e.target.value)} placeholder="0x…" spellCheck={false} /></label>
+      <label className="campo"><span>Monto</span><input id="monto" inputMode="decimal" value={monto} onChange={(e) => setMonto(e.target.value)} placeholder="50.000" /></label>
+      <BotonTx texto="Mandar plata" icono={<IcoEnviar tam={16} />} tamano="grande" accion={() => cliente.retirar(destino.trim() as Address, montoBig ?? 0n)}
+        onResultado={(r) => { if (r.ok) setMonto(""); alRecargar(); }} deshabilitado={!ok} />
+    </form>
   );
 }

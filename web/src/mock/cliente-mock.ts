@@ -328,6 +328,15 @@ export function crearClienteMock(): LlaveCliente {
     },
     aliasDe(cuenta: Address) { return aliasDe(cargar(), cuenta); },
     async eventosRecientes(): Promise<EventoLlave[]> { return cargar().eventos; },
+    async cuentaDeEmail(email: string): Promise<Address> {
+      const local = sinAcentos(email.split("@")[0] ?? "");
+      const persona = PERSONAS_DEMO.find((p) => local.includes(sinAcentos(p.alias.split(" ")[0])));
+      if (persona) return persona.cuenta;
+      const cuenta = cuentaDesdeTexto(email.trim().toLowerCase());
+      const s = cargar();
+      if (!s.aliases[k(cuenta)]) { s.aliases[k(cuenta)] = local ? local[0].toUpperCase() + local.slice(1) : "Invitado"; guardar(s); }
+      return cuenta;
+    },
 
     // sesión
     sesion() { return leerSesion(); },

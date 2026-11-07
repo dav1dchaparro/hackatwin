@@ -2,7 +2,7 @@
    Layout: shell con barra lateral de 240 px (desktop) o barra superior (celular); cada pantalla = cabecera
    (ceja + título + descripción + acción principal) y módulos con cabecera propia. Resumen antes del detalle.
    Paleta del equipo (azules 900→50): #012a4a #013a63 #01497c #014f86 #2a6f97 #2c7da0 #468faf #61a5c2 #89c2d9 #a9d6e5. */
-@import url("https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Source+Sans+3:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600&display=swap");
 
 :root {
   --azul-900: #012a4a; --azul-800: #013a63; --azul-700: #01497c; --azul-600: #014f86; --azul-500: #2a6f97;
@@ -18,7 +18,7 @@
   --peligro: #b42336; --peligro-suave: #fde8eb; --peligro-borde: #f2a9b3;
   --sombra: 0 1px 2px rgba(1, 42, 74, 0.06);
   --radio: 8px; --radio-g: 12px;
-  --fuente: "Inter", system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  --fuente: "Source Sans 3", system-ui, -apple-system, "Segoe UI", sans-serif;
   --mono: "JetBrains Mono", ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
   color-scheme: light;
 }
@@ -52,7 +52,7 @@
 /* ───────── base ───────── */
 *, *::before, *::after { box-sizing: border-box; }
 html, body { height: 100%; }
-body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.5 var(--fuente); -webkit-font-smoothing: antialiased; }
+body { margin: 0; background: var(--bg); color: var(--fg); font: 15px/1.5 var(--fuente); -webkit-font-smoothing: antialiased; }
 a { color: var(--enlace); }
 h1, h2, h3 { margin: 0; font-weight: 600; letter-spacing: -0.01em; text-wrap: balance; }
 p { margin: 0; }
@@ -199,7 +199,7 @@ input.mono { font-family: var(--mono); font-size: 13px; }
 .etapa-detalle { font-size: 13px; color: var(--fg-2); }
 .etapa.pasada .etapa-num i { background: var(--ok); border-color: var(--ok); color: #fff; }
 .etapa.actual { background: var(--acento-suave); }
-.etapa.actual::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: 3px; background: var(--acento); }
+.etapa.actual .etapa-nombre { color: var(--acento); }
 .etapa.actual .etapa-num { color: var(--acento); }
 .etapa.actual .etapa-num i { background: var(--acento); border-color: var(--acento); color: #fff; }
 .etapa.futura .etapa-nombre { color: var(--fg-3); font-weight: 500; }
@@ -210,7 +210,6 @@ input.mono { font-family: var(--mono); font-size: 13px; }
   .etapas { grid-template-columns: minmax(0, 1fr); }
   .etapa { border-right: 0; border-bottom: 1px solid var(--borde); }
   .etapa:last-child { border-bottom: 0; }
-  .etapa.actual::before { width: 3px; height: auto; bottom: 0; right: auto; }
 }
 .regresiva strong { font-family: var(--mono); font-variant-numeric: tabular-nums; }
 .regresiva-cero strong { color: var(--peligro); }
@@ -298,4 +297,22 @@ input.mono { font-family: var(--mono); font-size: 13px; }
   .demo .tile-texto { font-size: 18px; }
   .feed li { grid-template-columns: minmax(0, 1fr); gap: 4px; }
   .recibo-titulo { font-size: 18px; }
+}
+
+/* ───────── editor de destinos y período ───────── */
+.fila-destino { grid-template-columns: 130px minmax(0, 1.5fr) minmax(0, 1fr) 150px 36px; }
+.fila-destino .pct { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.fila-destino .pct input { width: 72px; }
+.fila-destino .pct small { width: 100%; font-size: 11px; }
+.resumen-reparto { display: flex; justify-content: space-between; align-items: center; gap: 12px; flex-wrap: wrap; }
+.campo-linea { flex-direction: row; align-items: center; gap: 10px; }
+.campo-linea input { width: 18px; height: 18px; }
+.campo-linea > span { color: var(--fg); font-weight: 500; }
+.lista-simple { margin: 0; padding-left: 18px; display: flex; flex-direction: column; gap: 8px; color: var(--fg-2); font-size: 13.5px; }
+.lista-simple strong { color: var(--fg); }
+.tarjeta-angosta { max-width: 480px; }
+@media (max-width: 860px) {
+  .fila-destino { grid-template-columns: minmax(0, 1fr) 36px; }
+  .fila-destino > :nth-child(3) { grid-column: 1 / -1; }
+  .fila-destino.fila-cab { display: none; }
 }
