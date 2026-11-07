@@ -13,7 +13,7 @@
 
 **The concept.** **Aval** turns a guarantee — *el aval* — into a first-class on-chain primitive: a **transferable guarantee certificate** backed by a **risk pool denominated in ARGt**, issued by an existing **SGR** (Sociedad de Garantía Recíproca) or mutual, consumed by any lender, and priced by the repayment record of the borrower.
 
-The user story stays human: **Rosa, 44**, runs a kiosco in La Matanza, is a monotributista, has no property and no payslip. She needs **ARGt 3,000,000** for inventory. A bank asks for a property guarantee; a fintech offers **90% TNA**. Her cooperative — an SGR with a risk fund — can guarantee **50%** of the loan. Today that guarantee is a paper certificate that takes weeks, cannot be verified by a lender in another province, and cannot be sold or reinsured. With Aval it is minted in seconds, verified by any lender, and **the rate falls from 90% to 45%**. If Rosa defaults, the pool pays the lender automatically and Rosa's `legajo` records it.
+The user story stays human: **Rosa, 44**, runs a kiosco in La Matanza, is a monotributista, has no property and no payslip. She needs **ARGt 3,000,000** for inventory. A bank asks for a property guarantee; a fintech offers **90% TNA**. Her cooperative — an SGR with a risk fund — can guarantee **50%** of the loan. Today that guarantee is a paper certificate that takes weeks, cannot be verified by a lender in another province, and cannot be sold or reinsured. With Aval it is minted in seconds, verified by any lender, and **the rate falls from 90% to 45%** on the lender's own published curve (~46.5% all-in with the SGR fee). Each installment frees its share of the guarantee back to the risk fund. If Rosa defaults, the pool pays the lender automatically and Rosa's `legajo` records it.
 
 **Why this is the open lane.** Every on-chain credit winner of 2025–26 that I could verify is **USD-denominated** — unsecured lending or credit-adjacent (Cred-Fi, Strevvo, Ghost, Dow, Efy). The category of **guarantees** — the instrument that actually unlocks bank credit for small firms in Argentina, Chile, Korea, Japan and Germany — has no on-chain product in LATAM. The closest public work I found is a 2026 academic framework (BLINK), not a company. And on **2 June 2026** Argentina published **Resolución 94/2026**, which requires SGRs that use electronic guarantee contracts to do so on a **blockchain-associated support** for identity validation and transaction security. The regulation just created the demand; nobody has shipped the product.
 
@@ -207,11 +207,18 @@ Scored 1–5 on Twin's four criteria plus feasibility for a **5-hour build by fo
 
 ### 4.2 The mechanism
 
-1. **Request.** Rosa opens the app, connects her wallet, and requests **ARGt 3,000,000** for 12 months. Her `legajo` (empty at first) is attached. The SGR sees her on-chain sales/repayment history and its own bureau data.
-2. **Underwrite and mint.** The SGR approves a **50% coverage** (ARGt 1,500,000) at a **3% annual guarantee fee**. It mints a **Guarantee Certificate** (ERC-721) that names the borrower, the lender (or "open"), the covered amount, the coverage ratio, the term and a hash of the legal documents. It allocates ARGt 1,500,000 from its **risk pool** to the certificate.
-3. **Fund.** A lender sees the certificate, the pool's available capital and the borrower's `legajo`, and funds the loan at **45% TNA** instead of **90%** unguaranteed. ARGt moves from the lender to Rosa in the same transaction that activates the guarantee.
-4. **Repay.** Rosa pays monthly in ARGt. The waterfall is automatic: **lender principal + interest → SGR guarantee fee → pool reserve replenishment**. On the final payment the certificate is marked `Repaid`, the pool allocation is released and the `legajo` updates.
-5. **Default.** If Rosa misses a payment, the SGR (or the lender) calls `markDefault` after a grace period. The pool pays the lender **up to the covered amount**; the SGR keeps the collection rights; the `legajo` records the event; the pool's loss is visible to every future lender.
+0. **The lender publishes its price.** Each lender (`LENDER_ROLE`) publishes its rate curve on-chain: rate without guarantee (`baseApr`, e.g. 90%), rate at full coverage (`floorApr`, e.g. 45%) and the coverage it needs to reach that floor (`maxCoverage`, e.g. 50%). **The rate is the lender's.** Neither Rosa, nor the SGR, nor Aval types it; the contract only applies the curve.
+1. **Request.** Rosa opens the app, connects her wallet, and requests **ARGt 3,000,000** in **12 monthly installments**. Her `legajo` (empty at first) is attached. The SGR sees her on-chain sales/repayment history and its own bureau data.
+2. **Underwrite and mint.** The SGR approves a **50% coverage** at a **3% annual guarantee fee on the covered outstanding**. It mints a **Guarantee Certificate** (ERC-721) that names the borrower, the lender (or "open"), the coverage ratio, the term and a hash of the legal documents. It allocates ARGt 1,500,000 from its **risk pool** to the certificate. **Coverage is always 50% of what Rosa still owes**, not of the original amount.
+3. **Fund.** A lender sees the certificate, the pool's available capital and the borrower's `legajo`. The contract quotes **that lender's** curve for 50% coverage — **45% TNA** instead of **90%** — and fixes the rate at funding. ARGt moves from the lender to Rosa in the same transaction that activates the guarantee.
+4. **Repay.** Rosa pays monthly in ARGt. The waterfall is automatic: **lender principal + interest → SGR guarantee fee**. **Each installment releases the same share of the pool allocation back to the pool**: after paying 1 of 12, 1/12 of the ARGt 1,500,000 is free to guarantee someone else. On the final payment the certificate is marked `Repaid` and the `legajo` updates.
+5. **Default.** If Rosa misses a payment, the SGR (or the lender) calls `markDefault` after a grace period. The pool pays the lender **up to 50% of the outstanding**, from what is still allocated; the SGR keeps the collection rights; the `legajo` records the event; the pool's loss is visible to every future lender.
+
+**What Rosa actually pays [ASSUMPTION on the offer]:** 45% TNA to the lender plus the SGR's 3% a year on the covered half (≈ 1.5 points on the whole loan) ≈ **46.5% all-in, against 90%**. Say "45% al prestamista, 46,5% en total" in the pitch, never "45%" alone: the jury will do the math.
+
+**Why the pool releases as Rosa pays.** ARGt pays no yield (Twin's own docs: *"no yield, interest or returns"*) and inflation is 33.4% y/y, so every peso of the risk fund that sits allocated loses real value. With 12 equal installments and pro-rata release, the **average allocation over the loan is ~54% of the initial one** (ARGt ~810,000 instead of 1,500,000 for the whole year). The same fund guarantees almost **twice the volume**, and that capital efficiency is part of the pitch to the SGR. The unallocated part of the fund goes to the SGR's treasury (§5.2, Morpho), not idle.
+
+**Who can write the `legajo`.** Only loans whose certificate was issued by an `SGR_ROLE` and funded by a `LENDER_ROLE`, with `lender != borrower`, are written. Rosa cannot build a history by lending to herself with a second wallet.
 6. **Cede (the wow).** The SGR can **cede 30% of the certificate** to another SGR or an insurer for a fee, on-chain, in one transaction. That frees capital, reduces concentration, and creates the first **secondary guarantee market** in the region. This is the primitive that does not exist on paper and cannot exist without a token.
 
 ### 4.3 Why local currency is load-bearing
@@ -288,30 +295,36 @@ struct Guarantee {
 
 ```solidity
 // SGR
-createGuarantee(borrower, principal, coverageBps, feeBps, termDays) -> id
+createGuarantee(borrower, principal, coverageBps, feeBps, installments) -> id   // no rate parameter
 approveAndMint(id)                       // allocates pool, mints certificate
 cede(id, to, bps)                        // secondary market
 markDefault(id)                          // after grace
-claim(id)                                // pool -> lender, up to covered
+claim(id)                                // pool -> lender, up to coverage x outstanding
 
 // Lender
-fund(id)                                 // ARGt from lender to borrower
+setCurve(baseAprBps, floorAprBps, maxCoverageBps)  // the lender's own price, on-chain
+fund(id)                                 // fixes aprBps from msg.sender's curve; ARGt to borrower
 
 // Borrower
-repay(id, amount)                        // waterfall
+payInstallment(id)                       // waterfall + releases installment's share of the allocation
 
 // Views
-quoteRate(coverageBps) -> aprBps         // the 90% -> 45% moment
-legajo(address) -> (loans, onTime, late, defaulted, volume)
-poolAvailable() -> uint256
+quoteRate(lender, coverageBps) -> aprBps // the 90% -> 45% moment, from that lender's curve
+legajo(address) -> (loans, onTime, late, defaulted, volume, distinctLenders)
+poolAvailable() -> uint256               // grows back as installments are paid
 ```
 
 **Design rules:** `SafeERC20`, `ReentrancyGuard`, checks-effects-interactions, role-based access (`SGR_ROLE`, `LENDER_ROLE`, `ADMIN`), a pause switch, caps per borrower and per SGR, no unbounded loops (max 3 cessions per certificate), pull-over-push for fees, events for everything the UI needs. **No upgradeable proxy in the demo** — immutable and disclosed as unaudited; upgradeability is a post-hackathon decision.
 
+**Three guards that the tests must cover:**
+- **Rates live only in the lender's curve.** `createGuarantee` has no rate parameter; `fund` computes `aprBps = base − (base − floor) × min(coverage, maxCoverage) / maxCoverage` from `msg.sender`'s curve and stores it. Test: no path lets the borrower or the SGR set `aprBps`.
+- **Amortizing allocation.** After installment `k` of `n`, the certificate's allocation is `covered × (n − k) / n`; the difference goes back to `poolAvailable()`. `claim` can only pay what is still allocated. Test: pay 3 of 12, default, and check the pool pays at most 9/12 of the original coverage.
+- **Who writes the `legajo`.** `LoanBook` writes it only for certificates from an `SGR_ROLE` funded by a `LENDER_ROLE`, and `fund` reverts if `lender == borrower`. Test: a loan funded by the borrower's own address never touches the `legajo`.
+
 ### 5.2 Integrations (in priority order)
 
 1. **ARGt (required).** `0x59863989d080B22476DB95656d0C3CC18be92214` on Arbitrum One **[verify with Twin at the venue]**. Read `symbol()` and `decimals()` at runtime; never hard-code by chain — the PDF documents that the same address can be a different token on another chain.
-2. **Morpho (optional, high value).** Park idle risk-fund capital in the ARGt vault (`0x9Dd3F844747AB78d616BF76DB92756E17A064aDD`) so the pool earns while it waits. This is treasury management for the SGR, **not** a yield promise to users; say that explicitly. If integration risk is high, show a read-only "projected yield" card and keep the funds in the pool.
+2. **Morpho (optional, high value).** Park the **unallocated** part of the risk fund in the ARGt vault (`0x9Dd3F844747AB78d616BF76DB92756E17A064aDD`) so it does not sit idle in a token that pays nothing while inflation runs at 33.4% y/y. Real SGRs already invest their risk funds; this is the on-chain equivalent. It is treasury management for the SGR, **not** a yield promise to users; say that explicitly. The **allocated** part stays in the pool so `claim` never depends on a third-party withdrawal. If integration risk is high, show a read-only "projected yield" card and keep the funds in the pool.
 3. **Curve (optional).** Quote ARGt/USDT0 (`0x356d349da9add7efb56a35fab939a2c6d852f853`) for a USD-denominated guarantee (Res. 94/2026 allows up to 50% of the fund). A read-only quote in the UI is enough to show the FX leg; do not route funds in the demo.
 4. **Belo price API.** Display only (`api.belo.app/public/price`), with a hard-coded fallback and a note. Never let a demo depend on it.
 5. **KUMPLY / 0xGasless.** Only in the dual-track branch (§2.4); not in the recommended build.
@@ -404,7 +417,7 @@ aval/
 > "Pero Rosa sí tiene garantía: su cooperativa. Una SGR con un fondo de riesgo que avala uno de cada tres créditos bancarios a pymes en Argentina. Lo que no tiene es cómo probarlo. Hoy el aval es un papel que tarda semanas, que ningún prestamista de otra provincia puede verificar, y que no se puede vender ni reasegurar."
 
 **[0:50–2:00] The demo.**
-> "Rosa pide tres millones en ARGt. Su SGR suscribe un certificado de garantía por el 50%, y lo respalda con un fondo de riesgo en ARGt. Miren la tasa: 90% sin aval, 45% con aval. El prestamista fondea: la plata sale a la billetera de Rosa. Rosa paga la primera cuota: el contrato reparte solo — capital e interés al prestamista, comisión a la SGR, y el fondo se repone. Si Rosa no paga, el fondo paga al prestamista hasta el 50%, automáticamente. Y el certificado se puede ceder: la SGR vende el 30% a otra SGR en un clic, libera capital y baja concentración."
+> "Rosa pide tres millones en ARGt, en 12 cuotas. Su SGR suscribe un certificado de garantía por el 50%, y lo respalda con un fondo de riesgo en ARGt. El prestamista publicó su tarifa on-chain: 90% sin aval, 45% con aval. Miren la tasa: el contrato aplica esa tarifa y baja a 45% — 46,5% contando la comisión de la SGR. El prestamista fondea: la plata sale a la billetera de Rosa. Rosa paga la primera cuota: el contrato reparte solo — capital e interés al prestamista, comisión a la SGR — y un doceavo de la garantía vuelve al fondo, listo para avalar a otro. Si Rosa no paga, el fondo paga al prestamista hasta el 50%, automáticamente. Y el certificado se puede ceder: la SGR vende el 30% a otra SGR en un clic, libera capital y baja concentración."
 
 **[2:00–2:30] Why local money.**
 > "Todo esto es en pesos. Si el fondo estuviera en dólares, la SGR estaría apostando al tipo de cambio contra sus propias garantías: una devaluación del 30% le mueve el ratio de cobertura. En ARGt, el activo y el pasivo están en la misma unidad. El token local no es un detalle: es lo que hace que el riesgo sea asegurable."
@@ -418,9 +431,9 @@ aval/
 |---|---|---|---|
 | 0:50 | SGR desk | Open Rosa's request; `legajo` empty; coverage slider 0 → 50% | the problem in one number |
 | 1:00 | SGR desk | Tap **Emitir certificado**; tx confirms | a real ARGt allocation, a real hash |
-| 1:10 | Lender view | Certificate appears with **50% coverage**; rate card flips **90% → 45%** | the pricing moment |
+| 1:10 | Lender view | Certificate appears with **50% coverage**; the lender's own published curve flips **90% → 45%** | the pricing moment, and whose price it is |
 | 1:22 | Lender view | Tap **Fondear**; ARGt lands in Rosa's wallet | the money moves |
-| 1:34 | Borrower | Tap **Pagar cuota**; waterfall animates | the repayment is automatic |
+| 1:34 | Borrower | Tap **Pagar cuota 1 de 12**; waterfall animates; the pool's "available" counter goes up by 1/12 of the allocation | the repayment is automatic, and the fund is freed as Rosa pays |
 | 1:44 | Certificate page | Status `Repaid`; `legajo` ticks up | the compounding |
 | 1:54 | SGR desk | **Ceder 30%** to a second SGR; tx confirms | the secondary market — the wow |
 
@@ -437,7 +450,9 @@ aval/
 | "Is this lending? Are you regulated?" | No. Aval does not lend, take deposits or promise yield. The SGR is the regulated guarantor; Aval is its infrastructure. |
 | "What if the borrower defaults?" | The pool pays the lender up to the covered amount; the SGR keeps collection rights; the `legajo` records it; the loss is visible to future lenders. |
 | "What about the CNV case?" | We deliberately built a guarantee product, not an investment product. No yield, no deposits, no pooled retail funds. |
-| "How do you prevent fraud?" | The SGR underwrites with its own data and the on-chain `legajo`; caps per borrower and per SGR; role-gated issuance; document hashes; a post-hackathon audit and identity layer. |
+| "How do you prevent fraud?" | The SGR underwrites with its own data and the on-chain `legajo`; caps per borrower and per SGR; role-gated issuance; document hashes; a post-hackathon audit and identity layer. The `legajo` is only written for loans from a role-gated SGR and lender, and a borrower cannot fund herself. |
+| "Who sets the 45%?" | The lender. It publishes its curve on-chain (rate without guarantee, rate at full coverage); the contract applies it to the certificate's coverage and fixes it at funding. Rosa, the SGR and Aval cannot type a rate. All-in for Rosa it is ~46.5% with the SGR fee, against 90%. |
+| "A risk fund in a token that pays nothing, with 33% inflation?" | Two answers. The allocation amortizes: each installment frees its share, so over a 12-month loan the average allocation is ~54% of the initial one and the same fund guarantees almost twice the volume. The unallocated part goes to the SGR's treasury (Morpho ARGt vault), like any SGR invests its risk fund today — treasury, not a yield product for users. |
 | "What did you build today?" | `GuaranteePool.sol`, `GuaranteeCertificate.sol`, `LoanBook.sol`, the `legajo`, the three views and the live ARGt tx. Everything else is boilerplate, and the README says so. |
 | "Why not Avalanche?" | The product needs ARGt liquidity (Arbitrum) and an institutional consortium chain is a post-hackathon architecture, not a 9-hour build. We chose the chain where the guarantee can actually settle. |
 
@@ -490,6 +505,8 @@ aval/
 | **Regulatory perimeter** | Guarantees are regulated (Ley 24.467; Res. 21/2021 as amended by Res. 94/2026). Aval must not be the guarantor. | Aval is software sold to licensed SGRs/mutuals; the SGR issues the guarantee; no deposits, no lending, no yield. Legal review before pilot. |
 | **CNV / ARGt** | The CNV suspended ARGt in March 2026 over a "32% TNA" promise and lifted it in April 2026; it still asserts ARGt may be a *valor negociable*. | No yield promises; ARGt is a settlement unit; the SGR's fee is a service fee; the pool's Morpho yield is the SGR's treasury, disclosed as such. |
 | **Credit concentration** | A pool can be wiped by correlated defaults. | Caps per borrower/sector; diversification; cession/reinsurance; a first-loss layer; transparent reporting. |
+| **Inflation on the risk fund** | ARGt pays no yield and inflation is 33.4% y/y: an idle fund loses real value, and a 3% nominal guarantee fee does not cover it. | Pro-rata release of each allocation (average ~54% of the initial over a 12-month loan); unallocated capital in the SGR's treasury (Morpho), disclosed as treasury; shorter terms for working capital. Say it out loud: the SGR's economics depend on how it invests the fund, as they do today. |
+| **Self-dealing on the `legajo`** | A borrower who funds her own loan could fake a repayment history. | Only role-gated SGRs and lenders write the `legajo`; `fund` reverts if `lender == borrower`; the `legajo` shows the number of distinct lenders. |
 | **Legal enforceability of the on-chain certificate** | A token is not a legal guarantee by itself. | The certificate references a hash of the signed legal contract; the SGR remains the legal obligor; the chain is evidence + automation. |
 | **Oracle / default attestation** | The contract cannot know if Rosa paid outside the system. | The SGR and lender attest; a multisig with a dispute window; disclose the trust assumption. |
 | **Smart contract** | No audit in 5 hours. | Small immutable core, Foundry tests, pause, caps, "unaudited demo" in the README. |

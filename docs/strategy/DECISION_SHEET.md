@@ -24,8 +24,8 @@
 
 1. **Rosa, 44**, runs a kiosco in La Matanza, is a monotributista, has no property and needs **ARGt 3,000,000** for inventory. A bank asks for a property guarantee; a fintech offers **90% TNA**.
 2. Her **cooperative — an SGR** with a risk fund — can guarantee **50%** of the loan. Today that guarantee is a paper certificate: slow, unverifiable, unsellable.
-3. Aval mints a **Guarantee Certificate (ERC-721)** and allocates **ARGt** from the risk pool. A lender verifies it and funds at **45%**.
-4. Repayment is a **waterfall**: lender → SGR fee → pool. Default → the pool pays the lender up to the covered amount; the `legajo` records it.
+3. Aval mints a **Guarantee Certificate (ERC-721)** and allocates **ARGt** from the risk pool. A lender verifies it and funds at **45%** — **its own curve, published on-chain**; nobody else types the rate. ~46.5% all-in with the SGR fee.
+4. Repayment is a **waterfall**: lender → SGR fee, and **each installment frees its share of the guarantee back to the pool** (average allocation ~54% over 12 months). Default → the pool pays the lender up to 50% of the outstanding; the `legajo` (written only by role-gated SGRs and lenders) records it.
 5. The SGR can **cede 30%** of the certificate to another SGR in one click — the first secondary guarantee market, and the capital relief that lets the system grow.
 
 **Pitch line:** *"El banco pide garantías. Nosotros las hacemos verificables."*

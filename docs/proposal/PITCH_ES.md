@@ -23,7 +23,7 @@
 
 ### [0:50–2:00] La demo
 
-> "Rosa pide tres millones en ARGt. Su SGR suscribe un certificado de garantía por el 50% y lo respalda con el fondo de riesgo, en ARGt. Miren la tasa: 90% sin aval, 45% con aval. El prestamista fondea: la plata sale a la billetera de Rosa. Rosa paga la primera cuota: el contrato reparte solo — capital e interés al prestamista, comisión a la SGR, y el fondo se repone. Si Rosa no paga, el fondo le paga al prestamista hasta el 50%, automáticamente. Y el certificado se puede ceder: la SGR vende el 30% a otra SGR en un clic, libera capital y baja concentración."
+> "Rosa pide tres millones en ARGt, en 12 cuotas. Su SGR suscribe un certificado de garantía por el 50% y lo respalda con el fondo de riesgo, en ARGt. El prestamista publicó su tarifa on-chain: 90% sin aval, 45% con aval. Miren la tasa: el contrato aplica esa tarifa y baja a 45% — 46,5% contando la comisión de la SGR. El prestamista fondea: la plata sale a la billetera de Rosa. Rosa paga la primera cuota: el contrato reparte solo — capital e interés al prestamista, comisión a la SGR — y un doceavo de la garantía vuelve al fondo, listo para avalar a otro. Si Rosa no paga, el fondo le paga al prestamista hasta el 50%, automáticamente. Y el certificado se puede ceder: la SGR vende el 30% a otra SGR en un clic, libera capital y baja concentración."
 
 *En pantalla: SGR desk → certificado → lender → fund → repay → ceder.*
 
@@ -50,9 +50,9 @@
 |---|---|---|---|---|
 | 0:50 | SGR desk | Abrir el pedido de Rosa; `legajo` vacío; slider de cobertura 0 → 50% | el problema en un número | captura en el deck |
 | 1:00 | SGR desk | **Emitir certificado** → confirmar | asignación real de ARGt + hash | video pregrabado |
-| 1:10 | Lender | El certificado aparece con **50%**; la tasa cambia **90% → 45%** | el momento de pricing | captura |
+| 1:10 | Lender | El certificado aparece con **50%**; la tarifa que publicó el prestamista cambia **90% → 45%** | el momento de pricing, y de quién es el precio | captura |
 | 1:25 | Lender | **Fondear** → confirmar | el ARGt llega a Rosa | video |
-| 1:40 | Borrower | **Pagar cuota** → confirmar | waterfall: prestamista, SGR, fondo | video |
+| 1:40 | Borrower | **Pagar cuota 1 de 12** → confirmar | waterfall: prestamista y SGR; el "disponible" del fondo sube 1/12 de la garantía | video |
 | 1:55 | Certificado público | Estado `Repaid`; `legajo` sube | el registro que queda | captura |
 | 2:05 | SGR desk | **Ceder 30%** a otra SGR → confirmar | el mercado secundario | slides |
 
@@ -74,7 +74,9 @@
 | **¿Por qué una SGR usaría esto?** | La resolución 94/2026 le exige un soporte blockchain para los contratos de garantía. Además, el certificado lo verifica cualquier prestamista, el fondo se puede reasegurar y la cesión libera capital y baja concentración. |
 | **¿Quién paga?** | La SGR paga SaaS + 15 bps del volumen; el tomador paga la comisión de garantía, embebida en la tasa; el comprador secundario paga una comisión por la cesión. |
 | **¿Y si Rosa no paga?** | El fondo paga al prestamista hasta el 50%; la SGR conserva el derecho de cobro; el `legajo` lo registra y el próximo prestamista lo ve. |
-| **¿Cómo evitan el fraude?** | La SGR suscribe con su información y el `legajo` on-chain; topes por tomador y por SGR; emisión con roles; hash de los documentos; auditoría e identidad post-hackathon. |
+| **¿Cómo evitan el fraude?** | La SGR suscribe con su información y el `legajo` on-chain; topes por tomador y por SGR; emisión con roles; hash de los documentos; auditoría e identidad post-hackathon. El `legajo` solo lo escriben préstamos de una SGR y un prestamista con rol, y nadie puede fondearse a sí mismo. |
+| **¿Quién pone el 45%?** | El prestamista. Publica su tarifa on-chain (tasa sin aval y tasa con cobertura completa) y el contrato la aplica a la cobertura del certificado. Ni Rosa, ni la SGR, ni nosotros tipeamos una tasa. Con la comisión de la SGR, Rosa paga ~46,5% en total contra 90%. |
+| **¿Un fondo en un token que no rinde, con 33% de inflación?** | La garantía se libera con cada cuota: en un préstamo de 12 meses el fondo tiene asignado en promedio ~54% de lo inicial, así que el mismo fondo avala casi el doble. Lo no asignado va a la tesorería de la SGR (vault de Morpho en ARGt), como cualquier SGR invierte hoy su fondo de riesgo. Es tesorería, no un producto de rendimiento para usuarios. |
 | **¿Qué pasa con la CNV?** | Después del caso ARGt, evitamos deliberadamente todo lo que parezca producto de inversión: sin rendimiento, sin depósitos, sin fondos minoristas. Es una garantía, no un fondo. |
 | **¿Por qué no Avalanche?** | El producto necesita la liquidez de ARGt, que está en Arbitrum. Una L1 permissionada para el consorcio de SGR es la arquitectura post-hackathon, no algo que se construya en 9 horas. Elegimos la cadena donde la garantía puede liquidar. |
 | **¿Qué construyeron hoy?** | `AvalCore.sol` con el fondo, el certificado, el préstamo y el `legajo`; las tres vistas; el deploy y la transacción real en ARGt. El resto es boilerplate y el README lo dice. |
