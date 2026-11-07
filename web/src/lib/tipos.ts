@@ -77,6 +77,9 @@ export interface EventoLlave {
   url: string;
   /** segundos unix del bloque */
   cuando: number;
+  // ── Agregados opcionales (P3): para la tarjeta "Herencia enviada" del panel ──
+  /** ms envío → incluida, lo pone el cliente que mandó la tx (si lo sabe) */
+  ms?: number;
 }
 
 export interface ResultadoTx {
@@ -85,7 +88,8 @@ export interface ResultadoTx {
   url?: string;
   /** ms desde que se mandó hasta que quedó incluida (incluye el bundler de 0xGasless). */
   ms?: number;
-  error?: { nombre: string; mensaje: string };
+  /** `detalle` = dato crudo del error (selector, mensaje del bundler), para la consola y el "nombre crudo en chico". */
+  error?: { nombre: string; mensaje: string; detalle?: string };
   // ── Agregados opcionales: los dos tiempos honestos (mejora 6) ──
   /** ms desde incluida hasta final. En Avalanche la inclusión ES la finalidad: siempre 0. */
   msFinal?: number;
@@ -138,4 +142,13 @@ export interface LlaveCliente {
   agente?(): Promise<AgenteVista | null>;
   /** nombre de fantasía de las cuentas de la demo (Marta, Lucía, Tomás, agente) */
   aliasDe?(cuenta: Address): string;
+  /** cuenta que corresponde a un email (cuenta embebida de 0xGasless; en mock, derivación determinística). Para cargar herederos por email */
+  cuentaDeEmail?(email: string): Promise<Address>;
+  /** el bot SIN atestación (cuentas.botSinKya) para mostrar en /demo que rebota; null si no se conoce */
+  bot?(): Promise<AgenteVista | null>;
+  /** acciones del agente (tier 5). Desde una sesión sin atestación revierten `NotAgent`: es la evidencia "bloqueada" del bonus KUMPLY */
+  iniciarReclamo?(): Promise<ResultadoTx>;
+  liberar?(): Promise<ResultadoTx>;
+  /** historial (más nuevo primero) para el feed del panel al abrirlo */
+  eventosRecientes?(): Promise<EventoLlave[]>;
 }

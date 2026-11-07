@@ -10,7 +10,7 @@
  */
 import { encodeFunctionData, getContract, type Address, type ContractFunctionArgs, type ContractFunctionName } from "viem";
 import { llaveAbi, pesosAbi } from "./abi-llave";
-import { aliasDe, config, direccionAgente, direccionLlave, direccionPesos, urlTx } from "./config";
+import { aliasDe, config, deployments, direccionAgente, direccionLlave, direccionPesos, esDireccion, urlTx } from "./config";
 import { interpretarError, mensajeDe, MENSAJE_SIN_SESION, MENSAJE_SOLO_DUENA, type ContextoError } from "./errores";
 import { entrar, enviar, salir, sesion } from "./gasless";
 import { verificar } from "./kumply";
@@ -139,6 +139,52 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     return { cuenta, alias: aliasDe(cuenta) || "Agente", verificacion: await verificar(cuenta) };
   }
 
+  /** El bot SIN atestación (`fuji.json → cuentas.botSinKya`): en /demo muestra que rebota con `NotAgent`. */
+  async function bot(): Promise<AgenteVista | null> {
+    const cuenta = deployments.cuentas?.botSinKya?.cuenta;
+    if (!esDireccion(cuenta) || cuenta === CERO) return null;
+    return { cuenta, alias: aliasDe(cuenta) || "Bot", verificacion: await verificar(cuenta) };
+  }
+
+  /**
+   * Cuenta que corresponde a un email. Con 0xGasless la smart account se deriva dentro del widget al entrar: no se puede
+   * calcular sin login. Se resuelve por alias de la demo (`marta@…` → cuentas.marta) o por la sesión actual.
+   */
+  async function cuentaDeEmail(email: string): Promise<Address> {
+    const s = sesion();
+    if (s && s.email.toLowerCase() === email.toLowerCase()) return s.cuenta;
+    const local = email.split("@")[0].toLowerCase();
+    const alias = local.includes("+") ? local.split("+")[1] : local;
+    const info = deployments.cuentas?.[alias];
+    if (info && esDireccion(info.cuenta) && info.cuenta !== CERO) return info.cuenta;
+    throw new Error(`No conozco la cuenta de ${email}: esa persona tiene que entrar una vez con su email y pasar su dirección.`);
+  }
+
+  /** Historial reciente (más nuevo primero) para el feed del panel. El RPC público corta eth_getLogs en 2048 bloques. */
+  async function eventosRecientes(): Promise<EventoLlave[]> {
+    const address = requerirDireccion();
+    const ultimoBloque = await pc.getBlockNumber();
+    const desde = ultimoBloque > 2000n ? ultimoBloque - 2000n : 0n;
+    const logs = await pc.getContractEvents({ address, abi: llaveAbi, fromBlock: desde, toBlock: ultimoBloque });
+    const tiempos = new Map<bigint, number>();
+    const salida: EventoLlave[] = [];
+    for (const l of logs) {
+      let cuando = tiempos.get(l.blockNumber);
+      if (cuando === undefined) {
+        cuando = Number((await pc.getBlock({ blockNumber: l.blockNumber })).timestamp);
+        tiempos.set(l.blockNumber, cuando);
+      }
+      salida.push({
+        nombre: l.eventName,
+        args: { ...(l.args as Record<string, unknown>) },
+        hash: l.transactionHash,
+        url: urlTx(l.transactionHash),
+        cuando,
+      });
+    }
+    return salida.reverse();
+  }
+
   /** Polling de logs cada `pollMs` desde el bloque actual (solo eventos nuevos). */
   function escucharEventos(cb: (e: EventoLlave) => void): () => void {
     const address = requerirDireccion();
@@ -187,7 +233,10 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
 
   // ───────────── escrituras (solo la dueña, desde la smart account) ─────────────
 
-  const fallo = (nombre: string, mensaje: string): ResultadoTx => ({ ok: false, error: { nombre, mensaje } });
+  const fallo = (nombre: string, mensaje: string, detalle?: string): ResultadoTx => ({
+    ok: false,
+    error: { nombre, mensaje, detalle },
+  });
 
   async function contexto(): Promise<ContextoError> {
     const e = ultimo ?? (await estado().catch(() => null));
@@ -201,11 +250,14 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     return !dueno || dueno.toLowerCase() === cuenta.toLowerCase();
   }
 
+  /** Funciones que no son de la dueña (las del agente, y depositar que es de cualquiera): sin la política P2-8. */
+  const SIN_POLITICA: ReadonlySet<string> = new Set(["depositar", "iniciarReclamo", "liberar"]);
+
   async function ejecutar<N extends Escritura>(functionName: N, args: Args<N>): Promise<ResultadoTx> {
     try {
       const s = sesion();
       if (!s) return fallo("SinSesion", MENSAJE_SIN_SESION);
-      if (functionName !== "depositar" && !(await esDuena(s.cuenta))) return fallo("NoEsDueno", MENSAJE_SOLO_DUENA);
+      if (!SIN_POLITICA.has(functionName) && !(await esDuena(s.cuenta))) return fallo("NoEsDueno", MENSAJE_SOLO_DUENA);
       const address = requerirDireccion();
       // 1) simular con account = SA: si revierte, el error sale en castellano y NO se manda nada
       await pc.simulateContract({ address, abi: llaveAbi, functionName, args, account: s.cuenta } as never);
@@ -216,7 +268,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     } catch (e) {
       const err = interpretarError(e, await contexto());
       console.warn(`[fuji] ${functionName} → ${err.nombre}`, err.crudo ?? "");
-      return fallo(err.nombre, err.mensaje);
+      return fallo(err.nombre, err.mensaje, err.crudo);
     }
   }
 
@@ -248,7 +300,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     } catch (e) {
       const err = interpretarError(e, await contexto());
       console.warn(`[fuji] cargarPesosDePrueba → ${err.nombre}`, err.crudo ?? "");
-      return fallo(err.nombre, err.mensaje);
+      return fallo(err.nombre, err.mensaje, err.crudo);
     }
   }
 
@@ -282,7 +334,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     } catch (e) {
       const err = interpretarError(e);
       console.warn(`[fuji] faucet → ${err.nombre}`, err.crudo ?? "");
-      return fallo(err.nombre, err.mensaje);
+      return fallo(err.nombre, err.mensaje, err.crudo);
     }
   }
 
@@ -295,7 +347,7 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     } catch (e) {
       const err = interpretarError(e);
       console.warn(`[fuji] pruebaPatrocinio → ${err.nombre}`, err.crudo ?? "");
-      return fallo(err.nombre, err.mensaje);
+      return fallo(err.nombre, err.mensaje, err.crudo);
     }
   }
 
@@ -308,6 +360,12 @@ export function crearClienteFuji(opciones: { llave?: Address } = {}): LlaveClien
     escucharEventos,
     agente,
     aliasDe,
+    bot,
+    cuentaDeEmail,
+    eventosRecientes,
+    // acciones del agente: desde una smart account sin tier 5 la simulación revierte NotAgent y no se manda nada
+    iniciarReclamo: () => ejecutar("iniciarReclamo", []),
+    liberar: () => ejecutar("liberar", []),
     // sesión
     sesion,
     entrar: (email: string) => entrar(email ? email.split("@")[0] : undefined),
