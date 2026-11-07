@@ -1,6 +1,6 @@
 # Llave · web
 
-Vite + React + TypeScript + viem. Pantallas: `/` (entrar con email), `/dueno` (Marta), `/heredero` (solo lectura, también con `?cuenta=0x…`), `/demo` (panel para el proyector) y `/integracion` (panel de P2 para probar la lib contra Fuji).
+Vite + React + TypeScript + viem. Pantallas: `/` (entrar con email, pantalla completa), `/dueno` (Marta), `/heredero` (solo lectura, también con `?cuenta=0x…`) y `/demo` (panel para el proyector, siempre en tema oscuro). Sistema visual en `src/styles/base.css`: tokens de color claro/oscuro con la paleta del equipo, Inter + JetBrains Mono, shell con barra lateral, cabecera + módulos por pantalla.
 
 ```bash
 cd web

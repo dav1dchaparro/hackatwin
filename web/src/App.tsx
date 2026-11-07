@@ -8,12 +8,13 @@ import { Demo } from "./pages/Demo";
 export default function App() {
   return (
     <Routes>
+      {/* Entrar es una pantalla completa, sin barra lateral */}
+      <Route path="/" element={<Entrar />} />
       <Route element={<Layout />}>
-        <Route path="/" element={<Entrar />} />
         <Route path="/dueno" element={<Dueno />} />
         <Route path="/heredero" element={<Heredero />} />
       </Route>
-      {/* El panel del proyector no lleva barra de navegación */}
+      {/* El panel del proyector tampoco lleva barra: va a pantalla completa y en tema oscuro */}
       <Route path="/demo" element={<Demo />} />
     </Routes>
   );

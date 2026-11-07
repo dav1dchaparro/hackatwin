@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 
-export function Chip({ children, tono = "neutro", title }: { children: ReactNode; tono?: "neutro" | "ok" | "info" | "alerta"; title?: string }) {
-  return <span className={`chip chip-${tono}`} title={title}>{children}</span>;
+/** Etiqueta chica de contexto (sponsors, red, modo). Para estados usar BadgeKumply o Aviso. */
+export function Chip({ children, tono = "neutro", title }: { children: ReactNode; tono?: "neutro" | "ok" | "info" | "alerta" | "mal"; title?: string }) {
+  return <span className={`badge${tono === "neutro" ? "" : ` badge-${tono}`}`} title={title}>{children}</span>;
 }

@@ -1,20 +1,22 @@
 import { useState } from "react";
+import type { ReactNode } from "react";
 import type { ResultadoTx } from "../lib";
 import { TxLink } from "./TxLink";
 
 type EstadoBoton = "inactivo" | "firmando" | "enviada" | "confirmada" | "error";
 
 /**
- * Botón que manda una transacción patrocinada: inactivo → firmando → enviada → confirmada / error.
+ * Botón que manda una operación patrocinada: inactivo → confirmando → enviando → listo / error.
  * El cliente simula antes de mandar: si el contrato rechaza, el error llega en castellano sin gastar nada.
  */
-export function BotonTx({ texto, accion, onResultado, deshabilitado = false, variante = "primario", grande = false, nota, className = "" }: {
+export function BotonTx({ texto, icono, accion, onResultado, deshabilitado = false, variante = "primario", tamano = "normal", nota, className = "" }: {
   texto: string;
+  icono?: ReactNode;
   accion: () => Promise<ResultadoTx>;
   onResultado?: (r: ResultadoTx) => void;
   deshabilitado?: boolean;
-  variante?: "primario" | "secundario" | "peligro";
-  grande?: boolean;
+  variante?: "primario" | "secundario" | "peligro" | "ok" | "fantasma";
+  tamano?: "chico" | "normal" | "grande" | "xl";
   nota?: string;
   className?: string;
 }) {
@@ -39,17 +41,18 @@ export function BotonTx({ texto, accion, onResultado, deshabilitado = false, var
 
   const ocupado = estado === "firmando" || estado === "enviada";
   const etiqueta = estado === "firmando" ? "Confirmando…" : estado === "enviada" ? "Enviando…" : texto;
+  const clase = `btn btn-${variante}${tamano === "chico" ? " btn-chico" : tamano === "grande" ? " btn-grande" : tamano === "xl" ? " btn-xl" : ""}`;
   return (
     <div className={`boton-tx ${className}`.trim()}>
-      <button type="button" className={`btn btn-${variante}${grande ? " btn-grande" : ""}`} disabled={deshabilitado || ocupado} onClick={() => void clic()}>
-        {ocupado && <span className="spinner" aria-hidden />}{etiqueta}
+      <button type="button" className={clase} disabled={deshabilitado || ocupado} onClick={() => void clic()}>
+        {ocupado ? <span className="spinner" aria-hidden /> : icono}{etiqueta}
       </button>
       {nota && <div className="boton-nota">{nota}</div>}
-      {resultado?.ok && <div className="tx-ok">Listo ✓ <TxLink hash={resultado.hash} url={resultado.url} ms={resultado.ms} /></div>}
+      {resultado?.ok && <div className="tx-ok">Listo <TxLink hash={resultado.hash} url={resultado.url} ms={resultado.ms} /></div>}
       {resultado && !resultado.ok && (
         <div className="tx-error" role="alert">
           <strong>{resultado.error?.mensaje ?? "No se pudo mandar. Probá de nuevo."}</strong>
-          {resultado.error?.nombre && <small> {resultado.error.nombre}</small>}
+          {resultado.error?.nombre && <code>{resultado.error.nombre}</code>}
         </div>
       )}
     </div>
